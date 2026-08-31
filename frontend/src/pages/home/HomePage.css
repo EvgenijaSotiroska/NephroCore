@@ -1,0 +1,28 @@
+.home-hero {
+  position: relative;
+  min-height: calc(100vh - 81px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-image: url("https://t3.ftcdn.net/jpg/00/92/34/56/360_F_92345619_pUlEznFdreTJy5amSBspNNtQT0sqhTwM.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(6, 78, 59, 0.94) 0%,
+    rgba(8, 47, 73, 0.82) 45%,
+    rgba(8, 47, 73, 0.45) 100%
+  );
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  padding: 0 8%;
+}

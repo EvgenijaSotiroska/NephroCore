@@ -17,8 +17,9 @@ const useLogin = () => {
     try {
       const response = await userApi.login(data);
       authLogin(response.data.access_token);
-      navigate("/");
+      navigate(response.data.role === "doctor" ? "/doctor" : "/patient");
     } catch (err) {
+      // No navigation, no toast — the caller renders `error` inline on the form.
       setError(getApiErrorMessage(err, "Login failed. Please try again!"));
     } finally {
       setLoading(false);

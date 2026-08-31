@@ -17,9 +17,9 @@ const useActivate = () => {
     try {
       const response = await userApi.activate(data);
       authLogin(response.data.access_token);
-      navigate("/");
+      navigate("/patient");
     } catch (err) {
-       setError(getApiErrorMessage(err, "Activation failed. Please try again!"));
+      setError(getApiErrorMessage(err, "Could not activate account. Please try again!"));
     } finally {
       setLoading(false);
     }

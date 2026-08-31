@@ -1,0 +1,9 @@
+.layout-box {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.outlet-box {
+  flex: 1;
+}
