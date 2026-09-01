@@ -4,6 +4,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
+
   background-image: url("https://t3.ftcdn.net/jpg/00/92/34/56/360_F_92345619_pUlEznFdreTJy5amSBspNNtQT0sqhTwM.jpg");
   background-size: cover;
   background-position: center;
@@ -12,6 +13,7 @@
 .home-hero-overlay {
   position: absolute;
   inset: 0;
+
   background: linear-gradient(
     100deg,
     rgba(6, 78, 59, 0.94) 0%,
@@ -23,6 +25,204 @@
 .home-hero-content {
   position: relative;
   z-index: 1;
+
   max-width: 640px;
   padding: 0 8%;
+}
+
+/* =========================
+   BADGE
+   ========================= */
+
+.home-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+
+  padding: 8px 20px;
+  margin-bottom: 24px;
+
+  font-family: sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
+
+.home-badge-dot {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+  background-color: #0ea5e9;
+
+  flex-shrink: 0;
+}
+
+/* =========================
+   TITLE
+   ========================= */
+
+.home-title {
+  color: white;
+  font-weight: 600;
+  line-height: 1.15;
+  margin-bottom: 20px !important;
+
+  font-size: 3.5rem !important;
+}
+
+.home-title-gradient {
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   DESCRIPTION
+   ========================= */
+
+.home-description {
+  color: rgba(255, 255, 255, 0.85);
+
+  font-size: 1.1rem !important;
+  line-height: 1.6;
+
+  max-width: 520px;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.home-buttons {
+  display: flex;
+  gap: 16px;
+
+  margin-top: 32px;
+
+  flex-wrap: wrap;
+}
+
+.home-button {
+  text-transform: none !important;
+  font-weight: 600 !important;
+
+  padding: 14px 32px !important;
+  border-radius: 12px !important;
+}
+
+/* Primary button */
+
+.home-button-primary {
+  color: white !important;
+
+  font-weight: 700 !important;
+
+  box-shadow: 0 8px 28px rgba(20, 184, 166, 0.55);
+
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.home-button-primary:hover {
+  box-shadow: 0 10px 36px rgba(20, 184, 166, 0.8);
+
+  transform: translateY(-1px);
+}
+
+/* Secondary button */
+
+.home-button-secondary {
+  color: white !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.home-button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 600px) {
+  .home-hero {
+    min-height: calc(100vh - 70px);
+
+    justify-content: center;
+    text-align: center;
+  }
+
+  .home-hero-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 78, 59, 0.94) 0%,
+      rgba(8, 47, 73, 0.82) 100%
+    );
+  }
+
+  .home-hero-content {
+    width: 100%;
+    max-width: 100%;
+
+    padding: 30px 24px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Badge */
+
+  .home-badge {
+    margin-bottom: 20px;
+
+    padding: 7px 16px;
+
+    font-size: 0.8rem;
+  }
+
+  /* Title */
+
+  .home-title {
+    font-size: 2.4rem !important;
+
+    line-height: 1.15;
+    margin-bottom: 18px !important;
+  }
+
+  /* Description */
+
+  .home-description {
+    font-size: 0.95rem !important;
+
+    max-width: 100%;
+  }
+
+  /* Buttons */
+
+  .home-buttons {
+    width: 100%;
+
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 12px;
+
+    margin-top: 28px;
+  }
+
+  .home-button {
+    width: 100% !important;
+
+    padding: 14px 24px !important;
+  }
 }

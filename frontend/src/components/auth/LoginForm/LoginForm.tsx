@@ -38,7 +38,7 @@ const LoginForm = ({
     event.preventDefault();
 
     await login({
-      username: formData.email,
+      email: formData.email,
       password: formData.password,
     });
   };
@@ -88,17 +88,13 @@ const LoginForm = ({
 
       <Box component="form" onSubmit={handleSubmit}>
         <Typography variant="body2" sx={labelStyles}>
-          {role === "doctor" ? "Е-пошта" : "Корисничко име"}
+         Е-пошта
         </Typography>
 
         <TextField
           fullWidth
           name="email"
-          placeholder={
-            role === "doctor"
-              ? "vashata@email.com"
-              : "korisnichko_ime"
-          }
+          placeholder="vashata@email.com"
           value={formData.email}
           onChange={handleChange}
           required

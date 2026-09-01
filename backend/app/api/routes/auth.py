@@ -63,10 +63,10 @@ def register_doctor(payload: DoctorRegisterRequest, db: Session = Depends(get_db
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == payload.username).first()
+    user = db.query(User).filter(User.email == payload.email).first()
 
     invalid_credentials = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password"
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
     )
 
     if not user or not user.hashed_password:

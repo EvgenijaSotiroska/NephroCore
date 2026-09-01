@@ -23,10 +23,7 @@ import LoginForm from "../../auth/LoginForm/LoginForm";
 import RegisterForm from "../../auth/RegisterForm/RegisterForm";
 import ActivateForm from "../../auth/ActivateForm/ActivateForm";
 
-import {
-  AUTH_GRADIENT,
-  AUTH_SERIF_FONT,
-} from "../../auth/authStyles";
+import { AUTH_GRADIENT, AUTH_SERIF_FONT } from "../../auth/authStyles";
 
 const pages = [
   { path: "/", name: "Почетна" },
@@ -47,8 +44,21 @@ const Header = () => {
     setAuthDialog(null);
   };
 
+  const openLogin = () => {
+    setAuthDialog("login");
+  };
+
+  const openRegister = () => {
+    setAuthDialog("register");
+  };
+
+  const openActivate = () => {
+    setAuthDialog("activate");
+  };
+
   return (
     <Box>
+      {/* ================= HEADER ================= */}
       <AppBar
         position="static"
         elevation={0}
@@ -62,7 +72,7 @@ const Header = () => {
             aria-label="menu"
             sx={{
               mr: 2,
-              display: { md: "none" },
+              display: { xs: "flex", md: "none" },
               color: "text.primary",
             }}
             onClick={() => setDrawerOpen(true)}
@@ -123,7 +133,7 @@ const Header = () => {
                   fontWeight: 600,
                 }}
               >
-                НЕФРОЛОГИЈА · AI
+                НЕФРОЛОГИЈА
               </Typography>
             </Box>
           </Box>
@@ -152,32 +162,34 @@ const Header = () => {
             ))}
           </Box>
 
-          {/* Auth buttons */}
+          {/* Desktop login/register */}
           <Box
             sx={{
-              display: "flex",
+              display: { xs: "none", md: "flex" },
               justifyContent: "flex-end",
               ml: "auto",
             }}
           >
             <AuthToggle
-              onLogin={() => setAuthDialog("login")}
-              onRegister={() => setAuthDialog("register")}
+              onLogin={openLogin}
+              onRegister={openRegister}
             />
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Mobile drawer */}
+      {/* ================= MOBILE DRAWER ================= */}
       <Drawer
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
       >
         <Box
-          sx={{ width: 240 }}
+          sx={{
+            width: 260,
+            height: "100%",
+          }}
           role="presentation"
-          onClick={() => setDrawerOpen(false)}
         >
           <List>
             {pages.map((page) => (
@@ -185,6 +197,7 @@ const Header = () => {
                 <ListItemButton
                   component={Link}
                   to={page.path}
+                  onClick={() => setDrawerOpen(false)}
                 >
                   <ListItemText primary={page.name} />
                 </ListItemButton>
@@ -194,7 +207,7 @@ const Header = () => {
         </Box>
       </Drawer>
 
-      {/* Auth popup */}
+      {/* ================= AUTH POPUP ================= */}
       <Dialog
         open={authDialog !== null}
         onClose={handleCloseAuth}
@@ -205,27 +218,29 @@ const Header = () => {
             backgroundColor: "transparent",
             boxShadow: "none",
             overflow: "visible",
+            margin: { xs: 1.5, sm: 3 },
           },
         }}
       >
+        {/* LOGIN */}
         {authDialog === "login" && (
           <LoginForm
             onClose={handleCloseAuth}
-            onSwitchToRegister={() =>
-              setAuthDialog("register")
-            }
+            onSwitchToRegister={openRegister}
           />
         )}
 
+        {/* REGISTER */}
         {authDialog === "register" && (
-            <RegisterForm
-                 onClose={handleCloseAuth}
-                 onSwitchToLogin={() => setAuthDialog("login")}
-                 onSwitchToActivate={() => setAuthDialog("activate")}
-                 onRegisterSuccess={() => setAuthDialog("login")}
-            />
+          <RegisterForm
+            onClose={handleCloseAuth}
+            onSwitchToLogin={openLogin}
+            onSwitchToActivate={openActivate}
+            onRegisterSuccess={openLogin}
+          />
         )}
 
+        {/* ACTIVATE */}
         {authDialog === "activate" && (
           <ActivateForm
             onClose={handleCloseAuth}
@@ -237,4 +252,3 @@ const Header = () => {
 };
 
 export default Header;
-
