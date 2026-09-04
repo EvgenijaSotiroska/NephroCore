@@ -1,4 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
+from typing import Literal
+from uuid import UUID
 
 
 class DoctorRegisterRequest(BaseModel):
@@ -11,7 +13,9 @@ class DoctorRegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    role: Literal["doctor", "patient"]
+    email: EmailStr | None = None
+    username: str | None = None
     password: str
 
 
@@ -28,7 +32,7 @@ class TokenResponse(BaseModel):
 
 
 class UserOut(BaseModel):
-    id: str
+    id: UUID
     username: str | None
     role: str
     is_active: bool

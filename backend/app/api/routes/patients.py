@@ -29,14 +29,23 @@ def create_patient(
     db.flush()
 
     invite_code = generate_invite_code()
-    while db.query(PatientProfile).filter(PatientProfile.invite_code == invite_code).first():
-        invite_code = generate_invite_code()  # extremely unlikely, but stay safe
+
+    while db.query(PatientProfile).filter(
+        PatientProfile.invite_code == invite_code
+    ).first():
+        invite_code = generate_invite_code()
 
     profile = PatientProfile(
         user_id=patient_user.id,
         created_by_doctor_id=current_doctor.id,
+
+        # Demographics
         full_name=payload.full_name,
         date_of_birth=payload.date_of_birth,
+        sex=payload.sex,
+        height_cm=payload.height_cm,
+
+        # Clinical history
         previous_conditions=payload.previous_conditions,
         genetic_risk_factors=payload.genetic_risk_factors,
         comorbidities=payload.comorbidities,
@@ -44,10 +53,23 @@ def create_patient(
         allergies=payload.allergies,
         smoking=payload.smoking,
         alcohol=payload.alcohol,
+
+        # CKD-specific
+        ckd_etiology=payload.ckd_etiology,
+        diagnosis_date=payload.diagnosis_date,
+        baseline_egfr=payload.baseline_egfr,
+        dialysis_status=payload.dialysis_status,
+        dialysis_modality=payload.dialysis_modality,
+
+        # Invite / activation
         invite_code=invite_code,
-        invite_code_expires_at=datetime.now(timezone.utc) + timedelta(days=settings.INVITE_CODE_EXPIRE_DAYS),
+        invite_code_expires_at=(
+            datetime.now(timezone.utc)
+            + timedelta(days=settings.INVITE_CODE_EXPIRE_DAYS)
+        ),
         is_activated=False,
     )
+
     db.add(profile)
     db.commit()
     db.refresh(profile)
@@ -58,7 +80,6 @@ def create_patient(
         invite_code=profile.invite_code,
         invite_code_expires_at=profile.invite_code_expires_at,
     )
-
 
 @router.get("/me", response_model=PatientOut)
 def get_my_profile(

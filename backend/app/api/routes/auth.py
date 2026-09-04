@@ -63,18 +63,40 @@ def register_doctor(payload: DoctorRegisterRequest, db: Session = Depends(get_db
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == payload.email).first()
-
     invalid_credentials = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid username or password",
     )
+
+    if payload.role == "doctor":
+        if not payload.email:
+            raise invalid_credentials
+
+        user = db.query(User).filter(
+            User.email == payload.email,
+            User.role == UserRole.doctor,
+        ).first()
+
+    else:
+        if not payload.username:
+            raise invalid_credentials
+
+        user = db.query(User).filter(
+            User.username == payload.username,
+            User.role == UserRole.patient,
+        ).first()
 
     if not user or not user.hashed_password:
         raise invalid_credentials
+
     if not verify_password(payload.password, user.hashed_password):
         raise invalid_credentials
+
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Account is not active")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is not active",
+        )
 
     return _issue_token(user)
 

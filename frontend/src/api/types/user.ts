@@ -10,7 +10,9 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-  email: string;
+  role: "doctor" | "patient";
+  email?: string;
+  username?: string;
   password: string;
 }
 

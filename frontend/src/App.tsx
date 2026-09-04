@@ -5,35 +5,39 @@ import { ProtectedRoute } from "./components/protectedRoute/ProtectedRoute";
 import { SessionExpiryBanner } from "./components/SessionExpiryBanner";
 import Layout from "./components/layout/Layout/Layout";
 import HomePage from "./pages/home/HomePage";
-import CreatePatient from "./pages/CreatePatient";
+import CreatePatient from "./pages/patients/CreatePatient/CreatePatient";
 import PatientHome from "./pages/PatientHome";
 
 function AppRoutes() {
   return (
     <Routes>
+      {/* All pages inside Layout will have the Header */}
       <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
-      </Route>
 
-      <Route
-        path="/doctor"
-        element={
-          <ProtectedRoute allowedRoles={["doctor"]}>
-            <CreatePatient />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/patient"
-        element={
-          <ProtectedRoute allowedRoles={["patient"]}>
-            <PatientHome />
-          </ProtectedRoute>
-        }
-      />
-        <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
-        </Route>
+        {/* Public */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Doctor */}
+        <Route
+          path="/doctor"
+          element={
+            <ProtectedRoute allowedRoles={["doctor"]}>
+              <CreatePatient />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Patient */}
+        <Route
+          path="/patient"
+          element={
+            <ProtectedRoute allowedRoles={["patient"]}>
+              <PatientHome />
+            </ProtectedRoute>
+          }
+        />
+
+      </Route>
     </Routes>
   );
 }
