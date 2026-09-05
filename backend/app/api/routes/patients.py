@@ -20,8 +20,6 @@ def create_patient(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    """Doctor creates a patient's clinical profile and gets back an invite code
-    to hand to the patient (SMS/email/print). No login exists yet for this user."""
 
     # Placeholder user row, unclaimed until the patient activates.
     patient_user = User(role=UserRole.patient, is_active=False)
@@ -50,9 +48,7 @@ def create_patient(
         genetic_risk_factors=payload.genetic_risk_factors,
         comorbidities=payload.comorbidities,
         current_medications=payload.current_medications,
-        allergies=payload.allergies,
         smoking=payload.smoking,
-        alcohol=payload.alcohol,
 
         # CKD-specific
         ckd_etiology=payload.ckd_etiology,
@@ -98,9 +94,6 @@ def get_patient(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    """Doctor views a patient profile they created. (Editing is a separate PATCH
-    endpoint you'll add alongside lab-result entry — deliberately left out of the
-    auth scope here.)"""
     profile = db.query(PatientProfile).filter(
         PatientProfile.id == patient_id,
         PatientProfile.created_by_doctor_id == current_doctor.id,

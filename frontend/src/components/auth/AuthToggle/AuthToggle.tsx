@@ -22,7 +22,7 @@ const AuthToggle = ({ onLogin, onRegister }: AuthToggleProps) => {
   const handleLogout = () => {
     setAnchorEl(null);
     logout();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   if (isLoggedIn) {

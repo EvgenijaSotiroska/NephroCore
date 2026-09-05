@@ -18,7 +18,6 @@ export type DialysisStatus =
 
 export type DialysisModality = "hd" | "pd";
 
-
 export interface CreatePatientRequest {
   full_name: string;
 
@@ -30,11 +29,9 @@ export interface CreatePatientRequest {
   // Clinical history
   previous_conditions?: string | null;
   genetic_risk_factors?: string | null;
-  comorbidities?: Record<string, boolean> | null;
-  current_medications?: { name: string; dose?: string }[] | null;
-  allergies?: string | null;
+  comorbidities?: string | null;
+  current_medications?: string | null;
   smoking?: boolean | null;
-  alcohol?: boolean | null;
 
   // CKD-specific
   ckd_etiology?: CKDEtiology | null;
@@ -45,14 +42,12 @@ export interface CreatePatientRequest {
   dialysis_modality?: DialysisModality | null;
 }
 
-
 export interface CreatePatientResponse {
   id: string;
   full_name: string;
   invite_code: string;
   invite_code_expires_at: string;
 }
-
 
 export interface PatientProfile {
   id: string;
@@ -66,11 +61,9 @@ export interface PatientProfile {
   // Clinical history
   previous_conditions: string | null;
   genetic_risk_factors: string | null;
-  comorbidities: Record<string, boolean> | null;
-  current_medications: { name: string; dose?: string }[] | null;
-  allergies: string | null;
+  comorbidities: string | null;
+  current_medications: string | null;
   smoking: boolean | null;
-  alcohol: boolean | null;
 
   // CKD-specific
   ckd_etiology: CKDEtiology | null;
@@ -82,4 +75,3 @@ export interface PatientProfile {
 
   is_activated: boolean;
 }
-

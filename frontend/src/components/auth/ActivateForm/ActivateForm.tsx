@@ -7,6 +7,7 @@ import { AUTH_GRADIENT } from "../authStyles";
 
 interface ActivateFormProps {
   onClose: () => void;
+  onActivationSuccess: () => void;
 }
 
 interface FormData {
@@ -21,11 +22,18 @@ const initialFormData: FormData = {
   password: "",
 };
 
-const ActivateForm = ({ onClose }: ActivateFormProps) => {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+const ActivateForm = ({
+  onClose,
+  onActivationSuccess,
+}: ActivateFormProps) => {
+  const [formData, setFormData] =
+    useState<FormData>(initialFormData);
+
   const { activate, error, loading } = useActivate();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = event.target;
 
     setFormData((prev) => ({
@@ -37,11 +45,15 @@ const ActivateForm = ({ onClose }: ActivateFormProps) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    await activate({
+    const success = await activate({
       invite_code: formData.inviteCode,
       username: formData.username,
       password: formData.password,
     });
+
+    if (success) {
+      onActivationSuccess();
+    }
   };
 
   const labelStyles = {
@@ -131,7 +143,11 @@ const ActivateForm = ({ onClose }: ActivateFormProps) => {
         />
 
         {error && (
-          <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            color="error"
+            sx={{ mb: 2 }}
+          >
             {error}
           </Typography>
         )}
@@ -147,6 +163,7 @@ const ActivateForm = ({ onClose }: ActivateFormProps) => {
             py: 1.25,
             borderRadius: 2,
             textTransform: "none",
+
             "&:hover": {
               background: AUTH_GRADIENT,
               opacity: 0.9,
@@ -161,4 +178,3 @@ const ActivateForm = ({ onClose }: ActivateFormProps) => {
 };
 
 export default ActivateForm;
-

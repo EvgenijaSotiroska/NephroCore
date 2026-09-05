@@ -6,6 +6,136 @@ import type {
 } from "../../../api/types/patient";
 import "./CreatePatient.css";
 
+interface CheckboxOption {
+  value: string;
+  label: string;
+}
+
+const PREVIOUS_CONDITIONS: CheckboxOption[] = [
+  {
+    value: "acute_kidney_injury",
+    label: "Акутно оштетување на бубрезите (AKI)",
+  },
+  {
+    value: "recurrent_utis_pyelo",
+    label: "Рекурентни уринарни инфекции / пиелонефритис",
+  },
+  {
+    value: "kidney_stones",
+    label: "Камења во бубрезите (нефролитијаза)",
+  },
+  {
+    value: "prior_glomerulonephritis",
+    label: "Претходен епизоден гломерулонефритис",
+  },
+  {
+    value: "single_kidney_nephrectomy",
+    label: "Еден бубрег / нефректомија",
+  },
+  {
+    value: "cardiovascular_disease",
+    label:
+      "Кардиоваскуларна болест (инфаркт, срцева слабост, мозочен удар)",
+  },
+];
+
+const GENETIC_RISK_FACTORS: CheckboxOption[] = [
+  {
+    value: "family_history_ckd_kidney_failure_dialysis",
+    label: "Семејна историја на ХББ / бубрежна слабост / дијализа",
+  },
+  {
+    value: "family_history_pckd",
+    label: "Семејна историја на полицистична бубрежна болест",
+  },
+  {
+    value: "family_history_diabetes",
+    label: "Семејна историја на дијабетес",
+  },
+  {
+    value: "family_history_hypertension",
+    label: "Семејна историја на хипертензија",
+  },
+  {
+    value: "alport_syndrome_family_history",
+    label: "Алпортов синдром (семејна историја)",
+  },
+  {
+    value: "apol1_high_risk_variant",
+    label: "APOL1 варијанта со висок ризик",
+  },
+];
+
+const COMORBIDITIES: CheckboxOption[] = [
+  {
+    value: "type_1_diabetes",
+    label: "Дијабетес тип 1",
+  },
+  {
+    value: "type_2_diabetes",
+    label: "Дијабетес тип 2",
+  },
+  {
+    value: "hypertension",
+    label: "Хипертензија",
+  },
+  {
+    value: "obesity",
+    label: "Дебелина",
+  },
+  {
+    value: "liver_disease",
+    label: "Заболување на црниот дроб",
+  },
+  {
+    value: "thyroid_disease",
+    label: "Заболување на тироидната жлезда",
+  },
+];
+
+const CURRENT_MEDICATIONS: CheckboxOption[] = [
+  {
+    value: "ace_inhibitors_arbs",
+    label: "ACE инхибитори / ARB",
+  },
+  {
+    value: "diuretics",
+    label: "Диуретици",
+  },
+  {
+    value: "nsaids",
+    label: "NSAID лекови",
+  },
+  {
+    value: "phosphate_binders",
+    label: "Фосфатни врзувачи",
+  },
+  {
+    value: "erythropoiesis_stimulating_agents",
+    label: "Стимулатори на еритропоезата (EPO)",
+  },
+  {
+    value: "vitamin_d_analogs_calcimimetics",
+    label: "Витамин D аналози / калцимиметици",
+  },
+  {
+    value: "sglt2_inhibitors",
+    label: "SGLT2 инхибитори",
+  },
+  {
+    value: "metformin",
+    label: "Метформин",
+  },
+  {
+    value: "statins",
+    label: "Статини",
+  },
+  {
+    value: "immunosuppressants",
+    label: "Имуносупресивни лекови",
+  },
+];
+
 const initialForm: CreatePatientRequest = {
   full_name: "",
   date_of_birth: "",
@@ -14,11 +144,10 @@ const initialForm: CreatePatientRequest = {
 
   previous_conditions: "",
   genetic_risk_factors: "",
-  comorbidities: null,
-  current_medications: null,
-  allergies: "",
+  comorbidities: "",
+  current_medications: "",
+
   smoking: false,
-  alcohol: false,
 
   ckd_etiology: null,
   diagnosis_date: "",
@@ -28,21 +157,97 @@ const initialForm: CreatePatientRequest = {
   dialysis_modality: null,
 };
 
+function selectedValuesToString(values: string[]): string {
+  return values.join("|");
+}
+
+interface CheckboxGroupProps {
+  title: string;
+  options: CheckboxOption[];
+  selectedValues: string[];
+  onChange: (values: string[]) => void;
+}
+
+function CheckboxGroup({
+  title,
+  options,
+  selectedValues,
+  onChange,
+}: CheckboxGroupProps) {
+  function handleChange(value: string) {
+    if (selectedValues.includes(value)) {
+      onChange(selectedValues.filter((item) => item !== value));
+    } else {
+      onChange([...selectedValues, value]);
+    }
+  }
+
+  return (
+    <div className="checkbox-group">
+      <label className="checkbox-group-title">{title}</label>
+
+      <div className="checkbox-grid">
+        {options.map((option) => {
+          const checked = selectedValues.includes(option.value);
+
+          return (
+            <label
+              key={option.value}
+              className={`checkbox-option ${
+                checked ? "checkbox-option-selected" : ""
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={() => handleChange(option.value)}
+              />
+
+              <span>{option.label}</span>
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function CreatePatient() {
-  const [form, setForm] = useState<CreatePatientRequest>(initialForm);
-  const [result, setResult] = useState<CreatePatientResponse | null>(null);
+  const [form, setForm] =
+    useState<CreatePatientRequest>(initialForm);
+
+  const [result, setResult] =
+    useState<CreatePatientResponse | null>(null);
+
+  const [previousConditions, setPreviousConditions] =
+    useState<string[]>([]);
+
+  const [geneticRiskFactors, setGeneticRiskFactors] =
+    useState<string[]>([]);
+
+  const [comorbidities, setComorbidities] =
+    useState<string[]>([]);
+
+  const [currentMedications, setCurrentMedications] =
+    useState<string[]>([]);
+
 
   const { createPatient, creating } = usePatients();
 
-  function update<K extends keyof CreatePatientRequest>(field: K) {
+  function update<K extends keyof CreatePatientRequest>(
+    field: K
+  ) {
     return (
       e: ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        HTMLInputElement |
+          HTMLTextAreaElement |
+          HTMLSelectElement
       >
     ) => {
       const target = e.target;
 
-      let value: string | number | boolean | null = target.value;
+      let value: string | number | boolean | null =
+        target.value;
 
       if (
         target instanceof HTMLInputElement &&
@@ -55,7 +260,10 @@ export default function CreatePatient() {
         target instanceof HTMLInputElement &&
         target.type === "number"
       ) {
-        value = target.value === "" ? null : Number(target.value);
+        value =
+          target.value === ""
+            ? null
+            : Number(target.value);
       }
 
       setForm((prev) => ({
@@ -65,16 +273,39 @@ export default function CreatePatient() {
     };
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    e: FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault();
     setResult(null);
 
     const data = await createPatient({
       ...form,
-      date_of_birth: form.date_of_birth || null,
-      diagnosis_date: form.diagnosis_date || null,
-      height_cm: form.height_cm || null,
-      baseline_egfr: form.baseline_egfr || null,
+
+      date_of_birth:
+        form.date_of_birth || null,
+
+      diagnosis_date:
+        form.diagnosis_date || null,
+
+      height_cm:
+        form.height_cm ?? null,
+
+      baseline_egfr:
+        form.baseline_egfr ?? null,
+
+      previous_conditions:
+        selectedValuesToString(previousConditions),
+
+      genetic_risk_factors:
+        selectedValuesToString(geneticRiskFactors),
+
+      comorbidities:
+        selectedValuesToString(comorbidities),
+
+      current_medications:
+        selectedValuesToString(currentMedications),
+
       dialysis_modality:
         form.dialysis_status === "on_dialysis"
           ? form.dialysis_modality
@@ -84,6 +315,11 @@ export default function CreatePatient() {
     if (data) {
       setResult(data);
       setForm(initialForm);
+
+      setPreviousConditions([]);
+      setGeneticRiskFactors([]);
+      setComorbidities([]);
+      setCurrentMedications([]);
     }
   }
 
@@ -94,37 +330,18 @@ export default function CreatePatient() {
 
       <div className="create-patient-header">
         <h2>Креирај нов пациент</h2>
+
         <p>
           Пополнете ги информациите. Полињата со * се задолжителни.
         </p>
       </div>
-
-      {/* ==================== SUCCESS ==================== */}
-
-      {result && (
-        <div className="patient-success">
-          <p>
-            Профилот за <strong>{result.full_name}</strong> е успешно креиран.
-          </p>
-
-          <p>
-            Код за покана (споделете го со пациентот, истекува на{" "}
-            {new Date(
-              result.invite_code_expires_at
-            ).toLocaleDateString("mk-MK")}
-            ):
-          </p>
-
-          <code>{result.invite_code}</code>
-        </div>
-      )}
 
       <form
         className="create-patient-form"
         onSubmit={handleSubmit}
       >
 
-        {/* ==================== ОСНОВНИ ИНФОРМАЦИИ ==================== */}
+        {/* ==================== BASIC INFORMATION ==================== */}
 
         <section className="form-section">
 
@@ -148,7 +365,8 @@ export default function CreatePatient() {
 
             <div className="form-field full-width">
               <label htmlFor="full_name">
-                Име и презиме <span className="required">*</span>
+                Име и презиме{" "}
+                <span className="required">*</span>
               </label>
 
               <input
@@ -185,8 +403,13 @@ export default function CreatePatient() {
                 onChange={update("sex")}
                 required
               >
-                <option value="male">Машки</option>
-                <option value="female">Женски</option>
+                <option value="male">
+                  Машки
+                </option>
+
+                <option value="female">
+                  Женски
+                </option>
               </select>
             </div>
 
@@ -209,8 +432,7 @@ export default function CreatePatient() {
           </div>
         </section>
 
-
-        {/* ==================== КЛИНИЧКА ИСТОРИЈА ==================== */}
+        {/* ==================== CLINICAL HISTORY ==================== */}
 
         <section className="form-section">
 
@@ -230,76 +452,55 @@ export default function CreatePatient() {
             </div>
           </div>
 
-          <div className="form-grid">
+          <div className="clinical-checkboxes">
 
-            <div className="form-field full-width">
-              <label htmlFor="previous_conditions">
-                Претходни заболувања
-              </label>
+            <CheckboxGroup
+              title="Претходни заболувања"
+              options={PREVIOUS_CONDITIONS}
+              selectedValues={previousConditions}
+              onChange={setPreviousConditions}
+            />
 
-              <textarea
-                id="previous_conditions"
-                placeholder="Внесете претходни заболувања"
-                value={form.previous_conditions ?? ""}
-                onChange={update("previous_conditions")}
-              />
-            </div>
+            <CheckboxGroup
+              title="Генетски ризик фактори"
+              options={GENETIC_RISK_FACTORS}
+              selectedValues={geneticRiskFactors}
+              onChange={setGeneticRiskFactors}
+            />
 
-            <div className="form-field full-width">
-              <label htmlFor="genetic_risk_factors">
-                Генетски ризик фактори
-              </label>
+            <CheckboxGroup
+              title="Коморбидитети"
+              options={COMORBIDITIES}
+              selectedValues={comorbidities}
+              onChange={setComorbidities}
+            />
 
-              <textarea
-                id="genetic_risk_factors"
-                placeholder="Внесете генетски ризик фактори"
-                value={form.genetic_risk_factors ?? ""}
-                onChange={update("genetic_risk_factors")}
-              />
-            </div>
+            <CheckboxGroup
+              title="Тековна терапија"
+              options={CURRENT_MEDICATIONS}
+              selectedValues={currentMedications}
+              onChange={setCurrentMedications}
+            />
 
-            <div className="form-field full-width">
-              <label htmlFor="allergies">
-                Алергии
-              </label>
+            <div className="lifestyle-checkboxes">
 
-              <textarea
-                id="allergies"
-                placeholder="Внесете алергии"
-                value={form.allergies ?? ""}
-                onChange={update("allergies")}
-              />
-            </div>
+              <div className="checkbox-field">
+                <input
+                  id="smoking"
+                  type="checkbox"
+                  checked={!!form.smoking}
+                  onChange={update("smoking")}
+                />
 
-            <div className="checkbox-field">
-              <input
-                id="smoking"
-                type="checkbox"
-                checked={!!form.smoking}
-                onChange={update("smoking")}
-              />
+                <label htmlFor="smoking">
+                  Пушење
+                </label>
+              </div>
 
-              <label htmlFor="smoking">
-                Пушење
-              </label>
-            </div>
-
-            <div className="checkbox-field">
-              <input
-                id="alcohol"
-                type="checkbox"
-                checked={!!form.alcohol}
-                onChange={update("alcohol")}
-              />
-
-              <label htmlFor="alcohol">
-                Консумирање алкохол
-              </label>
             </div>
 
           </div>
         </section>
-
 
         {/* ==================== CKD ==================== */}
 
@@ -411,8 +612,7 @@ export default function CreatePatient() {
           </div>
         </section>
 
-
-        {/* ==================== ДИЈАЛИЗА ==================== */}
+        {/* ==================== DIALYSIS ==================== */}
 
         <section className="form-section">
 
@@ -460,6 +660,7 @@ export default function CreatePatient() {
 
             {form.dialysis_status === "on_dialysis" && (
               <div className="form-field">
+
                 <label htmlFor="dialysis_modality">
                   Вид на дијализа
                 </label>
@@ -481,13 +682,14 @@ export default function CreatePatient() {
                   <option value="pd">
                     Перитонеална дијализа
                   </option>
+
                 </select>
+
               </div>
             )}
 
           </div>
         </section>
-
 
         {/* ==================== SUBMIT ==================== */}
 
@@ -502,6 +704,33 @@ export default function CreatePatient() {
         </button>
 
       </form>
+
+      {/* ==================== SUCCESS ==================== */}
+
+      {result && (
+        <div className="patient-success">
+
+          <p>
+            Профилот за{" "}
+            <strong>{result.full_name}</strong>{" "}
+            е успешно креиран.
+          </p>
+
+          <p>
+            Код за покана (споделете го со пациентот,
+            истекува на{" "}
+            {new Date(
+              result.invite_code_expires_at
+            ).toLocaleDateString("mk-MK")}
+            ):
+          </p>
+
+          <code>
+            {result.invite_code}
+          </code>
+
+        </div>
+      )}
 
     </div>
   );

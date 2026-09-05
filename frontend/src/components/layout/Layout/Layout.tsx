@@ -22,18 +22,30 @@ const Layout = () => {
     setAuthDialog(null);
   };
 
+  const openLogin = () => {
+    setAuthDialog("login");
+  };
+
+  const openRegister = () => {
+    setAuthDialog("register");
+  };
+
+  const openActivate = () => {
+    setAuthDialog("activate");
+  };
+
   return (
     <Box className="layout-box">
       <Header
-        onLogin={() => setAuthDialog("login")}
-        onRegister={() => setAuthDialog("register")}
+        onLogin={openLogin}
+        onRegister={openRegister}
       />
 
       <Box className="outlet-box">
         <Outlet
           context={{
-            openLogin: () => setAuthDialog("login"),
-            openRegister: () => setAuthDialog("register"),
+            openLogin,
+            openRegister,
           }}
         />
       </Box>
@@ -54,22 +66,24 @@ const Layout = () => {
         {authDialog === "login" && (
           <LoginForm
             onClose={handleCloseAuth}
-            onSwitchToRegister={() => setAuthDialog("register")}
+            onSwitchToRegister={openRegister}
+            onLoginSuccess={handleCloseAuth}
           />
         )}
 
         {authDialog === "register" && (
           <RegisterForm
             onClose={handleCloseAuth}
-            onSwitchToLogin={() => setAuthDialog("login")}
-            onSwitchToActivate={() => setAuthDialog("activate")}
-            onRegisterSuccess={() => setAuthDialog("login")}
+            onSwitchToLogin={openLogin}
+            onSwitchToActivate={openActivate}
+            onRegisterSuccess={handleCloseAuth}
           />
         )}
 
         {authDialog === "activate" && (
           <ActivateForm
             onClose={handleCloseAuth}
+            onActivationSuccess={handleCloseAuth}
           />
         )}
       </Dialog>

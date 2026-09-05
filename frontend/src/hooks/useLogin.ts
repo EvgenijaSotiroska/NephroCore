@@ -12,7 +12,7 @@ const useLogin = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = async (data: LoginRequest) => {
+  const login = async (data: LoginRequest): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
@@ -26,10 +26,14 @@ const useLogin = () => {
           ? "/doctor"
           : "/patient"
       );
+
+      return true;
     } catch (err) {
       setError(
         getApiErrorMessage(err, "Login failed. Please try again!")
       );
+
+      return false;
     } finally {
       setLoading(false);
     }

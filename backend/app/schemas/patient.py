@@ -23,11 +23,9 @@ class PatientCreateRequest(BaseModel):
     # Clinical history
     previous_conditions: str | None = None
     genetic_risk_factors: str | None = None
-    comorbidities: dict | None = None
-    current_medications: list[dict] | None = None
-    allergies: str | None = None
+    comorbidities: str | None = None
+    current_medications: str | None = None
     smoking: bool | None = None
-    alcohol: bool | None = None
 
     # CKD-specific
     ckd_etiology: CKDEtiology | None = None
@@ -60,11 +58,9 @@ class PatientOut(BaseModel):
     # Clinical history
     previous_conditions: str | None
     genetic_risk_factors: str | None
-    comorbidities: dict | None
-    current_medications: list[dict] | None
-    allergies: str | None
+    comorbidities: str | None
+    current_medications: str | None
     smoking: bool | None
-    alcohol: bool | None
 
     # CKD-specific
     ckd_etiology: CKDEtiology | None

@@ -1,14 +1,15 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import {Box, Button, TextField, Typography} from "@mui/material";
+import {useState} from "react";
 import * as React from "react";
 import useLogin from "../../../hooks/useLogin";
 import AuthCard from "../AuthCard/AuthCard";
-import RoleToggle, { type AuthRole } from "../RoleToggle/RoleToggle";
-import { AUTH_GRADIENT } from "../authStyles";
+import RoleToggle, {type AuthRole} from "../RoleToggle/RoleToggle";
+import {AUTH_GRADIENT} from "../authStyles";
 
 interface LoginFormProps {
     onClose: () => void;
     onSwitchToRegister: () => void;
+    onLoginSuccess: () => void;
 }
 
 interface FormData {
@@ -24,15 +25,17 @@ const initialFormData: FormData = {
 };
 
 const LoginForm = ({
-    onClose,
-    onSwitchToRegister,
-}: LoginFormProps) => {
+                       onClose,
+                       onSwitchToRegister,
+                       onLoginSuccess,
+                   }: LoginFormProps) => {
     const [role, setRole] = useState<AuthRole>("doctor");
     const [formData, setFormData] = useState<FormData>(initialFormData);
-    const { login, loading, error } = useLogin();
+
+    const {login, loading, error} = useLogin();
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
+        const {name, value} = event.target;
 
         setFormData((prev) => ({
             ...prev,
@@ -43,21 +46,26 @@ const LoginForm = ({
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
+        let success: boolean;
+
         if (role === "doctor") {
-            await login({
+            success = await login({
                 role: "doctor",
                 email: formData.email,
                 password: formData.password,
             });
         } else {
-            await login({
+            success = await login({
                 role: "patient",
                 username: formData.username,
                 password: formData.password,
             });
         }
-    };
 
+        if (success) {
+            onLoginSuccess();
+        }
+    };
     const labelStyles = {
         color: "#6b7280",
         fontWeight: 600,
@@ -99,7 +107,7 @@ const LoginForm = ({
             subtitle="Најавете се во вашата NephroCore сметка"
             onClose={onClose}
         >
-            <RoleToggle value={role} onChange={setRole} />
+            <RoleToggle value={role} onChange={setRole}/>
 
             <Box component="form" onSubmit={handleSubmit}>
                 {role === "doctor" ? (
@@ -165,7 +173,7 @@ const LoginForm = ({
                     <Typography
                         variant="body2"
                         color="error"
-                        sx={{ mb: 2 }}
+                        sx={{mb: 2}}
                     >
                         {error}
                     </Typography>
@@ -196,7 +204,7 @@ const LoginForm = ({
                     variant="body2"
                     align="center"
                     color="text.secondary"
-                    sx={{ mt: 3 }}
+                    sx={{mt: 3}}
                 >
                     Немате сметка?{" "}
                     <Button

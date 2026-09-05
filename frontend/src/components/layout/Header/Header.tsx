@@ -227,6 +227,7 @@ const Header = () => {
           <LoginForm
             onClose={handleCloseAuth}
             onSwitchToRegister={openRegister}
+            onLoginSuccess={handleCloseAuth}
           />
         )}
 
@@ -236,7 +237,7 @@ const Header = () => {
             onClose={handleCloseAuth}
             onSwitchToLogin={openLogin}
             onSwitchToActivate={openActivate}
-            onRegisterSuccess={openLogin}
+            onRegisterSuccess={handleCloseAuth}
           />
         )}
 
@@ -244,6 +245,7 @@ const Header = () => {
         {authDialog === "activate" && (
           <ActivateForm
             onClose={handleCloseAuth}
+            onActivationSuccess={handleCloseAuth}
           />
         )}
       </Dialog>
