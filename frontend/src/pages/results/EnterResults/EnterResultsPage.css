@@ -1,0 +1,349 @@
+.results-page {
+  min-height: 100vh;
+  background: #f7f9fc;
+  padding: 28px 40px 60px;
+  box-sizing: border-box;
+}
+
+
+/* ==================== HEADER ==================== */
+
+.results-header {
+  max-width: 900px;
+  margin: 0 auto 28px;
+}
+
+.results-header h2 {
+  margin: 0 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 400;
+  color: #17243a;
+}
+
+.results-header p {
+  margin: 0;
+  color: #71819a;
+  font-size: 16px;
+}
+
+
+/* ==================== ERROR BANNER ==================== */
+
+.results-error {
+  max-width: 900px;
+  margin: 0 auto 20px;
+  background: #fff4f2;
+  border: 1px solid #f3c9c2;
+  border-radius: 16px;
+  padding: 16px 20px;
+  color: #9a3324;
+  font-size: 14px;
+}
+
+
+/* ==================== FORM ==================== */
+
+.results-form {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.results-section {
+  background: #ffffff;
+  border: 1px solid #e5ebf2;
+  border-radius: 28px;
+  padding: 34px 36px 38px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(31, 51, 73, 0.08);
+}
+
+.results-section-header,
+.results-subsection-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.results-divider {
+  height: 1px;
+  background: #edf1f5;
+  margin: 32px 0;
+}
+
+.results-section-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: #d9f7f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.results-section-title {
+  margin: 0;
+  color: #17243a;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.results-section-subtitle {
+  margin: 3px 0 0;
+  color: #8a9ab0;
+  font-size: 14px;
+}
+
+
+/* ==================== INPUT GRID ==================== */
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 20px;
+}
+
+.results-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.results-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.results-field label {
+  color: #23334d;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+
+/* ==================== INPUTS ==================== */
+
+.results-field input,
+.results-field select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 56px;
+  border: 1px solid #dce4ee;
+  border-radius: 15px;
+  background: #ffffff;
+  color: #23334d;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 0 18px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.results-field input::placeholder {
+  color: #b7c3d2;
+}
+
+.results-field input:focus,
+.results-field select:focus {
+  border-color: #16b5b1;
+  box-shadow: 0 0 0 3px rgba(22, 181, 177, 0.1);
+}
+
+.results-field select {
+  cursor: pointer;
+}
+
+.results-field input[type="number"] {
+  appearance: textfield;
+}
+
+.field-hint {
+  color: #8a9ab0;
+  font-size: 13px;
+  margin-top: -2px;
+}
+
+
+/* ==================== KDIGO STAGE PILLS ==================== */
+
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.stage-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 12px 10px;
+  border: 1px solid #dce4ee;
+  border-radius: 13px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stage-option:hover {
+  border-color: #16b5b1;
+  background: #f7fffe;
+}
+
+.stage-option-selected {
+  border-color: #8bd8d4;
+  background: #f2fcfb;
+  box-shadow: 0 0 0 1px rgba(8, 170, 165, 0.05);
+}
+
+.stage-option-name {
+  color: #354761;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.stage-option-selected .stage-option-name {
+  color: #087f7b;
+}
+
+.stage-option-range {
+  color: #8a9ab0;
+  font-size: 12px;
+}
+
+.stage-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #effaf8;
+  border: 1px solid #c8eeea;
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-top: 20px;
+  color: #23434b;
+}
+
+.stage-info-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #08aaa5;
+  flex-shrink: 0;
+}
+
+.stage-info-text {
+  font-size: 14px;
+  flex: 1;
+}
+
+.stage-info-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: #087f7b;
+}
+
+.stage-empty-note {
+  margin-top: 20px;
+  color: #8a9ab0;
+  font-size: 14px;
+}
+
+
+/* ==================== SUBMIT ==================== */
+
+.results-submit {
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 15px;
+  background: #08aaa5;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.results-submit:hover {
+  background: #079792;
+}
+
+.results-submit:active {
+  transform: translateY(1px);
+}
+
+.results-submit:disabled {
+  background: #a9d8d6;
+  cursor: not-allowed;
+}
+
+.results-loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+  color: #71819a;
+}
+
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+  .results-page {
+    padding: 20px 16px 40px;
+  }
+
+  .results-header h2 {
+    font-size: 30px;
+  }
+
+  .results-section {
+    padding: 24px 20px 28px;
+    border-radius: 22px;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .results-field.full-width {
+    grid-column: auto;
+  }
+
+  .stage-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .results-page {
+    padding: 16px 12px 32px;
+  }
+
+  .results-header h2 {
+    font-size: 27px;
+  }
+
+  .results-section {
+    padding: 20px 16px 24px;
+  }
+
+  .results-section-header {
+    gap: 12px;
+  }
+
+  .results-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 18px;
+  }
+
+  .stage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

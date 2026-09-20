@@ -7,9 +7,9 @@ import psycopg2
 from psycopg2.extras import execute_values
 from pgvector.psycopg2 import register_vector
 from openai import OpenAI, RateLimitError
-from app.core.config import settings
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
+from app.core.config import settings
 
 BATCH_SIZE = 20
 MAX_RETRIES = 6

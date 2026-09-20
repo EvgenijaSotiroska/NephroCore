@@ -24,14 +24,7 @@ import RegisterForm from "../../auth/RegisterForm/RegisterForm";
 import ActivateForm from "../../auth/ActivateForm/ActivateForm";
 
 import { AUTH_GRADIENT, AUTH_SERIF_FONT } from "../../auth/authStyles";
-
-const pages = [
-  { path: "/", name: "Почетна" },
-  { path: "/#features", name: "Функции" },
-  { path: "/#doctors", name: "За доктори" },
-  { path: "/#patients", name: "За пациенти" },
-  { path: "/#contact", name: "Контакт" },
-];
+import useAuth from "../../../hooks/useAuth";
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -39,6 +32,10 @@ const Header = () => {
   const [authDialog, setAuthDialog] = useState<
     "login" | "register" | "activate" | null
   >(null);
+
+  const { user, isLoggedIn } = useAuth();
+
+  const isDoctor = isLoggedIn && user?.role === "doctor";
 
   const handleCloseAuth = () => {
     setAuthDialog(null);
@@ -56,6 +53,23 @@ const Header = () => {
     setAuthDialog("activate");
   };
 
+  const pages = isDoctor
+    ? [
+        {
+          path: "",
+          name: "Пациенти",
+        },
+        {
+          path: "/createPatientProfile",
+          name: "+ Пациент",
+        },
+        {
+          path: "/addResult",
+          name: "+ Резултат",
+        },
+      ]
+    : [];
+
   return (
     <Box>
       {/* ================= HEADER ================= */}
@@ -65,20 +79,22 @@ const Header = () => {
         className="header-appbar"
       >
         <Toolbar sx={{ display: "flex", py: 1 }}>
-          {/* Mobile menu */}
-          <IconButton
-            size="large"
-            edge="start"
-            aria-label="menu"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              color: "text.primary",
-            }}
-            onClick={() => setDrawerOpen(true)}
-          >
-            <MenuIcon />
-          </IconButton>
+          {/* Mobile menu - doctors only */}
+          {isDoctor && (
+            <IconButton
+              size="large"
+              edge="start"
+              aria-label="menu"
+              sx={{
+                mr: 2,
+                display: { xs: "flex", md: "none" },
+                color: "text.primary",
+              }}
+              onClick={() => setDrawerOpen(true)}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
           {/* Logo */}
           <Box
@@ -138,31 +154,33 @@ const Header = () => {
             </Box>
           </Box>
 
-          {/* Desktop navigation */}
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: "none", md: "flex" },
-              gap: 0.5,
-            }}
-          >
-            {pages.map((page) => (
-              <Button
-                key={page.name}
-                component={Link}
-                to={page.path}
-                sx={{
-                  color: "text.primary",
-                  textTransform: "none",
-                  fontWeight: 500,
-                }}
-              >
-                {page.name}
-              </Button>
-            ))}
-          </Box>
+          {/* Desktop navigation - doctors only */}
+          {isDoctor && (
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: { xs: "none", md: "flex" },
+                gap: 0.5,
+              }}
+            >
+              {pages.map((page) => (
+                <Button
+                  key={page.name}
+                  component={Link}
+                  to={page.path}
+                  sx={{
+                    color: "text.primary",
+                    textTransform: "none",
+                    fontWeight: 500,
+                  }}
+                >
+                  {page.name}
+                </Button>
+              ))}
+            </Box>
+          )}
 
-          {/* Desktop login/register */}
+          {/* Login/Register */}
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
@@ -179,33 +197,36 @@ const Header = () => {
       </AppBar>
 
       {/* ================= MOBILE DRAWER ================= */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      >
-        <Box
-          sx={{
-            width: 260,
-            height: "100%",
-          }}
-          role="presentation"
+      {isDoctor && (
+        <Drawer
+          anchor="left"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
         >
-          <List>
-            {pages.map((page) => (
-              <ListItem key={page.name} disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to={page.path}
-                  onClick={() => setDrawerOpen(false)}
-                >
-                  <ListItemText primary={page.name} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
+          <Box
+            sx={{
+              width: 260,
+              height: "100%",
+            }}
+            role="presentation"
+          >
+            <List>
+              {pages.map((page) => (
+                <ListItem key={page.name} disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to={page.path}
+                    onClick={() => setDrawerOpen(false)}
+                    disabled={!page.path}
+                  >
+                    <ListItemText primary={page.name} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
+      )}
 
       {/* ================= AUTH POPUP ================= */}
       <Dialog

@@ -23,7 +23,7 @@ const useLogin = () => {
 
       navigate(
         response.data.role === "doctor"
-          ? "/doctor"
+          ? "/"
           : "/patient"
       );
 

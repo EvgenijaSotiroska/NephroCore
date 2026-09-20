@@ -87,3 +87,5 @@ class PatientProfile(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="patient_profile", foreign_keys=[user_id])
+
+    visits = relationship("Visit", back_populates="patient", cascade="all, delete-orphan")
