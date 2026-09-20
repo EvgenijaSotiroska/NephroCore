@@ -1,20 +1,16 @@
 import sys
 from pathlib import Path
-
-# Make sure "app" is importable when running this script directly
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
 from app.rag.pdf_reader import extract_clean_pages
 
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 GUIDELINES_DIR = Path(__file__).resolve().parent.parent / "data" / "guidelines"
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / "data" / "extracted_preview.txt"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "extracted"
 
 
-def process_one_pdf(pdf_path: Path) -> str:
+def process_one_pdf(pdf_path: Path, output_path: Path):
     """
-    Extracts one PDF and formats its pages for the combined output file.
-    Args: pdf_path - path to the PDF file.
-    Returns: formatted extracted text for that PDF.
+    Extracts and cleans text from a PDF and saves it as a TXT file.
+    Each page is clearly separated and labeled with its page number.
     """
     pages = extract_clean_pages(pdf_path)
 
@@ -32,15 +28,14 @@ def process_one_pdf(pdf_path: Path) -> str:
         output_lines.append(page["text"])
         output_lines.append("")
 
-    return "\n".join(output_lines)
+    output_path.write_text(
+        "\n".join(output_lines),
+        encoding="utf-8"
+    )
 
 
 def main():
-    """
-    Extracts all PDFs from the guidelines folder and writes their text to one file.
-    Args: none - uses the GUIDELINES_DIR and OUTPUT_PATH constants.
-    Returns: None.
-    """
+    """ Extracts all PDFs from the guidelines folder and writes each PDF to a separate TXT file."""
     if not GUIDELINES_DIR.exists():
         print(f"Could not find folder: {GUIDELINES_DIR}")
         return
@@ -51,26 +46,27 @@ def main():
         print(f"No PDF files found in: {GUIDELINES_DIR}")
         return
 
-    all_output_blocks = []
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    for pdf_path in pdf_files:
+    extracted_count = 0
+
+    for index, pdf_path in enumerate(pdf_files, start=1):
+        output_path = OUTPUT_DIR / f"extracted text file {index}.txt"
+
         try:
-            block = process_one_pdf(pdf_path)
-            all_output_blocks.append(block)
+            process_one_pdf(pdf_path, output_path)
 
-            print(f"Extracted: {pdf_path.name}")
+            extracted_count += 1
+
+            print(
+                f"Extracted: {pdf_path.name} "
+                f"-> {output_path.name}"
+            )
 
         except Exception as e:
             print(f"ERROR: {pdf_path.name} - {e}")
 
-    combined_output = "\n\n".join(all_output_blocks)
-
-    OUTPUT_PATH.write_text(
-        combined_output,
-        encoding="utf-8"
-    )
-
-    print(f"\nExtracted files: {len(all_output_blocks)}")
+    print(f"\nExtracted files: {extracted_count}")
 
 
 if __name__ == "__main__":
