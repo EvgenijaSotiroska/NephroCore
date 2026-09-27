@@ -2,10 +2,10 @@ import { useState } from "react";
 import type { ActivateRequest } from "../api/types/user";
 import userApi from "../api/userApi";
 import { useNavigate } from "react-router";
-import useAuth from "./useAuth";
+import { useAuth } from "./useAuth";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
-const useActivate = () => {
+export function useActivate() {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
 
@@ -39,6 +39,4 @@ const useActivate = () => {
   };
 
   return { loading, error, activate };
-};
-
-export default useActivate;
+}

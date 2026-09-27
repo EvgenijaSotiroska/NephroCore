@@ -3,7 +3,7 @@ import type { RegisterRequest } from "../api/types/user";
 import userApi from "../api/userApi";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
-const useRegister = () => {
+export function useRegister() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +27,5 @@ const useRegister = () => {
   };
 
   return { loading, error, register };
-};
+}
 
-export default useRegister;

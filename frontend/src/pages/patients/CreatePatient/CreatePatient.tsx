@@ -80,7 +80,7 @@ const COMORBIDITIES: CheckboxOption[] = [
     label: "Анемија",
   },
   {
-    value: "dyslipidemia ",
+    value: "dyslipidemia",
     label: "Дислипидемија",
   },
 ];
@@ -277,6 +277,9 @@ export default function CreatePatient() {
 
       baseline_egfr:
         form.baseline_egfr ?? null,
+
+      ckd_etiology:
+        form.ckd_etiology || null,
 
       previous_conditions:
         selectedValuesToString(previousConditions),

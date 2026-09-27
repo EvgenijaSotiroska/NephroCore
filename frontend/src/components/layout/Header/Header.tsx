@@ -3,7 +3,6 @@ import {
   AppBar,
   Box,
   Button,
-  Dialog,
   Drawer,
   IconButton,
   List,
@@ -19,39 +18,21 @@ import { Link } from "react-router";
 import { useState } from "react";
 
 import AuthToggle from "../../auth/AuthToggle/AuthToggle";
-import LoginForm from "../../auth/LoginForm/LoginForm";
-import RegisterForm from "../../auth/RegisterForm/RegisterForm";
-import ActivateForm from "../../auth/ActivateForm/ActivateForm";
 
 import { AUTH_GRADIENT, AUTH_SERIF_FONT } from "../../auth/authStyles";
-import useAuth from "../../../hooks/useAuth";
+import { useAuth } from "../../../hooks/useAuth";
 
-const Header = () => {
+interface HeaderProps {
+  onLogin: () => void;
+  onRegister: () => void;
+}
+
+const Header = ({ onLogin, onRegister }: HeaderProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const [authDialog, setAuthDialog] = useState<
-    "login" | "register" | "activate" | null
-  >(null);
 
   const { user, isLoggedIn } = useAuth();
 
   const isDoctor = isLoggedIn && user?.role === "doctor";
-
-  const handleCloseAuth = () => {
-    setAuthDialog(null);
-  };
-
-  const openLogin = () => {
-    setAuthDialog("login");
-  };
-
-  const openRegister = () => {
-    setAuthDialog("register");
-  };
-
-  const openActivate = () => {
-    setAuthDialog("activate");
-  };
 
   const pages = isDoctor
     ? [
@@ -189,8 +170,8 @@ const Header = () => {
             }}
           >
             <AuthToggle
-              onLogin={openLogin}
-              onRegister={openRegister}
+              onLogin={onLogin}
+              onRegister={onRegister}
             />
           </Box>
         </Toolbar>
@@ -227,49 +208,6 @@ const Header = () => {
           </Box>
         </Drawer>
       )}
-
-      {/* ================= AUTH POPUP ================= */}
-      <Dialog
-        open={authDialog !== null}
-        onClose={handleCloseAuth}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            backgroundColor: "transparent",
-            boxShadow: "none",
-            overflow: "visible",
-            margin: { xs: 1.5, sm: 3 },
-          },
-        }}
-      >
-        {/* LOGIN */}
-        {authDialog === "login" && (
-          <LoginForm
-            onClose={handleCloseAuth}
-            onSwitchToRegister={openRegister}
-            onLoginSuccess={handleCloseAuth}
-          />
-        )}
-
-        {/* REGISTER */}
-        {authDialog === "register" && (
-          <RegisterForm
-            onClose={handleCloseAuth}
-            onSwitchToLogin={openLogin}
-            onSwitchToActivate={openActivate}
-            onRegisterSuccess={handleCloseAuth}
-          />
-        )}
-
-        {/* ACTIVATE */}
-        {authDialog === "activate" && (
-          <ActivateForm
-            onClose={handleCloseAuth}
-            onActivationSuccess={handleCloseAuth}
-          />
-        )}
-      </Dialog>
     </Box>
   );
 };

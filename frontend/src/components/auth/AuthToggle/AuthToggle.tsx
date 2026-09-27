@@ -2,7 +2,7 @@ import { Avatar, Box, Button, IconButton, Menu, MenuItem } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import { useState, type MouseEvent } from "react";
 import { useNavigate } from "react-router";
-import useAuth from "../../../hooks/useAuth";
+import { useAuth } from "../../../hooks/useAuth";
 import { AUTH_GRADIENT } from "../authStyles";
 
 interface AuthToggleProps {

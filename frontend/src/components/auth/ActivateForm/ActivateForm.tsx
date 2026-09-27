@@ -1,7 +1,7 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import * as React from "react";
-import useActivate from "../../../hooks/useActivate";
+import { useActivate } from "../../../hooks/useActivate";
 import AuthCard from "../AuthCard/AuthCard";
 import { AUTH_GRADIENT } from "../authStyles";
 

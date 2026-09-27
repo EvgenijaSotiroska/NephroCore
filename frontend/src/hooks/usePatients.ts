@@ -1,21 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { getApiErrorMessage } from "../utils/getApiErrorMessage";import patientApi from "../api/patientApi";
-import useSnackbar from "./useSnackbar";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+import patientApi from "../api/patientApi";
+import { useSnackbar } from "./useSnackbar";
 import type { CreatePatientRequest, CreatePatientResponse, PatientProfile } from "../api/types/patient";
 
 interface UsePatientsResult {
   patients: PatientProfile[];
   loading: boolean;
   error: string | null;
-  refresh: () => Promise<void>;
   createPatient: (payload: CreatePatientRequest) => Promise<CreatePatientResponse | null>;
   creating: boolean;
 }
 
-/**
- * For doctors: fetches the list of patients they created, and exposes a
- * createPatient() action that also refreshes the list on success.
- */
 export function usePatients(): UsePatientsResult {
   const { showSnackbar } = useSnackbar();
   const [patients, setPatients] = useState<PatientProfile[]>([]);
@@ -57,5 +53,5 @@ export function usePatients(): UsePatientsResult {
     [refresh, showSnackbar]
   );
 
-  return { patients, loading, error, refresh, createPatient, creating };
+  return { patients, loading, error, createPatient, creating };
 }

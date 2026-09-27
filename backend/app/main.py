@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, patients, results, trends
+from app.api.routes import ai, auth, patients, results, trends
 from app.core.config import settings
 from app.db.session import Base, engine
 
-# Import models so they're registered on Base before create_all runs.
 from app.models import doctor_profile, patient_profile, user, result  # noqa: F401
 
 app = FastAPI(title="NephroCore API")
@@ -22,6 +21,7 @@ app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(results.router)
 app.include_router(trends.router)
+app.include_router(ai.router)
 
 
 @app.on_event("startup")

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router";
-import useAuth from "../../hooks/useAuth.ts";
+import { useAuth } from "../../hooks/useAuth.ts";
 import type { Role } from "../../api/types";
 
 interface ProtectedRouteProps {

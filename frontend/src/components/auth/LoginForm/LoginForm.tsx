@@ -1,7 +1,7 @@
 import {Box, Button, TextField, Typography} from "@mui/material";
 import {useState} from "react";
 import * as React from "react";
-import useLogin from "../../../hooks/useLogin";
+import { useLogin } from "../../../hooks/useLogin";
 import AuthCard from "../AuthCard/AuthCard";
 import RoleToggle, {type AuthRole} from "../RoleToggle/RoleToggle";
 import {AUTH_GRADIENT} from "../authStyles";

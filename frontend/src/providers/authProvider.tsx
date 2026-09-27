@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AuthContext from "../context/AuthContext.ts";
 import * as React from "react";
 import type { UserPayload } from "../api/types/user";
@@ -33,6 +33,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("token");
     setUser(null);
   }, []);
+
+  useEffect(() => {
+    window.addEventListener("auth:unauthorized", logout);
+    return () => window.removeEventListener("auth:unauthorized", logout);
+  }, [logout]);
 
   const value = useMemo(
     () => ({

@@ -6,12 +6,7 @@ import {
     AUTH_SERIF_FONT,
 } from "../../components/auth/authStyles";
 import {useOutletContext} from "react-router";
-
-
-interface AuthContext {
-    openLogin: () => void;
-    openRegister: () => void;
-}
+import type { AuthContext } from "../../components/layout/Layout/Layout";
 
 const HomePage = () => {
     const {openLogin, openRegister} = useOutletContext<AuthContext>();

@@ -13,6 +13,7 @@ import {
 import { useTrends } from "../../../hooks/useTrends";
 import { usePatientProfile } from "../../../hooks/usePatientProfile";
 import { useVisits } from "../../../hooks/useVisits";
+import { useAiAnalysis } from "../../../hooks/useAiAnalysis";
 import type { ParameterTrend, CKDStage } from "../../../api/types/trends";
 import type { VisitResponse } from "../../../api/types/result";
 import "./PatientDashboardPage.css";
@@ -307,6 +308,7 @@ export default function PatientDashboardPage() {
   const { data, groupedParameters, isLoading, error, refetch } = useTrends(patientId);
   const { profile } = usePatientProfile(patientId);
   const { visits } = useVisits(patientId);
+  const { analysis, loading: aiLoading, error: aiError, generate: generateAiAnalysis } = useAiAnalysis(patientId);
   const [activeTab, setActiveTab] = useState<"overview" | "results">("overview");
 
   if (isLoading) {
@@ -357,7 +359,7 @@ export default function PatientDashboardPage() {
             <div>
               <h2 className="patient-header-name">{profile.full_name}</h2>
               <p className="patient-header-subline">
-                {age !== null ? `${age} год.` : "—"} · {profile.sex === "male" ? "Машкo" : "Женскo"}
+                {age !== null ? `${age} год.` : "—"} · {profile.sex === "male" ? "Машки" : "Женски"}
                 {profile.ckd_etiology && <> · {ETIOLOGY_LABELS[profile.ckd_etiology]}</>}
               </p>
             </div>
@@ -402,6 +404,26 @@ export default function PatientDashboardPage() {
             </span>
             <span className="quick-stat-unit">mmHg</span>
           </div>
+        </div>
+      )}
+
+      {hasAnyData && (
+        <div className="ai-analysis-section">
+          <button
+            type="button"
+            className="ai-analysis-button"
+            onClick={generateAiAnalysis}
+            disabled={aiLoading}
+          >
+            {aiLoading ? "Се генерира..." : "🤖 Генерирај AI анализа"}
+          </button>
+          {aiError && <p className="ai-analysis-error">{aiError}</p>}
+          {analysis && (
+            <div className="ai-analysis-box">
+              <div className="ai-analysis-box-header">🤖 Claude AI анализа</div>
+              <p className="ai-analysis-text">{analysis}</p>
+            </div>
+          )}
         </div>
       )}
 

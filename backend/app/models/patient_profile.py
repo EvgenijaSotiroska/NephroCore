@@ -34,6 +34,7 @@ class CKDEtiology(str, enum.Enum):
     IGA_NEPHROPATHY = "iga_nephropathy"
     OTHER = "other"
     UNKNOWN = "unknown"
+    NONE = "none"
 
 
 class DialysisStatus(str, enum.Enum):

@@ -2,10 +2,10 @@ import { useState } from "react";
 import type { LoginRequest } from "../api/types/user";
 import userApi from "../api/userApi";
 import { useNavigate } from "react-router";
-import useAuth from "./useAuth";
+import { useAuth } from "./useAuth";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
-const useLogin = () => {
+export function useLogin() {
   const navigate = useNavigate();
   const { login: authLogin } = useAuth();
 
@@ -21,11 +21,7 @@ const useLogin = () => {
 
       authLogin(response.data.access_token);
 
-      navigate(
-        response.data.role === "doctor"
-          ? "/"
-          : "/"
-      );
+      navigate(response.data.role === "doctor" ? "/" : "/patient");
 
       return true;
     } catch (err) {
@@ -40,6 +36,4 @@ const useLogin = () => {
   };
 
   return { loading, error, login };
-};
-
-export default useLogin;
+}

@@ -7,15 +7,8 @@ interface UsePatientProfileResult {
   profile: PatientProfile | null;
   loading: boolean;
   error: string | null;
-  refresh: () => Promise<void>;
 }
 
-/**
- * Fetches a patient's profile. Pass a `patientId` (doctor viewing a specific
- * patient) or omit it to fetch the logged-in patient's own profile.
- * Deliberately read-only — there is no update action here, since only the
- * owning doctor can edit clinical data.
- */
 export function usePatientProfile(patientId?: string): UsePatientProfileResult {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,5 +33,5 @@ export function usePatientProfile(patientId?: string): UsePatientProfileResult {
     refresh();
   }, [refresh]);
 
-  return { profile, loading, error, refresh };
+  return { profile, loading, error };
 }

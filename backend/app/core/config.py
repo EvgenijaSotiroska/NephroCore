@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://nephrocore:nephrocore@localhost:5432/nephrocore"
 
     OPENAI_API_KEY: str = ""
+    ANTHROPIC_API_KEY: str = ""
     SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 360
