@@ -14,11 +14,11 @@ interface CheckboxOption {
 const PREVIOUS_CONDITIONS: CheckboxOption[] = [
   {
     value: "acute_kidney_injury",
-    label: "Акутно оштетување на бубрезите (AKI)",
+    label: "Акутно оштетување на бубрезите",
   },
   {
     value: "recurrent_utis_pyelo",
-    label: "Рекурентни уринарни инфекции / пиелонефритис",
+    label: "Пиелонефритис",
   },
   {
     value: "kidney_stones",
@@ -26,23 +26,23 @@ const PREVIOUS_CONDITIONS: CheckboxOption[] = [
   },
   {
     value: "prior_glomerulonephritis",
-    label: "Претходен епизоден гломерулонефритис",
+    label: "Гломерулонефритис",
   },
   {
     value: "single_kidney_nephrectomy",
-    label: "Еден бубрег / нефректомија",
+    label: "Нефректомија",
   },
   {
     value: "cardiovascular_disease",
     label:
-      "Кардиоваскуларна болест (инфаркт, срцева слабост, мозочен удар)",
+      "Кардиоваскуларна болест",
   },
 ];
 
 const GENETIC_RISK_FACTORS: CheckboxOption[] = [
   {
     value: "family_history_ckd_kidney_failure_dialysis",
-    label: "Семејна историја на ХББ / бубрежна слабост / дијализа",
+    label: "Семејна историја на бубрежна болест / бубрежна слабост",
   },
   {
     value: "family_history_pckd",
@@ -55,14 +55,6 @@ const GENETIC_RISK_FACTORS: CheckboxOption[] = [
   {
     value: "family_history_hypertension",
     label: "Семејна историја на хипертензија",
-  },
-  {
-    value: "alport_syndrome_family_history",
-    label: "Алпортов синдром (семејна историја)",
-  },
-  {
-    value: "apol1_high_risk_variant",
-    label: "APOL1 варијанта со висок ризик",
   },
 ];
 
@@ -84,12 +76,12 @@ const COMORBIDITIES: CheckboxOption[] = [
     label: "Дебелина",
   },
   {
-    value: "liver_disease",
-    label: "Заболување на црниот дроб",
+    value: "anemia",
+    label: "Анемија",
   },
   {
-    value: "thyroid_disease",
-    label: "Заболување на тироидната жлезда",
+    value: "dyslipidemia ",
+    label: "Дислипидемија",
   },
 ];
 
@@ -107,16 +99,8 @@ const CURRENT_MEDICATIONS: CheckboxOption[] = [
     label: "NSAID лекови",
   },
   {
-    value: "phosphate_binders",
-    label: "Фосфатни врзувачи",
-  },
-  {
     value: "erythropoiesis_stimulating_agents",
     label: "Стимулатори на еритропоезата (EPO)",
-  },
-  {
-    value: "vitamin_d_analogs_calcimimetics",
-    label: "Витамин D аналози / калцимиметици",
   },
   {
     value: "sglt2_inhibitors",
@@ -572,6 +556,10 @@ export default function CreatePatient() {
 
                 <option value="unknown">
                   Непознато
+                </option>
+
+                <option value="none">
+                   Нема заболување / Превентивен преглед
                 </option>
               </select>
             </div>

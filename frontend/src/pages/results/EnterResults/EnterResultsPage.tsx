@@ -125,7 +125,7 @@ const EnterResults = () => {
           <div className="results-subsection-header">
             <div className="results-section-icon">🩺</div>
             <div>
-              <h3 className="results-section-title">Тековен KDIGO стадиум</h3>
+              <h3 className="results-section-title">Тековен стадиум</h3>
               <p className="results-section-subtitle">
                 Ова ги одредува параметрите подолу
               </p>

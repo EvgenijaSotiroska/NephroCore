@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, patients, results
+from app.api.routes import auth, patients, results, trends
 from app.core.config import settings
 from app.db.session import Base, engine
 
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(results.router)
+app.include_router(trends.router)
 
 
 @app.on_event("startup")

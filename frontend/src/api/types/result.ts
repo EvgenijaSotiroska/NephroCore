@@ -3,6 +3,9 @@ import type { CKDStage } from "./cdkStage.ts";
 export interface ParameterDefinition {
   key: string;
   value_type: "float" | "int";
+  label_mk: string;
+  unit: string;
+  reference_mk: string;
 }
 
 export interface StageParametersResponse {
@@ -25,9 +28,9 @@ export interface CreateVisitRequest {
 
 export type UpdateVisitRequest = Partial<Omit<CreateVisitRequest, "patient_id">>;
 
-export interface LabResultResponse extends LabResultPayload {
+export type LabResultResponse = LabResultPayload & {
   id: string;
-}
+};
 
 export interface VisitResponse {
   id: string;

@@ -22,40 +22,24 @@ router = APIRouter(prefix="/results", tags=["results"])
 
 
 @router.get("/parameters", response_model=List[StageParametersResponse])
-def get_all_stage_parameters():
-    """Full catalog: for every CKD stage, which parameter keys the entry
-    form should show. Pure domain data (keys + value types) — the
-    frontend merges this with its own Macedonian label dictionary and
-    switches the visible fields locally when the doctor clicks a stage."""
+def get_all_stage_parameters(db: Session = Depends(get_db)):
+    """Full catalog: for every CKD stage, which parameters the entry form
+    should show, already carrying their Macedonian label/unit/reference."""
     return [
         StageParametersResponse(
             stage=stage,
-            parameters=get_stage_parameter_definitions(stage),
+            parameters=get_stage_parameter_definitions(stage, db),
         )
         for stage in CKDStage
     ]
 
 
 @router.get("/parameters/{stage}", response_model=StageParametersResponse)
-def get_stage_parameters(stage: CKDStage):
+def get_stage_parameters(stage: CKDStage, db: Session = Depends(get_db)):
     return StageParametersResponse(
         stage=stage,
-        parameters=get_stage_parameter_definitions(stage),
+        parameters=get_stage_parameter_definitions(stage, db),
     )
-
-
-
-@router.get("/patient/{patient_id}/suggested-stage", response_model=CKDStage)
-def get_suggested_stage(patient_id: uuid.UUID, db: Session = Depends(get_db)):
-    """Return the CKD stage from the patient's most recent visit so the
-    entry form can preselect it. Defaults to G1 for a brand-new patient."""
-    last_visit = (
-        db.query(Visit)
-        .filter(Visit.patient_id == patient_id)
-        .order_by(Visit.visit_date.desc())
-        .first()
-    )
-    return last_visit.ckd_stage if last_visit else CKDStage.G1
 
 
 @router.post("/", response_model=VisitResponse, status_code=status.HTTP_201_CREATED)

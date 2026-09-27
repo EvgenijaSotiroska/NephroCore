@@ -11,6 +11,9 @@ const patientApi = {
   getMine: async () => {
     return await axiosInstance.get<PatientProfile>("/patients/me");
   },
+  getById: async (patientId: string) => {
+    return await axiosInstance.get<PatientProfile>(`/patients/${patientId}`);
+  },
 };
 
 export default patientApi;

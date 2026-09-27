@@ -10,6 +10,9 @@ from app.core.lab_parameters import CKDStage
 class ParameterDefinition(BaseModel):
     key: str
     value_type: str
+    label_mk: str
+    unit: str
+    reference_mk: str
 
 class StageParametersResponse(BaseModel):
     stage: CKDStage
