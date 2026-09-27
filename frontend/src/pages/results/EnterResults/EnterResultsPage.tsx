@@ -15,6 +15,7 @@ const EnterResults = () => {
   const {
     stageParameters,
     getParametersForStage,
+    allParameters,
     loading: paramsLoading,
     error: paramsError,
   } = useResultParameters();
@@ -24,12 +25,16 @@ const EnterResults = () => {
   const [visitDate, setVisitDate] = useState(todayIso());
   const [stage, setStage] = useState<CKDStage>("G1");
   const [values, setValues] = useState<LabResultPayload>({});
+  const [extraKeys, setExtraKeys] = useState<string[]>([]);
 
   const currentStageConfig = getParametersForStage(stage);
 
   useEffect(() => {
     if (!currentStageConfig) return;
-    const validKeys = new Set(currentStageConfig.parameters.map((p) => p.key));
+    const validKeys = new Set([
+      ...currentStageConfig.parameters.map((p) => p.key),
+      ...extraKeys,
+    ]);
     setValues((prev) => {
       const next: LabResultPayload = {};
       Object.keys(prev).forEach((key) => {
@@ -58,6 +63,7 @@ const EnterResults = () => {
 
     if (result) {
       setValues({});
+      setExtraKeys([]);
     }
   };
 
@@ -66,6 +72,12 @@ const EnterResults = () => {
       <div className="results-loading">Се вчитува...</div>
     );
   }
+
+  const extraParams = allParameters.filter((p) => extraKeys.includes(p.key));
+  const combinedParams = [...(currentStageConfig?.parameters ?? []), ...extraParams];
+  const availableToAdd = allParameters.filter(
+    (p) => !currentStageConfig?.parameters.some((sp) => sp.key === p.key) && !extraKeys.includes(p.key)
+  );
 
   return (
     <div className="results-page">
@@ -170,7 +182,7 @@ const EnterResults = () => {
             </p>
           )}
 
-          {currentStageConfig && currentStageConfig.parameters.length > 0 && (
+          {currentStageConfig && combinedParams.length > 0 && (
             <>
               <div className="results-divider" />
 
@@ -185,7 +197,7 @@ const EnterResults = () => {
               </div>
 
               <div className="results-grid">
-                {currentStageConfig.parameters.map((param) => (
+                {combinedParams.map((param) => (
                   <div key={param.key} className="results-field">
                     <label>{param.label_mk}</label>
                     <input
@@ -199,9 +211,38 @@ const EnterResults = () => {
                     <span className="field-hint">
                       {param.unit} · Референца: {param.reference_mk}
                     </span>
+                    {extraKeys.includes(param.key) && (
+                      <button
+                        type="button"
+                        className="remove-extra-param"
+                        onClick={() =>
+                          setExtraKeys((prev) => prev.filter((k) => k !== param.key))
+                        }
+                      >
+                        ✕ Отстрани
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
+
+              {availableToAdd.length > 0 && (
+                <div className="add-parameter-row">
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value) setExtraKeys((prev) => [...prev, e.target.value]);
+                    }}
+                  >
+                    <option value="">+ Додади друг параметар</option>
+                    {availableToAdd.map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {p.label_mk}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </>
           )}
 

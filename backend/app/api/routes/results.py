@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
 from app.db.session import get_db
-from app.core.lab_parameters import CKDStage, get_stage_parameter_definitions
+from app.core.lab_parameters import CKDStage, get_stage_parameter_definitions, get_all_parameters
 from app.models.result import Visit, LabResult
 from app.models.user import User
 from app.schemas.result import (
@@ -14,6 +14,7 @@ from app.schemas.result import (
     VisitResponse,
     VisitListResponse,
     StageParametersResponse,
+    ParameterDefinition
 )
 
 from app.api.deps import require_doctor
@@ -32,6 +33,10 @@ def get_all_stage_parameters(db: Session = Depends(get_db)):
         )
         for stage in CKDStage
     ]
+
+@router.get("/parameters/all", response_model=List[ParameterDefinition])
+def get_all_parameters_catalog(db: Session = Depends(get_db)):
+    return get_all_parameters(db)
 
 
 @router.get("/parameters/{stage}", response_model=StageParametersResponse)

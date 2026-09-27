@@ -5,7 +5,7 @@ import type {
   CreateVisitRequest,
   UpdateVisitRequest,
   VisitResponse,
-  VisitListResponse,
+  VisitListResponse, ParameterDefinition,
 } from "./types/result";
 
 const resultsApi = {
@@ -31,6 +31,9 @@ const resultsApi = {
     axiosInstance.put<VisitResponse>(`/results/${visitId}`, payload),
 
   remove: (visitId: string) => axiosInstance.delete(`/results/${visitId}`),
+
+  getAllParameters: () =>
+    axiosInstance.get<ParameterDefinition[]>("/results/parameters/all"),
 };
 
 export default resultsApi;

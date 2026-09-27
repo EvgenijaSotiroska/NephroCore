@@ -66,3 +66,20 @@ def get_stage_parameter_meta(stage: CKDStage, db: Session) -> list[dict]:
         }
         for row in rows
     ]
+
+def get_all_parameters(db: Session) -> list[dict]:
+    """Every parameter in the catalog, regardless of stage — powers the
+    entry form's 'add another parameter' picker."""
+    from app.models.lab_parameter import LabParameter
+
+    rows = db.query(LabParameter).order_by(LabParameter.display_order).all()
+    return [
+        {
+            "key": row.key,
+            "value_type": row.value_type.value,
+            "label_mk": row.label_mk,
+            "unit": row.unit,
+            "reference_mk": row.reference_mk or "",
+        }
+        for row in rows
+    ]

@@ -43,39 +43,45 @@ interface UseResultParametersResult {
   getParametersForStage: (stage: CKDStage) => StageParameters | undefined;
   loading: boolean;
   error: string | null;
+  allParameters: ParameterDefinition[];
 }
 
 export function useResultParameters(): UseResultParametersResult {
-  const [stageParameters, setStageParameters] = useState<StageParameters[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const [stageParameters, setStageParameters] = useState<StageParameters[]>([]);
+    const [allParameters, setAllParameters] = useState<ParameterDefinition[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { data } = await resultsApi.getParameters();
-      setStageParameters(
-        data.map((entry) => ({
-          stage: entry.stage,
-          label_mk: STAGE_LABELS_MK[entry.stage],
-          egfr_range_label: STAGE_EGFR_RANGE_LABEL[entry.stage],
-          parameters: entry.parameters,
-        }))
-      );
-    } catch (err) {
-      setError(getApiErrorMessage(err, "Could not load parameters"));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const refresh = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const [stagesRes, allRes] = await Promise.all([
+                resultsApi.getParameters(),
+                resultsApi.getAllParameters(),
+            ]);
+            setStageParameters(
+                stagesRes.data.map((entry) => ({
+                    stage: entry.stage,
+                    label_mk: STAGE_LABELS_MK[entry.stage],
+                    egfr_range_label: STAGE_EGFR_RANGE_LABEL[entry.stage],
+                    parameters: entry.parameters,
+                }))
+            );
+            setAllParameters(allRes.data);
+        } catch (err) {
+            setError(getApiErrorMessage(err, "Could not load parameters"));
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+    useEffect(() => {
+        refresh();
+    }, [refresh]);
 
-  const getParametersForStage = (stage: CKDStage) =>
-    stageParameters.find((entry) => entry.stage === stage);
+    const getParametersForStage = (stage: CKDStage) =>
+        stageParameters.find((entry) => entry.stage === stage);
 
-  return { stageParameters, getParametersForStage, loading, error };
+    return {stageParameters, allParameters, getParametersForStage, loading, error};
 }

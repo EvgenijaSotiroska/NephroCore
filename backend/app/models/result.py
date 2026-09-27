@@ -76,5 +76,14 @@ class LabResult(Base):
     # G5
     urea = Column(Numeric(5, 2), nullable=True)
     albumin = Column(Numeric(5, 2), nullable=True)
+    sodium = Column(Numeric(4, 1), nullable=True)
+    ferritin = Column(Numeric(6, 1), nullable=True)
+    tsat = Column(Numeric(4, 1), nullable=True)
+    vitamin_d = Column(Numeric(5, 1), nullable=True)
+    magnesium = Column(Numeric(4, 2), nullable=True)
+    uric_acid = Column(Numeric(5, 1), nullable=True)
+    hba1c = Column(Numeric(4, 1), nullable=True)
+    ldl_cholesterol = Column(Numeric(4, 2), nullable=True)
+    kt_v = Column(Numeric(4, 2), nullable=True)
 
     visit = relationship("Visit", back_populates="lab_result")

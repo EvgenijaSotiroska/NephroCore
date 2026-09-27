@@ -32,6 +32,15 @@ class LabResultBase(BaseModel):
     bicarbonate: Optional[float] = None
     urea: Optional[float] = None
     albumin: Optional[float] = None
+    sodium: Optional[float] = None
+    ferritin: Optional[float] = None
+    tsat: Optional[float] = None
+    vitamin_d: Optional[float] = None
+    magnesium: Optional[float] = None
+    uric_acid: Optional[float] = None
+    hba1c: Optional[float] = None
+    ldl_cholesterol: Optional[float] = None
+    kt_v: Optional[float] = None
 
 
 class LabResultResponse(LabResultBase):

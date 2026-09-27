@@ -288,6 +288,25 @@
   color: #71819a;
 }
 
+.add-parameter-row select {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #dce4ee;
+  color: #08aaa5;
+  font-weight: 600;
+}
+
+.remove-extra-param {
+  margin-top: 4px;
+  border: none;
+  background: none;
+  color: #b3453f;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
 
 /* ==================== RESPONSIVE ==================== */
 
