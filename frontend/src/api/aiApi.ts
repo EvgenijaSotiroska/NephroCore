@@ -4,6 +4,9 @@ import type { AIAnalysisResponse } from "./types/ai";
 const aiApi = {
   generateAnalysis: (patientId: string) =>
     axiosInstance.post<AIAnalysisResponse>(`/patients/${patientId}/ai-analysis`),
+
+  explainResults: (patientId: string) =>
+    axiosInstance.post<AIAnalysisResponse>(`/patients/${patientId}/explain-results`),
 };
 
 export default aiApi;

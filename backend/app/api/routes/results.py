@@ -17,7 +17,7 @@ from app.schemas.result import (
     ParameterDefinition
 )
 
-from app.api.deps import require_doctor
+from app.api.deps import require_doctor, require_doctor_or_self
 
 router = APIRouter(prefix="/results", tags=["results"])
 
@@ -75,7 +75,7 @@ def create_visit(
 def list_patient_visits(
     patient_id: uuid.UUID,
     db: Session = Depends(get_db),
-    current_doctor: User = Depends(require_doctor),
+    current_user: User = Depends(require_doctor_or_self),
 ):
     query = (
         db.query(Visit)
@@ -85,7 +85,6 @@ def list_patient_visits(
     )
     visits = query.all()
     return VisitListResponse(visits=visits, total=len(visits))
-
 
 @router.get("/{visit_id}", response_model=VisitResponse)
 def get_visit(

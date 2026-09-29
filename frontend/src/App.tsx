@@ -6,9 +6,9 @@ import {SessionExpiryBanner} from "./components/SessionExpiryBanner";
 import Layout from "./components/layout/Layout/Layout";
 import HomePage from "./pages/home/HomePage";
 import CreatePatient from "./pages/patients/CreatePatient/CreatePatient";
-import PatientHome from "./pages/PatientHome";
 import EnterResultsPage from "./pages/results/EnterResults/EnterResultsPage.tsx";
 import PatientProfilePage from "./pages/patients/PatientDashboard/PatientDashboardPage.tsx";
+import PatientHomePage from "./pages/patients/PatientHomePage/PatientHomePage.tsx";
 
 function AppRoutes() {
     return (
@@ -52,7 +52,7 @@ function AppRoutes() {
                     path="/patient"
                     element={
                         <ProtectedRoute allowedRoles={["patient"]}>
-                            <PatientHome/>
+                            <PatientHomePage/>
                         </ProtectedRoute>
                     }
                 />

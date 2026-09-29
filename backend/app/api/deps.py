@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.security import decode_token
 from app.db.session import get_db
 from app.models.user import User, UserRole
-
+import uuid
 bearer_scheme = HTTPBearer(auto_error=True)
 
 
@@ -49,3 +49,17 @@ def require_role(*allowed_roles: UserRole):
 
 require_doctor = require_role(UserRole.doctor)
 require_patient = require_role(UserRole.patient)
+
+
+def require_doctor_or_self(patient_id: uuid.UUID):
+    """Allow a doctor (any patient), or a patient fetching their own data."""
+    def dependency(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),  # however you decode the JWT today
+    ) -> User:
+        if current_user.role == "doctor":
+            return current_user
+        if current_user.role == "patient" and current_user.id == patient_id:
+            return current_user
+        raise HTTPException(status_code=403, detail="Not authorized to view this patient's results")
+    return dependency

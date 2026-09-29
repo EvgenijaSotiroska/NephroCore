@@ -33,3 +33,26 @@ def build_doctor_analysis_prompt(
         f"Ground any recommendations in the guideline excerpts above where they apply."
     )
     return system_prompt, user_prompt
+
+
+def build_patient_explanation_prompt(
+    patient: PatientProfile,
+    visits: list[Visit],
+    param_labels: dict[str, tuple[str, str]],
+    doctor_analysis: str | None = None,
+) -> tuple[str, str]:
+    """Returns (system_prompt, user_prompt)."""
+    system_prompt = load_prompt("system_prompt")
+    task_instructions = load_prompt("patient_analysis_prompt")
+
+    analysis_block = doctor_analysis if doctor_analysis else "None available yet."
+
+    user_prompt = (
+        f"{task_instructions}\n\n"
+        f"PATIENT DATA:\n{format_patient_context(patient)}\n\n"
+        f"VISIT HISTORY (chronological, oldest first):\n{format_visit_history(visits, param_labels)}\n\n"
+        f"DOCTOR'S CLINICAL ANALYSIS OF THE MOST RECENT VISIT:\n{analysis_block}\n\n"
+        f"Explain the most recent visit to the patient, in the context of their history, "
+        f"following the instructions above."
+    )
+    return system_prompt, user_prompt
