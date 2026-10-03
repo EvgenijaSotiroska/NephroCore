@@ -89,4 +89,14 @@ class PatientProfile(Base):
 
     user = relationship("User", back_populates="patient_profile", foreign_keys=[user_id])
 
-    visits = relationship("Visit", back_populates="patient", cascade="all, delete-orphan")
+    visits = relationship(
+        "Visit",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+    )
+
+    appointments = relationship(
+        "Appointment",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+    )

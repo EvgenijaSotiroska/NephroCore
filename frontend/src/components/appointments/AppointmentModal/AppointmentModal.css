@@ -1,0 +1,367 @@
+/* =========================
+   MODAL OVERLAY
+   ========================= */
+
+.appointment-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 15px;
+
+  background: rgba(23, 36, 58, 0.42);
+
+  box-sizing: border-box;
+}
+
+/* =========================
+   MODAL
+   ========================= */
+
+.appointment-modal {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 30px);
+
+  display: flex;
+  flex-direction: column;
+
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow: 0 25px 70px rgba(23, 36, 58, 0.2);
+
+  overflow: hidden;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+
+.appointment-modal__header {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 20px 26px;
+
+  border-bottom: 1px solid #edf0f4;
+}
+
+.appointment-modal__header h2 {
+  margin: 0;
+
+  color: #17243a;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 21px;
+  font-weight: 600;
+
+  line-height: 1.25;
+}
+
+.appointment-modal__header p {
+  margin: 5px 0 0;
+
+  color: #8a95a4;
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.appointment-modal__close {
+  flex: 0 0 auto;
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #7d8998;
+
+  font-size: 21px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.appointment-modal__close:hover {
+  background: #f3f6f8;
+  color: #17243a;
+}
+
+/* =========================
+   FORM
+   ========================= */
+
+.appointment-form {
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 26px 26px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  box-sizing: border-box;
+}
+
+.appointment-form__group {
+  margin-bottom: 16px;
+}
+
+.appointment-form__group:last-of-type {
+  margin-bottom: 0;
+}
+
+.appointment-form__group label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #344255;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.appointment-form__group input,
+.appointment-form__group select,
+.appointment-form__group textarea {
+  width: 100%;
+  min-width: 0;
+
+  border: 1px solid #dfe6ed;
+  border-radius: 8px;
+
+  padding: 10px 11px;
+
+  background: #ffffff;
+  color: #17243a;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  outline: none;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.appointment-form__group input:focus,
+.appointment-form__group select:focus,
+.appointment-form__group textarea:focus {
+  border-color: #08aaa5;
+
+  box-shadow: 0 0 0 3px rgba(8, 170, 165, 0.09);
+}
+
+.appointment-form__group input:disabled,
+.appointment-form__group select:disabled,
+.appointment-form__group textarea:disabled {
+  background: #f6f8fa;
+  color: #8a95a4;
+  cursor: not-allowed;
+}
+
+.appointment-form__group textarea {
+  min-height: 85px;
+
+  resize: vertical;
+}
+
+.appointment-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+/* =========================
+   HINT
+   ========================= */
+
+.appointment-form__hint {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #8a95a4;
+
+  font-size: 10px;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+.appointment-form__footer {
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding-top: 20px;
+  margin-top: 20px;
+
+  border-top: 1px solid #edf0f4;
+}
+
+.appointment-form__footer-right {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.appointment-form__cancel,
+.appointment-form__submit,
+.appointment-form__delete {
+  border-radius: 8px;
+
+  padding: 10px 15px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.appointment-form__cancel {
+  border: 1px solid #dfe6ed;
+
+  background: #ffffff;
+  color: #667482;
+}
+
+.appointment-form__cancel:hover {
+  background: #f7f9fb;
+}
+
+.appointment-form__submit {
+  border: 1px solid #08aaa5;
+
+  background: #08aaa5;
+  color: #ffffff;
+}
+
+.appointment-form__submit:hover {
+  background: #078f8b;
+  border-color: #078f8b;
+}
+
+.appointment-form__delete {
+  border: 1px solid #efcaca;
+
+  background: #fff8f8;
+  color: #b05252;
+}
+
+.appointment-form__delete:hover {
+  background: #fff0f0;
+  border-color: #e5b5b5;
+}
+
+.appointment-form__cancel:disabled,
+.appointment-form__submit:disabled,
+.appointment-form__delete:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================
+   SCROLLBAR
+   ========================= */
+
+.appointment-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.appointment-form::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.appointment-form::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+
+  background: #d8e0e7;
+}
+
+.appointment-form::-webkit-scrollbar-thumb:hover {
+  background: #c2ccd5;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 600px) {
+  .appointment-modal-overlay {
+    align-items: flex-start;
+
+    padding: 10px;
+  }
+
+  .appointment-modal {
+    max-height: calc(100vh - 20px);
+
+    margin-top: 5px;
+  }
+
+  .appointment-modal__header {
+    padding: 17px 18px;
+  }
+
+  .appointment-form {
+    padding: 18px;
+  }
+
+  .appointment-form__row {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+  .appointment-form__footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .appointment-form__footer-right {
+    justify-content: flex-end;
+  }
+}
