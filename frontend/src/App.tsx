@@ -10,6 +10,7 @@ import EnterResultsPage from "./pages/results/EnterResults/EnterResultsPage.tsx"
 import PatientProfilePage from "./pages/patients/PatientDashboard/PatientDashboardPage.tsx";
 import PatientHomePage from "./pages/patients/PatientHomePage/PatientHomePage.tsx";
 import AppointmentsPage from "./pages/doctors/AppointmentsPage/AppointmentsPage.tsx";
+import DoctorHomePage from "./pages/doctors/DoctorHomePage/DoctorHomePage";
 
 function AppRoutes() {
     return (
@@ -35,6 +36,15 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute allowedRoles={["doctor"]}>
                             <AppointmentsPage/>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/doctor"
+                    element={
+                        <ProtectedRoute allowedRoles={["doctor"]}>
+                            <DoctorHomePage/>
                         </ProtectedRoute>
                     }
                 />

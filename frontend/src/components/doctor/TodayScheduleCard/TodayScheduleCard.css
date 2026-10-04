@@ -1,0 +1,62 @@
+.dh-schedule {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dh-schedule-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.dh-schedule-item:last-child {
+  border-bottom: none;
+}
+
+.dh-schedule-time {
+  flex-shrink: 0;
+  width: 46px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #71819a;
+}
+
+.dh-schedule-body {
+  flex: 1;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 2px solid #dbe4ee;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dh-schedule-item-next .dh-schedule-body {
+  border-left-color: #08aaa5;
+}
+
+.dh-schedule-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #17243a;
+}
+
+.dh-schedule-meta {
+  font-size: 12px;
+  color: #8a9ab0;
+}
+
+.dh-schedule-status {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a9ab0;
+}
+
+.dh-schedule-status-completed { color: #71819a; }
+.dh-schedule-status-next { color: #08aaa5; }
+.dh-schedule-status-cancelled,
+.dh-schedule-status-no_show { color: #b3453f; }

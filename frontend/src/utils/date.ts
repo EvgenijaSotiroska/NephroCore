@@ -51,3 +51,13 @@ export function daysUntil(iso: string): number {
 }
 
 export const nowTime = () => formatTime(new Date().toISOString());
+
+export function formatDayMonth(dateStr: string): string {
+  const d = toDate(dateStr);
+  return `${d.getDate()} ${MK_MONTHS_SHORT[d.getMonth()]}`;
+}
+
+export function formatTodayLong(): string {
+  const text = formatWeekdayDayMonth(todayIso());
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

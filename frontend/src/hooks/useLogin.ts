@@ -21,7 +21,7 @@ export function useLogin() {
 
       authLogin(response.data.access_token);
 
-      navigate(response.data.role === "doctor" ? "/" : "/patient");
+      navigate(response.data.role === "doctor" ? "/doctor" : "/patient");
 
       return true;
     } catch (err) {

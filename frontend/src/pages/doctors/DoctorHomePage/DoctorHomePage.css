@@ -1,0 +1,282 @@
+.dh-page {
+  min-height: 100vh;
+  background: #f7f9fc;
+  padding: 0 0 60px;
+  box-sizing: border-box;
+}
+
+.dh-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dh-state {
+  background: #ffffff;
+  border: 1px solid #e5ebf2;
+  margin-top: 28px;
+  border-radius: 22px;
+  padding: 36px;
+  text-align: center;
+  color: #71819a;
+}
+
+.dh-state-error {
+  color: #b3453f;
+}
+
+/* ---------- Hero (full width, same as the patient page) ---------- */
+
+.dh-hero {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-image: url("https://t3.ftcdn.net/jpg/00/92/34/56/360_F_92345619_pUlEznFdreTJy5amSBspNNtQT0sqhTwM.jpg");
+  background-size: cover;
+  background-position: center;
+  padding-bottom: 56px; /* room for the stat row overlapping the hero */
+  box-sizing: border-box;
+}
+
+.dh-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(6, 78, 59, 0.94) 0%,
+    rgba(8, 47, 73, 0.82) 45%,
+    rgba(8, 47, 73, 0.45) 100%
+  );
+}
+
+.dh-hero-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  color: #ffffff;
+}
+
+.dh-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 7px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.dh-hero-badge::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #0ea5e9;
+}
+
+.dh-hero-title {
+  margin: 0 0 10px;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: 3.2rem;
+  line-height: 1.15;
+}
+
+.dh-hero-name {
+  background: linear-gradient(90deg, #5eead4, #38bdf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dh-hero-subtitle {
+  margin: 0;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Stat row ---------- */
+
+.dh-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: -40px;
+  position: relative;
+  z-index: 2;
+}
+
+.dh-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1px solid #e5ebf2;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(31, 51, 73, 0.05);
+}
+
+.dh-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dh-stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #71819a;
+}
+
+.dh-stat-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.dh-stat-icon-teal { background: #d9f7f6; }
+.dh-stat-icon-blue { background: #dbeafe; }
+.dh-stat-icon-purple { background: #ede9fe; }
+.dh-stat-icon-red { background: #fee2e2; }
+
+.dh-stat-value {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.dh-stat-value-teal { color: #0d9488; }
+.dh-stat-value-blue { color: #0284c7; }
+.dh-stat-value-purple { color: #7c3aed; }
+.dh-stat-value-red { color: #e11d48; }
+
+.dh-stat-hint {
+  font-size: 12px;
+  color: #8a9ab0;
+}
+
+/* ---------- Layout ---------- */
+
+.dh-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 20px;
+  align-items: start;
+}
+
+.dh-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ---------- Shared card primitives (used by the components) ---------- */
+
+.dh-card {
+  background: #ffffff;
+  border: 1px solid #e5ebf2;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(31, 51, 73, 0.05);
+}
+
+.dh-card-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.dh-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #08aaa5;
+}
+
+.dh-card-title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: #17243a;
+}
+
+.dh-link {
+  font-size: 12px;
+  font-weight: 700;
+  color: #08aaa5;
+  text-decoration: none;
+}
+
+.dh-link:hover {
+  text-decoration: underline;
+}
+
+.dh-muted {
+  margin: 0;
+  font-size: 13px;
+  color: #71819a;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1100px) {
+  .dh-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dh-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .dh-container {
+    padding: 0 16px;
+  }
+
+  .dh-hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 20px;
+  }
+
+  .dh-hero-title {
+    font-size: 2.3rem;
+  }
+
+  .dh-stats {
+    grid-template-columns: 1fr;
+  }
+}
