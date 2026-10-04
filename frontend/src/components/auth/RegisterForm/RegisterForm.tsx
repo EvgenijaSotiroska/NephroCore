@@ -29,12 +29,12 @@ const initialFormData: FormData = {
   password: "",
 };
 
-const RegisterForm = ({
+export default function RegisterForm({
   onClose,
   onSwitchToLogin,
   onSwitchToActivate,
   onRegisterSuccess,
-}: RegisterFormProps) => {
+}: RegisterFormProps) {
   const [role, setRole] = useState<AuthRole>("doctor");
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const { register, error, loading } = useRegister();
@@ -295,7 +295,5 @@ const RegisterForm = ({
       )}
     </AuthCard>
   );
-};
-
-export default RegisterForm;
+}
 

@@ -22,6 +22,13 @@ const appointmentApi = {
     );
   },
 
+  // patient: their next upcoming scheduled appointment (or null)
+  next: async () => {
+    return await axiosInstance.get<AppointmentResponse | null>(
+      "/appointments/next"
+    );
+  },
+
   get: async (appointmentId: string) => {
     return await axiosInstance.get<AppointmentResponse>(
       `/appointments/${appointmentId}`

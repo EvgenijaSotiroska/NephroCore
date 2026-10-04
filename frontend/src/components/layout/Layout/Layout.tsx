@@ -13,7 +13,7 @@ export interface AuthContext {
   openRegister: () => void;
 }
 
-const Layout = () => {
+export default function Layout() {
   const [authDialog, setAuthDialog] = useState<
     "login" | "register" | "activate" | null
   >(null);
@@ -89,6 +89,4 @@ const Layout = () => {
       </Dialog>
     </Box>
   );
-};
-
-export default Layout;
+}

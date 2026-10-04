@@ -100,3 +100,9 @@ class PatientProfile(Base):
         back_populates="patient",
         cascade="all, delete-orphan",
     )
+
+    symptoms = relationship(
+        "Symptom",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+    )

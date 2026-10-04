@@ -24,11 +24,11 @@ const initialFormData: FormData = {
     password: "",
 };
 
-const LoginForm = ({
+export default function LoginForm({
                        onClose,
                        onSwitchToRegister,
                        onLoginSuccess,
-                   }: LoginFormProps) => {
+                   }: LoginFormProps) {
     const [role, setRole] = useState<AuthRole>("doctor");
     const [formData, setFormData] = useState<FormData>(initialFormData);
 
@@ -231,6 +231,4 @@ const LoginForm = ({
             </Box>
         </AuthCard>
     );
-};
-
-export default LoginForm;
+}

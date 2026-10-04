@@ -23,7 +23,7 @@ export function useVisits(patientId: string | undefined): UseVisitsResult {
       const { data } = await resultsApi.listForPatient(patientId);
       setVisits(data.visits);
     } catch (err) {
-      setError(getApiErrorMessage(err, "Could not load visit history"));
+      setError(getApiErrorMessage(err, "Не успеа да се вчита историјата на прегледи"));
     } finally {
       setLoading(false);
     }

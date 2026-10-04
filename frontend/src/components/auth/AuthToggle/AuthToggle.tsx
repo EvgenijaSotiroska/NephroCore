@@ -10,7 +10,7 @@ interface AuthToggleProps {
   onRegister: () => void;
 }
 
-const AuthToggle = ({ onLogin, onRegister }: AuthToggleProps) => {
+export default function AuthToggle({ onLogin, onRegister }: AuthToggleProps) {
   const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -84,7 +84,5 @@ const AuthToggle = ({ onLogin, onRegister }: AuthToggleProps) => {
       </Button>
     </Box>
   );
-};
-
-export default AuthToggle;
+}
 

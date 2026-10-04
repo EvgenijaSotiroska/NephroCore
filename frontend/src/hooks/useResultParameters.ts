@@ -2,26 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import resultsApi from "../api/resultApi.ts";
 import type { CKDStage } from "../api/types/cdkStage.ts";
-
-const STAGE_LABELS_MK: Record<CKDStage, string> = {
-  G1: "Нормална или висока функција",
-  G2: "Благо намалена функција",
-  G3A: "Благо до умерено намалена функција",
-  G3B: "Умерено до тешко намалена функција",
-  G4: "Тешко намалена функција",
-  G5: "Бубрежна инсуфициенција",
-};
-
-const STAGE_EGFR_RANGE_LABEL: Record<CKDStage, string> = {
-  G1: "≥ 90",
-  G2: "60–89",
-  G3A: "45–59",
-  G3B: "30–44",
-  G4: "15–29",
-  G5: "< 15",
-};
-
-export type { CKDStage };
+import {
+    STAGE_EGFR_RANGE_LABEL, STAGE_SHORT_LABELS
+} from "../constants";
 
 export interface ParameterDefinition {
   key: string;
@@ -63,14 +46,14 @@ export function useResultParameters(): UseResultParametersResult {
             setStageParameters(
                 stagesRes.data.map((entry) => ({
                     stage: entry.stage,
-                    label_mk: STAGE_LABELS_MK[entry.stage],
+                    label_mk: STAGE_SHORT_LABELS[entry.stage],
                     egfr_range_label: STAGE_EGFR_RANGE_LABEL[entry.stage],
                     parameters: entry.parameters,
                 }))
             );
             setAllParameters(allRes.data);
         } catch (err) {
-            setError(getApiErrorMessage(err, "Could not load parameters"));
+            setError(getApiErrorMessage(err, "Не може да се вчитаат параметрите"));
         } finally {
             setLoading(false);
         }

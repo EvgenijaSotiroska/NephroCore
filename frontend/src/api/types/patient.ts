@@ -9,7 +9,8 @@ export type CKDEtiology =
   | "lupus_nephritis"
   | "iga_nephropathy"
   | "other"
-  | "unknown";
+  | "unknown"
+  | "none";
 
 export type DialysisStatus =
   | "pre_dialysis"

@@ -6,14 +6,14 @@ import type { ParameterTrend, PatientTrendsResponse } from "../api/types/trends"
 interface UseTrendsResult {
   data: PatientTrendsResponse | null;
   groupedParameters: Record<string, ParameterTrend[]>;
-  isLoading: boolean;
+  loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
 }
 
 export function useTrends(patientId: string | undefined): UseTrendsResult {
   const [data, setData] = useState<PatientTrendsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -24,7 +24,7 @@ export function useTrends(patientId: string | undefined): UseTrendsResult {
       const { data: result } = await trendsApi.getPatientTrends(patientId);
       setData(result);
     } catch (err) {
-      setError(getApiErrorMessage(err, "Could not load patient trends"));
+      setError(getApiErrorMessage(err, "Не успеаја да се вчитаат трендовите на пациентот"));
     } finally {
       setIsLoading(false);
     }
@@ -43,5 +43,5 @@ export function useTrends(patientId: string | undefined): UseTrendsResult {
     {} as Record<string, ParameterTrend[]>
   );
 
-  return { data, groupedParameters, isLoading, error, refetch: load };
+  return { data, groupedParameters, loading, error, refetch: load };
 }

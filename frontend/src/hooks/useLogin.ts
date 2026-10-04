@@ -26,7 +26,7 @@ export function useLogin() {
       return true;
     } catch (err) {
       setError(
-        getApiErrorMessage(err, "Login failed. Please try again!")
+        getApiErrorMessage(err, "Неуспешна најава. Обидете се повторно!")
       );
 
       return false;

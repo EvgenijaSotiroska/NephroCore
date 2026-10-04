@@ -17,7 +17,7 @@ export function useRegister() {
       return true;
     } catch (err) {
       setError(
-        getApiErrorMessage(err, "Register failed. Please try again!")
+        getApiErrorMessage(err, "Неуспешна регистрација. Обидете се повторно!")
       );
 
       return false;

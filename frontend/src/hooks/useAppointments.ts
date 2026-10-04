@@ -57,7 +57,7 @@ export function useAppointments(
       setAppointments(data);
     } catch (err) {
       setError(
-        getApiErrorMessage(err, "Could not load appointments")
+        getApiErrorMessage(err, "Не може да се вчитаат термините")
       );
     } finally {
       setLoading(false);
@@ -88,7 +88,7 @@ export function useAppointments(
       } catch (err) {
         const message = getApiErrorMessage(
           err,
-          "Could not create appointment"
+          "Не успеа да се закаже терминот"
         );
 
         showSnackbar(message, "error");
@@ -125,7 +125,7 @@ export function useAppointments(
       } catch (err) {
         const message = getApiErrorMessage(
           err,
-          "Could not update appointment"
+          "Не успеа да се ажурира терминот"
         );
 
         showSnackbar(message, "error");
@@ -156,7 +156,7 @@ export function useAppointments(
       } catch (err) {
         const message = getApiErrorMessage(
           err,
-          "Could not delete appointment"
+          "Не успеа да се избрише терминот"
         );
 
         showSnackbar(message, "error");

@@ -16,7 +16,7 @@ const SEVERITY_COLORS: Record<SnackbarSeverity, string> = {
   warning: "#ef6c00",
 };
 
-const SnackbarProvider = ({ children }: { children: React.ReactNode }) => {
+export default function SnackbarProvider({ children }: { children: React.ReactNode }) {
   const [snackbar, setSnackbar] = useState<SnackbarState | null>(null);
 
   const showSnackbar = useCallback((message: string, severity: SnackbarSeverity = "info") => {
@@ -49,6 +49,4 @@ const SnackbarProvider = ({ children }: { children: React.ReactNode }) => {
       )}
     </SnackbarContext>
   );
-};
-
-export default SnackbarProvider;
+}

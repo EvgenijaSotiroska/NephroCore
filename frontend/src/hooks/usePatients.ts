@@ -26,7 +26,7 @@ export function usePatients(): UsePatientsResult {
       const { data } = await patientApi.list();
       setPatients(data);
     } catch (err) {
-      setError(getApiErrorMessage(err, "Could not load patients"));
+      setError(getApiErrorMessage(err, "Не може да се вчитаат пациентите"));
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ export function usePatients(): UsePatientsResult {
         await refresh();
         return data;
       } catch (err) {
-        showSnackbar(getApiErrorMessage(err, "Could not create patient"), "error");
+        showSnackbar(getApiErrorMessage(err, "Не успеа да се креира пациентот"), "error");
         return null;
       } finally {
         setCreating(false);

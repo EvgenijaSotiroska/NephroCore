@@ -11,12 +11,12 @@ interface AuthCardProps {
   children: React.ReactNode;
 }
 
-const AuthCard = ({
+export default function AuthCard({
   title,
   subtitle,
   onClose,
   children,
-}: AuthCardProps) => {
+}: AuthCardProps) {
   return (
     <Container
       maxWidth="xs"
@@ -148,7 +148,5 @@ const AuthCard = ({
       </Paper>
     </Container>
   );
-};
-
-export default AuthCard;
+}
 

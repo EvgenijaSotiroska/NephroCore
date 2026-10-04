@@ -13,9 +13,17 @@ import {
 import { useTrends } from "../../../hooks/useTrends";
 import { usePatientProfile } from "../../../hooks/usePatientProfile";
 import { useVisits } from "../../../hooks/useVisits";
-import { useAiAnalysis } from "../../../hooks/useAiAnalysis";
-import type { ParameterTrend, CKDStage } from "../../../api/types/trends";
+import { useAiAnalysis } from "../../../hooks/useAi.ts";
+import type { ParameterTrend } from "../../../api/types/trends";
+import type { CKDStage } from "../../../api/types/cdkStage";
 import type { VisitResponse } from "../../../api/types/result";
+import {
+  ETIOLOGY_LABELS,
+  STAGE_EGFR_RANGE_LABEL,
+  MK_MONTHS_SHORT,
+} from "../../../constants";
+import { formatShortDate, toDate } from "../../../utils/date";
+import { calculateAge, stageTone } from "../../../utils/patient";
 import "./PatientDashboardPage.css";
 
 const CKD_STAGE_BANDS: Record<CKDStage, { from: number; to: number; color: string }> = {
@@ -26,50 +34,6 @@ const CKD_STAGE_BANDS: Record<CKDStage, { from: number; to: number; color: strin
   G4: { from: 15, to: 30, color: "#fbe1de" },
   G5: { from: 0, to: 15, color: "#f8d4d4" },
 };
-
-const ETIOLOGY_LABELS: Record<string, string> = {
-  diabetic_nephropathy: "Дијабетична нефропатија",
-  hypertensive_nephropathy: "Хипертензивна нефропатија",
-  glomerulonephritis: "Гломерулонефритис",
-  polycystic_kidney_disease: "Полицистична болест на бубрезите",
-  obstructive_uropathy: "Обструктивна уропатија",
-  lupus_nephritis: "Лупус нефритис",
-  iga_nephropathy: "IgA нефропатија",
-  other: "Друго",
-  unknown: "Непознато",
-};
-
-const STAGE_EGFR_RANGE_LABEL: Record<string, string> = {
-  G1: "≥ 90",
-  G2: "60–89",
-  G3A: "45–59",
-  G3B: "30–44",
-  G4: "15–29",
-  G5: "< 15",
-};
-
-function calculateAge(dateOfBirth: string | null): number | null {
-  if (!dateOfBirth) return null;
-  const dob = new Date(dateOfBirth);
-  const today = new Date();
-  let age = today.getFullYear() - dob.getFullYear();
-  const monthDiff = today.getMonth() - dob.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-    age--;
-  }
-  return age;
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("mk-MK", { month: "short", day: "numeric", year: "2-digit" });
-}
-
-function stageTone(stage: string | null | undefined): "good" | "warn" | "alert" {
-  if (stage === "G1" || stage === "G2") return "good";
-  if (stage === "G3A" || stage === "G3B") return "warn";
-  return "alert";
-}
 
 function SlopeBadge({ param }: { param: ParameterTrend }) {
   if (param.slope_per_year === null || param.slope_per_year === undefined) return null;
@@ -100,7 +64,7 @@ function ParameterChart({ param }: ParameterChartProps) {
   const chartData: ChartDatum[] = param.points.map((p) => ({
     date: p.date,
     value: p.value,
-    dateLabel: formatDate(p.date),
+    dateLabel: formatShortDate(p.date),
   }));
 
   const isEgfr = param.key === "egfr";
@@ -200,9 +164,9 @@ const VISIT_KEY_ORDER = [
 ];
 
 function formatVisitDateParts(dateStr: string) {
-  const d = new Date(dateStr);
+  const d = toDate(dateStr);
   return {
-    month: d.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
+    month: MK_MONTHS_SHORT[d.getMonth()].toUpperCase(),
     day: d.getDate(),
     year: d.getFullYear(),
   };
@@ -305,13 +269,13 @@ function VisitHistoryList({ visits, paramMeta }: VisitHistoryListProps) {
 
 export default function PatientDashboardPage() {
   const { patientId } = useParams<{ patientId: string }>();
-  const { data, groupedParameters, isLoading, error, refetch } = useTrends(patientId);
+  const { data, groupedParameters, loading, error, refetch } = useTrends(patientId);
   const { profile } = usePatientProfile(patientId);
   const { visits } = useVisits(patientId);
   const { analysis, loading: aiLoading, error: aiError, generate: generateAiAnalysis } = useAiAnalysis(patientId);
   const [activeTab, setActiveTab] = useState<"overview" | "results">("overview");
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="dashboard-page">
         <div className="dashboard-loading">Се вчитуваат податоците за пациентот…</div>

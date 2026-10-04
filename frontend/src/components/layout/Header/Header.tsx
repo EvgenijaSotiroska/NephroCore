@@ -27,7 +27,7 @@ interface HeaderProps {
   onRegister: () => void;
 }
 
-const Header = ({ onLogin, onRegister }: HeaderProps) => {
+export default function Header({ onLogin, onRegister }: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { user, isLoggedIn } = useAuth();
@@ -210,6 +210,4 @@ const Header = ({ onLogin, onRegister }: HeaderProps) => {
       )}
     </Box>
   );
-};
-
-export default Header;
+}

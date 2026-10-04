@@ -2,7 +2,7 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import AuthProvider from "./providers/authProvider";
 import SnackbarProvider from "./providers/snackbarProvider";
 import {ProtectedRoute} from "./components/protectedRoute/ProtectedRoute";
-import {SessionExpiryBanner} from "./components/SessionExpiryBanner";
+import SessionExpiryBanner from "./components/SessionExpiryBanner";
 import Layout from "./components/layout/Layout/Layout";
 import HomePage from "./pages/home/HomePage";
 import CreatePatient from "./pages/patients/CreatePatient/CreatePatient";

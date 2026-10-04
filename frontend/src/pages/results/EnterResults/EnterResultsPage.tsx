@@ -7,10 +7,9 @@ import { useResults } from "../../../hooks/useResults";
 import type { CKDStage } from "../../../api/types/cdkStage.ts";
 import { CKD_STAGE_ORDER } from "../../../api/types/cdkStage.ts";
 import type { LabResultPayload } from "../../../api/types/result.ts";
+import {todayIso} from "../../../utils/date";
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
-
-const EnterResults = () => {
+export default function EnterResults() {
   const { patients, loading: patientsLoading } = usePatients();
   const {
     stageParameters,
@@ -260,6 +259,4 @@ const EnterResults = () => {
       </div>
     </div>
   );
-};
-
-export default EnterResults;
+}

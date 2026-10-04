@@ -28,7 +28,7 @@ export function useActivate() {
       setError(
         getApiErrorMessage(
           err,
-          "Could not activate account. Please try again!"
+          "Не успеа активацијата на профилот. Обидете се повторно!"
         )
       );
 

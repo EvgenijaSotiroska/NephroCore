@@ -17,7 +17,7 @@ const initializeUser = (): UserPayload | null => {
   return jwtToken ? tryDecode(jwtToken) : null;
 };
 
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserPayload | null>(initializeUser);
 
   const login = useCallback((jwtToken: string) => {
@@ -50,6 +50,4 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;
-};
-
-export default AuthProvider;
+}

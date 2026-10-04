@@ -1,4 +1,4 @@
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -83,15 +83,29 @@ def get_appointments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role != UserRole.doctor:
+    if current_user.role == UserRole.doctor:
+        query = select(Appointment).where(
+            Appointment.doctor_id == current_user.id
+        )
+    elif current_user.role == UserRole.patient:
+        profile = db.scalar(
+            select(PatientProfile).where(
+                PatientProfile.user_id == current_user.id
+            )
+        )
+        if profile is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found.",
+            )
+        query = select(Appointment).where(
+            Appointment.patient_id == profile.id
+        )
+    else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only doctors can view appointments.",
+            detail="Not allowed to view appointments.",
         )
-
-    query = select(Appointment).where(
-        Appointment.doctor_id == current_user.id
-    )
 
     if appointment_date is not None:
         start_datetime = datetime.combine(
@@ -110,6 +124,39 @@ def get_appointments(
 
     return db.scalars(query).all()
 
+@router.get(
+    "/next",
+    response_model=AppointmentResponse | None,
+)
+def get_my_next_appointment(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.role != UserRole.patient:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only patients can view their next appointment.",
+        )
+
+    profile = db.scalar(
+        select(PatientProfile).where(PatientProfile.user_id == current_user.id)
+    )
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found.",
+        )
+
+    return db.scalar(
+        select(Appointment)
+        .where(
+            Appointment.patient_id == profile.id,
+            Appointment.status == AppointmentStatus.SCHEDULED,
+            Appointment.scheduled_at >= datetime.now(timezone.utc),
+        )
+        .order_by(Appointment.scheduled_at)
+        .limit(1)
+    )
 
 @router.get(
     "/{appointment_id}",

@@ -23,7 +23,7 @@ export function usePatientProfile(patientId?: string): UsePatientProfileResult {
         : await patientApi.getMine();
       setProfile(data);
     } catch (err) {
-      setError(getApiErrorMessage(err, "Could not load patient profile"));
+      setError(getApiErrorMessage(err, "Не успеа да се вчита профилот на пациентот"));
     } finally {
       setLoading(false);
     }

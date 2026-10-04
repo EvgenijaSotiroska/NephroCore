@@ -1,81 +1,41 @@
-import {useState} from "react";
+import {useState, type FormEvent} from "react";
 import {usePatientProfile} from "../../../hooks/usePatientProfile";
 import {useTrends} from "../../../hooks/useTrends";
 import {useVisits} from "../../../hooks/useVisits";
-import type {CKDStage, ParameterTrend} from "../../../api/types/trends";
+import {useSymptoms} from "../../../hooks/useSymptoms";
+import {useAppointments} from "../../../hooks/useAppointments";
+import {useNextAppointment} from "../../../hooks/useNextAppointment";
+import {useExplainResults} from "../../../hooks/useAi";
+import type {ParameterTrend} from "../../../api/types/trends";
 import type {PatientProfile} from "../../../api/types/patient";
 import type {VisitResponse} from "../../../api/types/result";
-import {useExplainResults} from "../../../hooks/useExplainResults";
+import type {AppointmentResponse} from "../../../api/types/appointment";
+import type {SymptomIntensity} from "../../../api/types/symptom";
+import {
+    ETIOLOGY_LABELS,
+    STAGE_EGFR_RANGE_LABEL,
+    STAGE_DESCRIPTION,
+    DIALYSIS_STATUS_LABELS,
+    DIALYSIS_MODALITY_LABELS,
+    INTENSITY_LABELS,
+    SYMPTOM_INTENSITIES,
+    PREVIOUS_CONDITIONS,
+    GENETIC_RISK_FACTORS,
+    COMORBIDITIES,
+    CURRENT_MEDICATIONS,
+} from "../../../constants";
+import {
+    formatLongDate,
+    formatShortMonth,
+    formatWeekday,
+    formatTime,
+    todayIso,
+    daysUntil,
+} from "../../../utils/date";
+import {calculateAge, formatCodedList, stageTone} from "../../../utils/patient";
 import "./PatientHomePage.css";
 
-// ==================== Labels & helpers ====================
-
-const ETIOLOGY_LABELS: Record<string, string> = {
-    diabetic_nephropathy: "Дијабетична нефропатија",
-    hypertensive_nephropathy: "Хипертензивна нефропатија",
-    glomerulonephritis: "Гломерулонефритис",
-    polycystic_kidney_disease: "Полицистична болест на бубрезите",
-    obstructive_uropathy: "Обструктивна уропатија",
-    lupus_nephritis: "Лупус нефритис",
-    iga_nephropathy: "IgA нефропатија",
-    other: "Друго",
-    unknown: "Непознато",
-};
-
-const STAGE_EGFR_RANGE_LABEL: Record<string, string> = {
-    G1: "≥ 90",
-    G2: "60–89",
-    G3A: "45–59",
-    G3B: "30–44",
-    G4: "15–29",
-    G5: "< 15",
-};
-
-const STAGE_DESCRIPTION: Record<CKDStage, string> = {
-    G1: "Нормална или висока бубрежна функција",
-    G2: "Благо намалена бубрежна функција",
-    G3A: "Благо до умерено намалена бубрежна функција",
-    G3B: "Умерено до тешко намалена бубрежна функција",
-    G4: "Тешко намалена бубрежна функција",
-    G5: "Бубрежна инсуфициенција",
-};
-
-const DIALYSIS_STATUS_LABELS: Record<string, string> = {
-    pre_dialysis: "Пред дијализа",
-    on_dialysis: "На дијализа",
-    post_transplant: "По трансплантација",
-};
-
-const DIALYSIS_MODALITY_LABELS: Record<string, string> = {
-    hd: "Хемодијализа",
-    pd: "Перитонеална дијализа",
-};
-
-function calculateAge(dateOfBirth: string | null): number | null {
-    if (!dateOfBirth) return null;
-    const dob = new Date(dateOfBirth);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-        age--;
-    }
-    return age;
-}
-
-function stageTone(stage: string | null | undefined): "good" | "warn" | "alert" {
-    if (stage === "G1" || stage === "G2") return "good";
-    if (stage === "G3A" || stage === "G3B") return "warn";
-    return "alert";
-}
-
-function formatLongDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString("mk-MK", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    });
-}
+// ==================== Helpers ====================
 
 function firstName(fullName: string): string {
     return fullName.trim().split(/\s+/)[0] ?? fullName;
@@ -287,13 +247,16 @@ function VisitCard({visit, previous, parameters, isLatest}: VisitCardProps) {
 
 // ==================== Profile ====================
 
-function ProfileDetails({profile}: { profile: PatientProfile }) {
-    const rows: { label: string; value: string | null }[] = [
+function ProfileCard({profile}: { profile: PatientProfile }) {
+    const items: { label: string; value: string | null }[] = [
         {
             label: "Датум на раѓање",
             value: profile.date_of_birth ? formatLongDate(profile.date_of_birth) : null,
         },
-        {label: "Висина", value: profile.height_cm !== null ? `${profile.height_cm} cm` : null},
+        {
+            label: "Висина",
+            value: profile.height_cm !== null ? `${Number(profile.height_cm)} cm` : null,
+        },
         {
             label: "Причина за ХБИ",
             value: profile.ckd_etiology ? ETIOLOGY_LABELS[profile.ckd_etiology] : null,
@@ -304,35 +267,232 @@ function ProfileDetails({profile}: { profile: PatientProfile }) {
         },
         {
             label: "Почетна eGFR",
-            value: profile.baseline_egfr !== null ? String(profile.baseline_egfr) : null,
+            value: profile.baseline_egfr !== null ? String(Number(profile.baseline_egfr)) : null,
         },
         {label: "Дијализа", value: DIALYSIS_STATUS_LABELS[profile.dialysis_status] ?? null},
         {
             label: "Вид на дијализа",
             value: profile.dialysis_modality ? DIALYSIS_MODALITY_LABELS[profile.dialysis_modality] : null,
         },
-        {label: "Тековни лекови", value: profile.current_medications},
-        {label: "Придружни болести", value: profile.comorbidities},
         {
             label: "Пушење",
             value: profile.smoking === null ? null : profile.smoking ? "Да" : "Не",
         },
+        {
+            label: "Претходни заболувања",
+            value: formatCodedList(profile.previous_conditions, PREVIOUS_CONDITIONS),
+        },
+        {
+            label: "Генетски ризик фактори",
+            value: formatCodedList(profile.genetic_risk_factors, GENETIC_RISK_FACTORS),
+        },
+        {
+            label: "Придружни болести",
+            value: formatCodedList(profile.comorbidities, COMORBIDITIES),
+        },
+        {
+            label: "Тековни лекови",
+            value: formatCodedList(profile.current_medications, CURRENT_MEDICATIONS),
+        },
     ];
 
+    const initials = profile.full_name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("");
+
     return (
-        <details className="ph-profile">
-            <summary className="ph-profile-summary">Мој профил</summary>
-            <div className="ph-profile-rows">
-                {rows
-                    .filter((r) => r.value)
-                    .map((row) => (
-                        <div key={row.label} className="ph-profile-row">
-                            <span className="ph-profile-label">{row.label}</span>
-                            <span className="ph-profile-value">{row.value}</span>
+        <section className="ph-card">
+            <div className="ph-profile-head">
+                <div className="ph-avatar" aria-hidden="true">{initials}</div>
+                <div>
+                    <h3 className="ph-card-title ph-profile-name">{profile.full_name}</h3>
+                    <span className="ph-muted">Мој профил</span>
+                </div>
+            </div>
+
+            <dl className="ph-profile-list">
+                {items
+                    .filter((i) => i.value)
+                    .map((item) => (
+                        <div key={item.label} className="ph-profile-item">
+                            <dt className="ph-profile-label">{item.label}</dt>
+                            <dd className="ph-profile-value">{item.value}</dd>
                         </div>
                     ))}
+            </dl>
+        </section>
+    );
+}
+
+// ==================== Dashboard widgets ====================
+
+function StatCard({label, value, hint, tone}: {
+    label: string;
+    value: string;
+    hint?: string;
+    tone?: "good" | "warn" | "alert";
+}) {
+    return (
+        <div className="ph-stat">
+            <span className="ph-stat-label">{label}</span>
+            <span className={`ph-stat-value ${tone ? `ph-stat-${tone}` : ""}`}>{value}</span>
+            {hint && <span className="ph-stat-hint">{hint}</span>}
+        </div>
+    );
+}
+
+function NextVisitCard({appointment}: { appointment: AppointmentResponse | null }) {
+    if (!appointment) {
+        return (
+            <section className="ph-card">
+                <h3 className="ph-card-title">Следен преглед</h3>
+                <div className="ph-empty">
+                    <span className="ph-empty-icon" aria-hidden="true">📅</span>
+                    Нема закажан преглед. Вашиот лекар ќе закаже следен термин.
+                </div>
+            </section>
+        );
+    }
+
+    const when = new Date(appointment.scheduled_at);
+    const days = daysUntil(appointment.scheduled_at);
+    const countdown = days <= 0 ? "Денес" : days === 1 ? "Утре" : `За ${days} дена`;
+
+    return (
+        <section className="ph-card ph-card-accent">
+            <h3 className="ph-card-title">Следен преглед</h3>
+            <div className="ph-next">
+                <div className="ph-next-date" aria-hidden="true">
+                    <span className="ph-next-day">{when.getDate()}</span>
+                    <span className="ph-next-month">{formatShortMonth(appointment.scheduled_at)}</span>
+                </div>
+                <div className="ph-next-info">
+                    <span className="ph-next-countdown">{countdown}</span>
+                    <span className="ph-next-time">
+                        {formatWeekday(appointment.scheduled_at)}, {formatTime(appointment.scheduled_at)}
+                    </span>
+                    {appointment.appointment_type && (
+                        <span className="ph-next-type">{appointment.appointment_type}</span>
+                    )}
+                    <span className="ph-next-type">Времетраење: {appointment.duration_minutes} мин</span>
+                </div>
             </div>
-        </details>
+        </section>
+    );
+}
+
+function SymptomsCard() {
+    const {symptoms, loading, adding, addSymptom, removeSymptom} = useSymptoms();
+
+    const [date, setDate] = useState(todayIso());
+    const [description, setDescription] = useState("");
+    const [intensity, setIntensity] = useState<SymptomIntensity>("small");
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!description.trim()) return;
+        const ok = await addSymptom({
+            symptom_date: date,
+            description: description.trim(),
+            intensity,
+        });
+        if (ok) {
+            setDescription("");
+            setIntensity("small");
+            setDate(todayIso());
+        }
+    };
+
+    const recent = symptoms.slice(0, 3);
+
+    return (
+        <section className="ph-card">
+            <h3 className="ph-card-title">Мои симптоми</h3>
+
+            <form className="ph-sym-form" onSubmit={handleSubmit}>
+                <label className="ph-field">
+                    <span className="ph-field-label">Датум</span>
+                    <input
+                        type="date"
+                        className="ph-input"
+                        value={date}
+                        max={todayIso()}
+                        onChange={(e) => setDate(e.target.value)}
+                        required
+                    />
+                </label>
+
+                <label className="ph-field">
+                    <span className="ph-field-label">Опис</span>
+                    <textarea
+                        className="ph-input ph-textarea"
+                        rows={3}
+                        placeholder="Пр. оток на нозете, замор, вртоглавица…"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        required
+                    />
+                </label>
+
+                <div className="ph-field">
+                    <span className="ph-field-label">Интензитет</span>
+                    <div className="ph-intensity" role="radiogroup" aria-label="Интензитет">
+                        {SYMPTOM_INTENSITIES.map((key) => (
+                            <button
+                                key={key}
+                                type="button"
+                                role="radio"
+                                aria-checked={intensity === key}
+                                className={`ph-intensity-opt ph-intensity-${key} ${
+                                    intensity === key ? "ph-intensity-active" : ""
+                                }`}
+                                onClick={() => setIntensity(key)}
+                            >
+                                {INTENSITY_LABELS[key]}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <button type="submit" className="ph-submit" disabled={adding || !description.trim()}>
+                    {adding ? "Се додава…" : "Додај симптом"}
+                </button>
+            </form>
+
+            <div className="ph-sym-list-wrap">
+                <h4 className="ph-sym-subtitle">Последни 3 внесени</h4>
+                {loading ? (
+                    <p className="ph-muted">Се вчитува…</p>
+                ) : recent.length === 0 ? (
+                    <p className="ph-muted">Сè уште немате внесено симптоми.</p>
+                ) : (
+                    <ul className="ph-sym-list">
+                        {recent.map((s) => (
+                            <li key={s.id} className="ph-sym-item">
+                                <span className={`ph-sym-dot ph-intensity-${s.intensity}`} aria-hidden="true"/>
+                                <div className="ph-sym-body">
+                                    <span className="ph-sym-desc">{s.description}</span>
+                                    <span className="ph-sym-meta">
+                    {formatLongDate(s.symptom_date)} · {INTENSITY_LABELS[s.intensity]}
+                  </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="ph-sym-remove"
+                                    aria-label="Избриши симптом"
+                                    onClick={() => removeSymptom(s.id)}
+                                >
+                                    ✕
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </section>
     );
 }
 
@@ -342,8 +502,10 @@ export default function PatientHomePage() {
     const {profile, loading: profileLoading, error: profileError} = usePatientProfile();
     const patientId = profile?.id;
 
-    const {data, isLoading: trendsLoading, error: trendsError, refetch} = useTrends(patientId);
+    const {data, loading: trendsLoading, error: trendsError, refetch} = useTrends(patientId);
     const {visits, loading: visitsLoading, error: visitsError, refresh} = useVisits(patientId);
+    const {appointment: nextAppointment} = useNextAppointment();
+    const {appointments, loading: appointmentsLoading} = useAppointments();
     const {
         explanation,
         loading: explainLoading,
@@ -378,8 +540,8 @@ export default function PatientHomePage() {
                         type="button"
                         className="ph-retry"
                         onClick={() => {
-                            refetch();
-                            refresh();
+                            void refetch();
+                            void refresh();
                         }}
                     >
                         Обиди се повторно
@@ -404,13 +566,16 @@ export default function PatientHomePage() {
 
     return (
         <div className="ph-page">
-            <div className="ph-container">
-                {/* ============ Welcome ============ */}
-                <div className="ph-welcome">
-                    <div>
-                        {eyebrow && <p className="ph-welcome-eyebrow">{eyebrow}</p>}
-                        <h2 className="ph-welcome-title">Здраво, {firstName(profile.full_name)}</h2>
-                        <p className="ph-welcome-subtitle">
+            {/* ============ Hero (full width) ============ */}
+            <header className="ph-hero">
+                <div className="ph-hero-overlay"/>
+                <div className="ph-hero-inner">
+                    <div className="ph-hero-text">
+                        {eyebrow && <span className="ph-hero-badge">{eyebrow}</span>}
+                        <h1 className="ph-hero-title">
+                            Здраво, <span className="ph-hero-name">{firstName(profile.full_name)}</span>
+                        </h1>
+                        <p className="ph-hero-subtitle">
                             {latestVisit
                                 ? `Последен преглед: ${formatLongDate(latestVisit.visit_date)}`
                                 : "Вашите резултати ќе се појават овде по првиот преглед."}
@@ -418,57 +583,104 @@ export default function PatientHomePage() {
                     </div>
 
                     {stage && (
-                        <div className={`ph-welcome-stage ph-stage-block ph-stage-${stageTone(stage)}`}>
+                        <div className={`ph-stage-block ph-stage-${stageTone(stage)}`}>
                             <span className="ph-stage-block-code">{stage}</span>
                             <span className="ph-stage-block-range">eGFR {STAGE_EGFR_RANGE_LABEL[stage] ?? ""}</span>
                             <span className="ph-stage-block-desc">{STAGE_DESCRIPTION[stage]}</span>
                         </div>
                     )}
                 </div>
-                {latestVisit && (
-                    <div className="ph-explain-section">
-                        <button
-                            type="button"
-                            className="ph-explain-button"
-                            onClick={generateExplanation}
-                            disabled={explainLoading}
-                        >
-                            {explainLoading ? "Се генерира…" : "Генерирај анализа"}
-                        </button>
+            </header>
 
-                        {explainError && <p className="ph-explain-error">{explainError}</p>}
+            <div className="ph-container">
+                {/* ============ Stat row ============ */}
+                <div className="ph-stats">
+                    <StatCard
+                        label="Фаза на ХБИ"
+                        value={stage ?? "—"}
+                        hint={stage ? `eGFR ${STAGE_EGFR_RANGE_LABEL[stage] ?? ""}` : undefined}
+                        tone={stage ? stageTone(stage) : undefined}
+                    />
+                    <StatCard
+                        label="Последен преглед"
+                        value={latestVisit ? formatLongDate(latestVisit.visit_date) : "—"}
+                    />
+                    <StatCard
+                        label="Резултати"
+                        value={String(sortedVisits.length)}
+                        hint="внесени лабораториски резултати"
+                    />
+                    <StatCard
+                        label="Прегледи"
+                        value={appointmentsLoading ? "—" : String(appointments.length)}
+                        hint="вкупно термини"
+                    />
+                </div>
 
-                        {explanation && (
-                            <div className="ph-explain-box">
-                                <div className="ph-explain-box-header">🤖 AI Објаснување на резултатите</div>
-                                <p className="ph-explain-text">{explanation}</p>
+                <div className="ph-dashboard">
+                    {/* ============ Left: profile ============ */}
+                    <aside className="ph-col-profile">
+                        <ProfileCard profile={profile}/>
+                    </aside>
+
+                    {/* ============ Middle: analysis + results ============ */}
+                    <div className="ph-main ph-col-main">
+                        {latestVisit && (
+                            <section className="ph-card">
+                                <div className="ph-card-head">
+                                    <h3 className="ph-card-title">AI анализа на резултатите</h3>
+                                    <button
+                                        type="button"
+                                        className="ph-explain-button"
+                                        onClick={generateExplanation}
+                                        disabled={explainLoading}
+                                    >
+                                        {explainLoading ? "Се генерира…" : "Генерирај анализа"}
+                                    </button>
+                                </div>
+
+                                {explainError && <p className="ph-explain-error">{explainError}</p>}
+
+                                {explanation ? (
+                                    <div className="ph-explain-box">
+                                        <div className="ph-explain-box-header">🤖 AI Објаснување на резултатите</div>
+                                        <p className="ph-explain-text">{explanation}</p>
+                                    </div>
+                                ) : (
+                                    <p className="ph-muted">
+                                        Добијте едноставно објаснување на вашите најнови резултати.
+                                    </p>
+                                )}
+                            </section>
+                        )}
+
+                        <h3 className="ph-heading">Мои резултати</h3>
+
+                        {sortedVisits.length === 0 ? (
+                            <div className="ph-state">
+                                Сè уште нема евидентирани резултати. Тие ќе се прикажат откако лекарот ќе ги внесе.
                             </div>
+                        ) : (
+                            <ol className="ph-timeline">
+                                {sortedVisits.map((visit, index) => (
+                                    <VisitCard
+                                        key={visit.id}
+                                        visit={visit}
+                                        previous={sortedVisits[index + 1] ?? null}
+                                        parameters={parameters}
+                                        isLatest={index === 0}
+                                    />
+                                ))}
+                            </ol>
                         )}
                     </div>
-                )}
 
-                {/* ============ Visits with their results ============ */}
-                <h3 className="ph-heading">Мои прегледи</h3>
-
-                {sortedVisits.length === 0 ? (
-                    <div className="ph-state">
-                        Сè уште нема евидентирани прегледи. Резултатите ќе се прикажат откако лекарот ќе ги внесе.
-                    </div>
-                ) : (
-                    <ol className="ph-timeline">
-                        {sortedVisits.map((visit, index) => (
-                            <VisitCard
-                                key={visit.id}
-                                visit={visit}
-                                previous={sortedVisits[index + 1] ?? null}
-                                parameters={parameters}
-                                isLatest={index === 0}
-                            />
-                        ))}
-                    </ol>
-                )}
-
-                <ProfileDetails profile={profile}/>
+                    {/* ============ Right: next visit + symptoms ============ */}
+                    <aside className="ph-side ph-col-side">
+                        <NextVisitCard appointment={nextAppointment}/>
+                        <SymptomsCard/>
+                    </aside>
+                </div>
             </div>
         </div>
     );

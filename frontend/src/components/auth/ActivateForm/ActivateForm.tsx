@@ -22,10 +22,10 @@ const initialFormData: FormData = {
   password: "",
 };
 
-const ActivateForm = ({
+export default function ActivateForm({
   onClose,
   onActivationSuccess,
-}: ActivateFormProps) => {
+}: ActivateFormProps) {
   const [formData, setFormData] =
     useState<FormData>(initialFormData);
 
@@ -175,6 +175,4 @@ const ActivateForm = ({
       </Box>
     </AuthCard>
   );
-};
-
-export default ActivateForm;
+}

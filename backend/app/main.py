@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import ai, auth, patients, results, trends, appointment
+from app.api.routes import ai, auth, patients, results, trends, appointment, symptoms
 from app.core.config import settings
 from app.db.session import Base, engine
 
@@ -23,6 +23,8 @@ app.include_router(results.router)
 app.include_router(trends.router)
 app.include_router(ai.router)
 app.include_router(appointment.router)
+app.include_router(symptoms.router)
+
 
 @app.on_event("startup")
 def on_startup():

@@ -1,48 +1,20 @@
 import { useMemo, useState } from "react";
-import { useAppointments } from "../../../hooks/useAppointments.ts";
-import { usePatients } from "../../../hooks/usePatients.ts";
-import type { PatientProfile } from "../../../api/types/patient.ts";
-import type {
-  AppointmentResponse,
-  AppointmentStatus,
-} from "../../../api/types/appointment.ts";
-import AppointmentModal from "../../../components/appointments/AppointmentModal/AppointmentModal.tsx";
+import { useAppointments } from "../../../hooks/useAppointments";
+import { usePatients } from "../../../hooks/usePatients";
+import type { PatientProfile } from "../../../api/types/patient";
+import type { AppointmentResponse } from "../../../api/types/appointment";
+import AppointmentModal from "../../../components/appointments/AppointmentModal/AppointmentModal";
+import {
+  APPOINTMENT_STATUS_LABELS,
+  MK_MONTHS,
+  MK_WEEKDAYS_SHORT_MON_FIRST,
+} from "../../../constants";
+import {
+  formatTime,
+  formatWeekdayDayMonth,
+  toDateKey,
+} from "../../../utils/date";
 import "./AppointmentsPage.css";
-
-const MONTHS = [
-  "јануари",
-  "февруари",
-  "март",
-  "април",
-  "мај",
-  "јуни",
-  "јули",
-  "август",
-  "септември",
-  "октомври",
-  "ноември",
-  "декември",
-];
-
-const LONG_WEEK_DAYS = [
-  "недела",
-  "понеделник",
-  "вторник",
-  "среда",
-  "четврток",
-  "петок",
-  "сабота",
-];
-
-const SHORT_WEEK_DAYS = [
-  "Пон",
-  "Вто",
-  "Сре",
-  "Чет",
-  "Пет",
-  "Саб",
-  "Нед",
-];
 
 function getToday(): Date {
   const today = new Date();
@@ -52,38 +24,6 @@ function getToday(): Date {
     today.getMonth(),
     today.getDate()
   );
-}
-
-function toDateKey(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatMacedonianDate(dateString: string): string {
-  const [year, month, day] = dateString.split("-").map(Number);
-
-  const date = new Date(year, month - 1, day);
-
-  return `${LONG_WEEK_DAYS[date.getDay()]}, ${day} ${
-    MONTHS[month - 1]
-  }`;
-}
-
-function getAppointmentDateKey(dateString: string): string {
-  const date = new Date(dateString);
-
-  return toDateKey(date);
-}
-
-function getTimeFromAppointment(dateString: string): string {
-  const date = new Date(dateString);
-
-  return `${String(date.getHours()).padStart(2, "0")}:${String(
-    date.getMinutes()
-  ).padStart(2, "0")}`;
 }
 
 function getCalendarDays(year: number, month: number): Date[] {
@@ -144,27 +84,6 @@ function getPatientName(
   );
 }
 
-function getStatusLabel(
-  status: AppointmentStatus
-): string {
-  switch (status) {
-    case "scheduled":
-      return "Закажан";
-
-    case "completed":
-      return "Завршен";
-
-    case "cancelled":
-      return "Откажан";
-
-    case "no_show":
-      return "Не се појавил";
-
-    default:
-      return status;
-  }
-}
-
 export default function AppointmentsPage() {
   const today = useMemo(() => getToday(), []);
 
@@ -216,7 +135,7 @@ export default function AppointmentsPage() {
     return appointments
       .filter(
         (appointment) =>
-          getAppointmentDateKey(
+          toDateKey(
             appointment.scheduled_at
           ) === selectedDate
       )
@@ -231,7 +150,7 @@ export default function AppointmentsPage() {
     const counts = new Map<string, number>();
 
     appointments.forEach((appointment) => {
-      const dateKey = getAppointmentDateKey(
+      const dateKey = toDateKey(
         appointment.scheduled_at
       );
 
@@ -372,8 +291,8 @@ export default function AppointmentsPage() {
             <div className="calendar-card__header">
               <div>
                 <h2>
-                    {MONTHS[currentMonth.getMonth()]}{" "}
-                    {currentMonth.getFullYear()}
+                  {MK_MONTHS[currentMonth.getMonth()]}{" "}
+                  {currentMonth.getFullYear()}
                 </h2>
 
                 <p>
@@ -412,7 +331,7 @@ export default function AppointmentsPage() {
             </div>
 
             <div className="calendar__weekdays">
-              {SHORT_WEEK_DAYS.map((day) => (
+              {MK_WEEKDAYS_SHORT_MON_FIRST.map((day) => (
                 <div
                   key={day}
                   className="calendar__weekday"
@@ -489,11 +408,11 @@ export default function AppointmentsPage() {
             <div className="appointments-card__header">
               <div>
                 <span className="appointments-card__label">
-                  ДEНЕШНИ ТЕРМИНИ
+                  ДЕНЕШНИ ТЕРМИНИ
                 </span>
 
                 <h2>
-                  {formatMacedonianDate(
+                  {formatWeekdayDayMonth(
                     selectedDate
                   )}
                 </h2>
@@ -546,7 +465,7 @@ export default function AppointmentsPage() {
                       className="appointment-item"
                     >
                       <div className="appointment-item__time">
-                        {getTimeFromAppointment(
+                        {formatTime(
                           appointment.scheduled_at
                         )}
                       </div>
@@ -565,9 +484,9 @@ export default function AppointmentsPage() {
                           <span
                             className={`appointment-status appointment-status--${appointment.status}`}
                           >
-                            {getStatusLabel(
+                            {APPOINTMENT_STATUS_LABELS[
                               appointment.status
-                            )}
+                            ]}
                           </span>
                         </div>
 

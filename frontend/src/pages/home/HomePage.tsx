@@ -8,7 +8,7 @@ import {
 import {useOutletContext} from "react-router";
 import type { AuthContext } from "../../components/layout/Layout/Layout";
 
-const HomePage = () => {
+export default function HomePage() {
     const {openLogin, openRegister} = useOutletContext<AuthContext>();
 
     return (
@@ -78,6 +78,4 @@ const HomePage = () => {
             </Box>
         </Box>
     );
-};
-
-export default HomePage;
+}

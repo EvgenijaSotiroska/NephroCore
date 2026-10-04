@@ -4,121 +4,19 @@ import type {
   CreatePatientRequest,
   CreatePatientResponse,
 } from "../../../api/types/patient";
+import {
+  ETIOLOGY_OPTIONS,
+  DIALYSIS_STATUS_OPTIONS,
+  DIALYSIS_MODALITY_OPTIONS,
+  PREVIOUS_CONDITIONS,
+  GENETIC_RISK_FACTORS,
+  COMORBIDITIES,
+  CURRENT_MEDICATIONS,
+  type CheckboxOption,
+} from "../../../constants";
+import { formatLongDate } from "../../../utils/date";
+import { joinCodedList } from "../../../utils/patient";
 import "./CreatePatient.css";
-
-interface CheckboxOption {
-  value: string;
-  label: string;
-}
-
-const PREVIOUS_CONDITIONS: CheckboxOption[] = [
-  {
-    value: "acute_kidney_injury",
-    label: "Акутно оштетување на бубрезите",
-  },
-  {
-    value: "recurrent_utis_pyelo",
-    label: "Пиелонефритис",
-  },
-  {
-    value: "kidney_stones",
-    label: "Камења во бубрезите (нефролитијаза)",
-  },
-  {
-    value: "prior_glomerulonephritis",
-    label: "Гломерулонефритис",
-  },
-  {
-    value: "single_kidney_nephrectomy",
-    label: "Нефректомија",
-  },
-  {
-    value: "cardiovascular_disease",
-    label:
-      "Кардиоваскуларна болест",
-  },
-];
-
-const GENETIC_RISK_FACTORS: CheckboxOption[] = [
-  {
-    value: "family_history_ckd_kidney_failure_dialysis",
-    label: "Семејна историја на бубрежна болест / бубрежна слабост",
-  },
-  {
-    value: "family_history_pckd",
-    label: "Семејна историја на полицистична бубрежна болест",
-  },
-  {
-    value: "family_history_diabetes",
-    label: "Семејна историја на дијабетес",
-  },
-  {
-    value: "family_history_hypertension",
-    label: "Семејна историја на хипертензија",
-  },
-];
-
-const COMORBIDITIES: CheckboxOption[] = [
-  {
-    value: "type_1_diabetes",
-    label: "Дијабетес тип 1",
-  },
-  {
-    value: "type_2_diabetes",
-    label: "Дијабетес тип 2",
-  },
-  {
-    value: "hypertension",
-    label: "Хипертензија",
-  },
-  {
-    value: "obesity",
-    label: "Дебелина",
-  },
-  {
-    value: "anemia",
-    label: "Анемија",
-  },
-  {
-    value: "dyslipidemia",
-    label: "Дислипидемија",
-  },
-];
-
-const CURRENT_MEDICATIONS: CheckboxOption[] = [
-  {
-    value: "ace_inhibitors_arbs",
-    label: "ACE инхибитори / ARB",
-  },
-  {
-    value: "diuretics",
-    label: "Диуретици",
-  },
-  {
-    value: "nsaids",
-    label: "NSAID лекови",
-  },
-  {
-    value: "erythropoiesis_stimulating_agents",
-    label: "Стимулатори на еритропоезата (EPO)",
-  },
-  {
-    value: "sglt2_inhibitors",
-    label: "SGLT2 инхибитори",
-  },
-  {
-    value: "metformin",
-    label: "Метформин",
-  },
-  {
-    value: "statins",
-    label: "Статини",
-  },
-  {
-    value: "immunosuppressants",
-    label: "Имуносупресивни лекови",
-  },
-];
 
 const initialForm: CreatePatientRequest = {
   full_name: "",
@@ -140,10 +38,6 @@ const initialForm: CreatePatientRequest = {
   dialysis_status: "pre_dialysis",
   dialysis_modality: null,
 };
-
-function selectedValuesToString(values: string[]): string {
-  return values.join("|");
-}
 
 interface CheckboxGroupProps {
   title: string;
@@ -282,16 +176,16 @@ export default function CreatePatient() {
         form.ckd_etiology || null,
 
       previous_conditions:
-        selectedValuesToString(previousConditions),
+        joinCodedList(previousConditions),
 
       genetic_risk_factors:
-        selectedValuesToString(geneticRiskFactors),
+        joinCodedList(geneticRiskFactors),
 
       comorbidities:
-        selectedValuesToString(comorbidities),
+        joinCodedList(comorbidities),
 
       current_medications:
-        selectedValuesToString(currentMedications),
+        joinCodedList(currentMedications),
 
       dialysis_modality:
         form.dialysis_status === "on_dialysis"
@@ -525,45 +419,11 @@ export default function CreatePatient() {
                   Не е наведено
                 </option>
 
-                <option value="diabetic_nephropathy">
-                  Дијабетична нефропатија
-                </option>
-
-                <option value="hypertensive_nephropathy">
-                  Хипертензивна нефропатија
-                </option>
-
-                <option value="glomerulonephritis">
-                  Гломерулонефритис
-                </option>
-
-                <option value="polycystic_kidney_disease">
-                  Полицистична бубрежна болест
-                </option>
-
-                <option value="obstructive_uropathy">
-                  Опструктивна уропатија
-                </option>
-
-                <option value="lupus_nephritis">
-                  Лупус нефритис
-                </option>
-
-                <option value="iga_nephropathy">
-                  IgA нефропатија
-                </option>
-
-                <option value="other">
-                  Друго
-                </option>
-
-                <option value="unknown">
-                  Непознато
-                </option>
-
-                <option value="none">
-                   Нема заболување / Превентивен преглед
-                </option>
+                {ETIOLOGY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -635,17 +495,11 @@ export default function CreatePatient() {
                 value={form.dialysis_status}
                 onChange={update("dialysis_status")}
               >
-                <option value="pre_dialysis">
-                  Пред дијализа
-                </option>
-
-                <option value="on_dialysis">
-                  На дијализа
-                </option>
-
-                <option value="post_transplant">
-                  По трансплантација
-                </option>
+                {DIALYSIS_STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -666,14 +520,11 @@ export default function CreatePatient() {
                     Изберете вид
                   </option>
 
-                  <option value="hd">
-                    Хемодијализа
-                  </option>
-
-                  <option value="pd">
-                    Перитонеална дијализа
-                  </option>
-
+                  {DIALYSIS_MODALITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
 
               </div>
@@ -710,9 +561,7 @@ export default function CreatePatient() {
           <p>
             Код за покана (споделете го со пациентот,
             истекува на{" "}
-            {new Date(
-              result.invite_code_expires_at
-            ).toLocaleDateString("mk-MK")}
+            {formatLongDate(result.invite_code_expires_at)}
             ):
           </p>
 

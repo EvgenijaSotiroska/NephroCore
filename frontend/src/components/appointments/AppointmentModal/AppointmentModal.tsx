@@ -7,6 +7,8 @@ import type {
   UpdateAppointmentRequest,
 } from "../../../api/types/appointment";
 import "./AppointmentModal.css";
+import {APPOINTMENT_TYPES, APPOINTMENT_DURATIONS, APPOINTMENT_STATUS_OPTIONS} from "../../../constants";
+import {todayIso, toDateKey, formatTime} from "../../../utils/date";
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -33,66 +35,6 @@ interface AppointmentModalProps {
   onDelete: (
     appointmentId: string
   ) => Promise<boolean>;
-}
-
-const APPOINTMENT_TYPES = [
-  "Контрола",
-  "Преглед",
-  "Консултација",
-  "Лабораториска контрола",
-  "Друго",
-];
-
-const DURATIONS = [15, 30, 45, 60, 90, 120];
-
-const STATUSES: {
-  value: AppointmentStatus;
-  label: string;
-}[] = [
-  {
-    value: "scheduled",
-    label: "Закажан",
-  },
-  {
-    value: "completed",
-    label: "Завршен",
-  },
-  {
-    value: "cancelled",
-    label: "Откажан",
-  },
-  {
-    value: "no_show",
-    label: "Не се појавил",
-  },
-];
-
-function getTodayDate(): string {
-  const today = new Date();
-
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function getTimeFromAppointment(dateString: string): string {
-  const date = new Date(dateString);
-
-  return `${String(date.getHours()).padStart(2, "0")}:${String(
-    date.getMinutes()
-  ).padStart(2, "0")}`;
-}
-
-function getDateFromAppointment(dateString: string): string {
-  const date = new Date(dateString);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
 }
 
 function createLocalDateTime(
@@ -135,7 +77,7 @@ export default function AppointmentModal({
   onDelete,
 }: AppointmentModalProps) {
   const [patientId, setPatientId] = useState("");
-  const [date, setDate] = useState(getTodayDate());
+  const [date, setDate] = useState(todayIso());
   const [time, setTime] = useState("09:00");
   const [duration, setDuration] = useState(30);
   const [appointmentType, setAppointmentType] =
@@ -161,8 +103,8 @@ export default function AppointmentModal({
 
     if (mode === "edit" && appointment) {
       setPatientId(appointment.patient_id);
-      setDate(getDateFromAppointment(appointment.scheduled_at));
-      setTime(getTimeFromAppointment(appointment.scheduled_at));
+      setDate(toDateKey(appointment.scheduled_at));
+      setTime(formatTime(appointment.scheduled_at));
       setDuration(appointment.duration_minutes);
       setAppointmentType(
         appointment.appointment_type || "Контрола"
@@ -174,7 +116,7 @@ export default function AppointmentModal({
     }
 
     setPatientId("");
-    setDate(getTodayDate());
+    setDate(todayIso());
     setTime("09:00");
     setDuration(30);
     setAppointmentType("Контрола");
@@ -392,7 +334,7 @@ export default function AppointmentModal({
                 }
                 disabled={isSaving || deleting}
               >
-                {DURATIONS.map((minutes) => (
+                {APPOINTMENT_DURATIONS.map((minutes) => (
                   <option
                     key={minutes}
                     value={minutes}
@@ -444,7 +386,7 @@ export default function AppointmentModal({
                 }
                 disabled={isSaving || deleting}
               >
-                {STATUSES.map((item) => (
+                {APPOINTMENT_STATUS_OPTIONS.map((item) => (
                   <option
                     key={item.value}
                     value={item.value}

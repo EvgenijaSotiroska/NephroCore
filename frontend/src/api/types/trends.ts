@@ -1,4 +1,6 @@
-export type CKDStage = "G1" | "G2" | "G3A" | "G3B" | "G4" | "G5";
+import type { CKDStage } from "./cdkStage";
+
+export type { CKDStage };
 
 export interface TrendPoint {
   visit_id: string;

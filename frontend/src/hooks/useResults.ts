@@ -24,7 +24,7 @@ export function useResults(): UseResultsResult {
         showSnackbar("Резултатите се зачувани успешно.", "success");
         return data;
       } catch (err) {
-        const message = getApiErrorMessage(err, "Could not save results");
+        const message = getApiErrorMessage(err, "Не успеаја да се зачуваат резултатите");
         setError(message);
         showSnackbar(message, "error");
         return null;

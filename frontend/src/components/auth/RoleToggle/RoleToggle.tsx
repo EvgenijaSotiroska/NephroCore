@@ -14,7 +14,7 @@ const OPTIONS: { role: AuthRole; label: string; icon: React.ReactNode; color: st
   { role: "patient", label: "Пациент", icon: <PersonIcon fontSize="small" />, color: "#1e293b" },
 ];
 
-const RoleToggle = ({ value, onChange }: RoleToggleProps) => {
+export default function RoleToggle({ value, onChange }: RoleToggleProps) {
   return (
     <Box
       sx={{
@@ -54,6 +54,4 @@ const RoleToggle = ({ value, onChange }: RoleToggleProps) => {
       })}
     </Box>
   );
-};
-
-export default RoleToggle;
+}
