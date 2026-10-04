@@ -1,0 +1,54 @@
+.ph-next {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.ph-next-date {
+  flex-shrink: 0;
+  width: 78px;
+  padding: 10px 0;
+  border-radius: 18px;
+  background: #08aaa5;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 6px 16px rgba(8, 170, 165, 0.35);
+}
+
+.ph-next-day {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ph-next-month {
+  margin-top: 4px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ph-next-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ph-next-countdown {
+  font-size: 18px;
+  font-weight: 700;
+  color: #087f7b;
+}
+
+.ph-next-time {
+  font-size: 14px;
+  color: #23334d;
+  text-transform: capitalize;
+}
+
+.ph-next-type {
+  font-size: 13px;
+  color: #71819a;
+}

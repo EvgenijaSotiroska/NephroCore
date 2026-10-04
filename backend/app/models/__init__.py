@@ -4,3 +4,4 @@ from app.models.doctor_profile import DoctorProfile
 from app.models.result import Visit, LabResult
 from app.models.appointment import Appointment
 from app.models.symptom import Symptom
+from app.models.medication import Medication

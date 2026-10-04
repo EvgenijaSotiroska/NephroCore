@@ -49,3 +49,5 @@ export function daysUntil(iso: string): number {
   target.setHours(0, 0, 0, 0);
   return Math.round((target.getTime() - start.getTime()) / 86_400_000);
 }
+
+export const nowTime = () => formatTime(new Date().toISOString());

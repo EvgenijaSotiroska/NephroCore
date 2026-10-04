@@ -1,0 +1,73 @@
+.ph-med-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ph-med {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #edf1f6;
+  border-radius: 14px;
+}
+
+.ph-med-next {
+  background: #f0fdfa;
+  border-color: #8fd7d3;
+  box-shadow: 0 2px 8px rgba(8, 170, 165, 0.15);
+}
+
+.ph-med-time {
+  flex-shrink: 0;
+  min-width: 52px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: #d9f7f6;
+  color: #087f7b;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ph-med-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ph-med-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #17243a;
+  overflow-wrap: anywhere;
+}
+
+.ph-med-dose {
+  font-size: 13px;
+  color: #23334d;
+}
+
+.ph-med-why {
+  font-size: 12px;
+  color: #8a9ab0;
+  line-height: 1.4;
+}
+
+.ph-med-tag {
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #08aaa5;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
