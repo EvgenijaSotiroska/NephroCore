@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useState } from "react";
 
 import AuthToggle from "../../auth/AuthToggle/AuthToggle";
@@ -31,25 +31,29 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { user, isLoggedIn } = useAuth();
+  const { pathname } = useLocation();
 
   const isDoctor = isLoggedIn && user?.role === "doctor";
 
   const pages = isDoctor
     ? [
         {
-          path: "",
-          name: "Пациенти",
+          path: "/",
+          name: "Почетна",
         },
         {
-          path: "/createPatientProfile",
-          name: "+ Пациент",
+          path: "/doctor",
+          name: "Преглед",
         },
         {
-          path: "/addResult",
-          name: "+ Резултат",
+          path: "/appointments",
+          name: "Календар",
         },
       ]
     : [];
+
+  const isActive = (path: string) =>
+    pathname === path || pathname.startsWith(path + "/");
 
   return (
     <Box>
@@ -144,20 +148,23 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
                 gap: 0.5,
               }}
             >
-              {pages.map((page) => (
-                <Button
-                  key={page.name}
-                  component={Link}
-                  to={page.path}
-                  sx={{
-                    color: "text.primary",
-                    textTransform: "none",
-                    fontWeight: 500,
-                  }}
-                >
-                  {page.name}
-                </Button>
-              ))}
+              {pages.map((page) => {
+                const active = isActive(page.path);
+                return (
+                  <Button
+                    key={page.name}
+                    component={Link}
+                    to={page.path}
+                    sx={{
+                      color: active ? "#000" : "text.primary",
+                      textTransform: "none",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {page.name}
+                  </Button>
+                );
+              })}
             </Box>
           )}
 
@@ -192,18 +199,25 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
             role="presentation"
           >
             <List>
-              {pages.map((page) => (
-                <ListItem key={page.name} disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to={page.path}
-                    onClick={() => setDrawerOpen(false)}
-                    disabled={!page.path}
-                  >
-                    <ListItemText primary={page.name} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
+              {pages.map((page) => {
+                const active = isActive(page.path);
+                return (
+                  <ListItem key={page.name} disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to={page.path}
+                      onClick={() => setDrawerOpen(false)}
+                    >
+                      <ListItemText
+                        primary={page.name}
+                        primaryTypographyProps={{
+                          color: active ? "#000" : "text.primary",
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              })}
             </List>
           </Box>
         </Drawer>

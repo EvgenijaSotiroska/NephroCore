@@ -80,6 +80,10 @@ def get_appointments(
         default=None,
         description="Return appointments for a specific date.",
     ),
+    patient_id: UUID | None = Query(
+        default=None,
+        description="Return only appointments for this patient.",
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -120,6 +124,9 @@ def get_appointments(
             Appointment.scheduled_at < end_datetime,
         )
 
+    if patient_id is not None:
+        query = query.where(Appointment.patient_id == patient_id)
+        
     query = query.order_by(Appointment.scheduled_at)
 
     return db.scalars(query).all()

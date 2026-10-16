@@ -1,0 +1,393 @@
+.pd-side {
+  border-left: 1px solid #eceff4;
+  background: #ffffff;
+  min-height: calc(100vh - 110px);
+}
+
+/* ==================== SHARED ==================== */
+
+.side-section {
+  padding: 26px 28px;
+  border-bottom: 1px solid #eceff4;
+}
+
+.side-section:last-child {
+  border-bottom: none;
+}
+
+.side-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: #0d9488;
+}
+
+.side-title {
+  margin: 0 0 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 20px;
+  color: #17243a;
+}
+
+.side-note {
+  margin: -8px 0 8px;
+  font-size: 12px;
+  color: #8a9ab0;
+}
+
+.side-muted {
+  margin: 0;
+  color: #8a9ab0;
+  font-size: 14px;
+}
+
+.side-outline-button {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid #dfe5ec;
+  background: #fff;
+  color: #17243a;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.side-outline-button:hover {
+  border-color: #14b8a6;
+  color: #087f7b;
+}
+
+.side-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dfe5ec;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #17243a;
+  font-family: inherit;
+}
+
+.side-input::placeholder {
+  color: #9aa7b8;
+}
+
+.side-input:focus {
+  outline: none;
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+}
+
+/* ==================== NEXT VISIT ==================== */
+
+.visit-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.visit-tile {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.visit-tile-month {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.visit-tile-day {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.visit-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.visit-row-time {
+  font-size: 15px;
+  font-weight: 700;
+  color: #17243a;
+}
+
+.visit-row-sub {
+  font-size: 12px;
+  color: #8a9ab0;
+}
+
+.visit-row-countdown {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0d9488;
+}
+
+/* ==================== THERAPY ==================== */
+
+.med-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.med-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.med-item:last-child {
+  border-bottom: none;
+}
+
+.med-item-paused {
+  opacity: 0.55;
+}
+
+.med-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #fde8ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.med-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.med-name-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.med-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #17243a;
+}
+
+.med-dose {
+  font-size: 13px;
+  color: #8a9ab0;
+}
+
+.med-paused-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fff3d6;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.med-sub {
+  font-size: 12px;
+  color: #8a9ab0;
+}
+
+.med-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.med-action {
+  border: none;
+  background: transparent;
+  color: #9aa7b8;
+  font-size: 13px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.med-action:hover {
+  background: #eef1f6;
+  color: #17243a;
+}
+
+.med-action-danger:hover {
+  background: #fde4e4;
+  color: #b3453f;
+}
+
+.med-divider {
+  border-top: 1px dashed #dfe5ec;
+  margin: 8px 0 16px;
+}
+
+.med-add-toggle {
+  border: none;
+  background: transparent;
+  color: #17243a;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.med-add-toggle span {
+  color: #14b8a6;
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+.med-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.med-times {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.med-time-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.med-time-input {
+  width: 150px;
+}
+
+.med-time-add {
+  border: none;
+  background: transparent;
+  color: #0d9488;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.med-submit {
+  border: none;
+  background: #1e2a3b;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.med-submit:hover:not(:disabled) {
+  background: #17243a;
+}
+
+.med-submit:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ==================== SYMPTOMS ==================== */
+
+.sym-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sym-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef1f5;
+}
+
+.sym-row:last-child {
+  border-bottom: none;
+}
+
+.sym-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sym-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sym-desc {
+  font-size: 13px;
+  font-weight: 600;
+  color: #17243a;
+  overflow-wrap: anywhere;
+}
+
+.sym-meta {
+  font-size: 12px;
+  color: #8a9ab0;
+}
+
+.sym-badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.sym-dot.sym-small { background: #7dd3fc; }
+.sym-dot.sym-medium { background: #fbbf24; }
+.sym-dot.sym-large { background: #f87171; }
+
+.sym-badge.sym-small { background: #e8f6ff; color: #0b7bb8; }
+.sym-badge.sym-medium { background: #fff3d6; color: #b45309; }
+.sym-badge.sym-large { background: #fde4e4; color: #b3453f; }
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 1000px) {
+  .pd-side {
+    border-left: none;
+    border-top: 1px solid #eceff4;
+    min-height: 0;
+  }
+}

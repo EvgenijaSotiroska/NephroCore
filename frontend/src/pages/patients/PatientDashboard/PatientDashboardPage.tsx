@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceArea,
+  Area,
+  AreaChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -14,124 +12,91 @@ import { useTrends } from "../../../hooks/useTrends";
 import { usePatientProfile } from "../../../hooks/usePatientProfile";
 import { useVisits } from "../../../hooks/useVisits";
 import { useAiAnalysis } from "../../../hooks/useAi.ts";
+import PatientSidebar from "../../../components/doctor/PatientSidebar/PatientSidebar";
 import type { ParameterTrend } from "../../../api/types/trends";
-import type { CKDStage } from "../../../api/types/cdkStage";
 import type { VisitResponse } from "../../../api/types/result";
-import {
-  ETIOLOGY_LABELS,
-  STAGE_EGFR_RANGE_LABEL,
-  MK_MONTHS_SHORT,
-} from "../../../constants";
-import { formatShortDate, toDate } from "../../../utils/date";
-import { calculateAge, stageTone } from "../../../utils/patient";
+import { COMORBIDITIES, ETIOLOGY_LABELS, MK_MONTHS_SHORT } from "../../../constants";
+import { formatLongDate, toDate } from "../../../utils/date";
+import { calculateAge, formatCodedList, getInitials } from "../../../utils/patient";
 import "./PatientDashboardPage.css";
 
-const CKD_STAGE_BANDS: Record<CKDStage, { from: number; to: number; color: string }> = {
-  G1: { from: 90, to: 130, color: "#e3f7f2" },
-  G2: { from: 60, to: 90, color: "#eafaf3" },
-  G3A: { from: 45, to: 60, color: "#fff6e0" },
-  G3B: { from: 30, to: 45, color: "#fdecd6" },
-  G4: { from: 15, to: 30, color: "#fbe1de" },
-  G5: { from: 0, to: 15, color: "#f8d4d4" },
+// ==================== Helpers ====================
+
+const CHART_COLORS: Record<string, string> = {
+  egfr: "#08aaa5",
+  creatinine: "#f97316",
+  potassium: "#8b5cf6",
+  phosphate: "#0ea5e9",
+  hemoglobin: "#f4607a",
+  bp_systolic: "#64748b",
 };
+const FALLBACK_COLORS = ["#08aaa5", "#f97316", "#8b5cf6", "#0ea5e9", "#f4607a", "#64748b"];
 
-function SlopeBadge({ param }: { param: ParameterTrend }) {
-  if (param.slope_per_year === null || param.slope_per_year === undefined) return null;
-  const slope = param.slope_per_year;
-  const improving = param.higher_is_worse ? slope < 0 : slope > 0;
-  const flat = Math.abs(slope) < 0.01;
-  const tone = flat ? "neutral" : improving ? "good" : "warn";
-  const sign = slope > 0 ? "+" : "";
-  return (
-    <span className={`slope-badge slope-badge-${tone}`}>
-      {sign}
-      {slope.toFixed(2)} {param.unit}/год.
-    </span>
-  );
+function formatMonthYear(dateStr: string): string {
+  const d = toDate(dateStr);
+  return `${MK_MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`;
 }
 
-interface ParameterChartProps {
-  param: ParameterTrend;
-}
+// ==================== Charts ====================
 
-interface ChartDatum {
-  date: string;
-  value: number;
-  dateLabel: string;
-}
-
-function ParameterChart({ param }: ParameterChartProps) {
-  const chartData: ChartDatum[] = param.points.map((p) => ({
-    date: p.date,
+function TrendCell({ param, color }: { param: ParameterTrend; color: string }) {
+  const points = param.points;
+  const chartData = points.map((p) => ({
     value: p.value,
-    dateLabel: formatShortDate(p.date),
+    dateLabel: formatMonthYear(p.date),
   }));
 
-  const isEgfr = param.key === "egfr";
   const values = chartData.map((d) => d.value);
   const dataMin = Math.min(...values);
   const dataMax = Math.max(...values);
-  const padding = (dataMax - dataMin) * 0.15 || dataMax * 0.1 || 1;
+  const padding = (dataMax - dataMin) * 0.25 || dataMax * 0.1 || 1;
+
+  const last = points[points.length - 1];
+  const prev = points[points.length - 2];
+  const delta = last && prev ? last.value - prev.value : null;
+
+  let tone: "good" | "warn" | "bad" | "flat" = "flat";
+  if (delta !== null && Math.abs(delta) > 1e-9) {
+    const improving = param.higher_is_worse ? delta < 0 : delta > 0;
+    tone = improving ? "good" : param.is_out_of_range ? "bad" : "warn";
+  }
+
+  const gradientId = `grad-${param.key}`;
 
   return (
-    <div className={`param-card ${param.is_out_of_range ? "param-card-alert" : ""}`}>
-      <div className="param-card-header">
-        <div>
-          <h4>{param.label}</h4>
-          <span className="param-unit">{param.unit}</span>
-        </div>
-        <div className="param-card-header-right">
-          <SlopeBadge param={param} />
-          <span className={`latest-value ${param.is_out_of_range ? "latest-value-alert" : ""}`}>
-            {param.latest_value?.toFixed(param.decimals)}
+    <div className="trend-cell">
+      <div className="trend-top">
+        <span className="trend-label">{param.label}</span>
+        {delta !== null && (
+          <span className={`trend-delta trend-delta-${tone}`}>
+            {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"} {Math.abs(delta).toFixed(Math.min(param.decimals, 1))}
           </span>
-        </div>
+        )}
       </div>
 
-      <ResponsiveContainer width="100%" height={180}>
-        <LineChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#edf1f5" />
+      <div className="trend-value-row">
+        <span className={`trend-value ${param.is_out_of_range ? "trend-value-alert" : ""}`}>
+          {param.latest_value?.toFixed(param.decimals) ?? "—"}
+        </span>
+        <span className="trend-unit">{param.unit}</span>
+      </div>
 
-          {isEgfr &&
-            (Object.entries(CKD_STAGE_BANDS) as [CKDStage, typeof CKD_STAGE_BANDS[CKDStage]][]).map(
-              ([stage, band]) => (
-                <ReferenceArea
-                  key={stage}
-                  y1={band.from}
-                  y2={band.to}
-                  fill={band.color}
-                  fillOpacity={0.6}
-                  ifOverflow="hidden"
-                />
-              )
-            )}
-
-          {!isEgfr && param.normal_range_low !== null && param.normal_range_high !== null && (
-            <ReferenceArea
-              y1={param.normal_range_low}
-              y2={param.normal_range_high}
-              fill="#d9f7f6"
-              fillOpacity={0.5}
-              ifOverflow="hidden"
-            />
-          )}
-
-          <XAxis
-            dataKey="dateLabel"
-            tick={{ fontSize: 11, fill: "#8a9ab0" }}
-            axisLine={{ stroke: "#dce4ee" }}
-            tickLine={false}
-          />
+      <ResponsiveContainer width="100%" height={110}>
+        <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.22} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="dateLabel" hide />
           <YAxis
+            hide
             scale={param.scale === "log" ? "log" : "linear"}
             domain={[Math.max(0, dataMin - padding), dataMax + padding]}
-            tick={{ fontSize: 11, fill: "#8a9ab0" }}
-            axisLine={false}
-            tickLine={false}
-            width={48}
           />
           <Tooltip
-            contentStyle={{ borderRadius: 12, border: "1px solid #dce4ee", fontSize: 13 }}
+            contentStyle={{ borderRadius: 12, border: "1px solid #e5eaf0", fontSize: 13 }}
             formatter={(value) => {
               const num = typeof value === "number" ? value : Number(value ?? 0);
               return [`${num.toFixed(param.decimals)} ${param.unit}`, param.label] as [
@@ -141,21 +106,27 @@ function ParameterChart({ param }: ParameterChartProps) {
             }}
             labelFormatter={(label) => (label ?? "") as React.ReactNode}
           />
-          <Line
+          <Area
             type="monotone"
             dataKey="value"
-            stroke="#08aaa5"
-            strokeWidth={2.5}
-            dot={{ r: 3, fill: "#08aaa5" }}
-            activeDot={{ r: 5 }}
+            stroke={color}
+            strokeWidth={2.2}
+            fill={`url(#${gradientId})`}
+            dot={{ r: 3, fill: "#fff", stroke: color, strokeWidth: 1.8 }}
+            activeDot={{ r: 5, fill: "#fff", stroke: color, strokeWidth: 2 }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
+
+      <div className="trend-axis">
+        <span>{chartData[0]?.dateLabel}</span>
+        <span>{chartData[chartData.length - 1]?.dateLabel}</span>
+      </div>
     </div>
   );
 }
 
-// ==================== Visit history ("Резултати" tab) ====================
+// ==================== Visit history ("Резултати" view) ====================
 
 const VISIT_KEY_ORDER = [
   "egfr", "creatinine", "acr", "bp_systolic", "bp_diastolic",
@@ -273,7 +244,7 @@ export default function PatientDashboardPage() {
   const { profile } = usePatientProfile(patientId);
   const { visits } = useVisits(patientId);
   const { analysis, loading: aiLoading, error: aiError, generate: generateAiAnalysis } = useAiAnalysis(patientId);
-  const [activeTab, setActiveTab] = useState<"overview" | "results">("overview");
+  const [view, setView] = useState<"charts" | "results">("charts");
 
   if (loading) {
     return (
@@ -296,19 +267,24 @@ export default function PatientDashboardPage() {
     );
   }
 
-  const hasAnyData = data !== null && data.parameters.length > 0;
+  const parameters = data?.parameters ?? [];
+  const hasAnyData = parameters.length > 0;
   const age = profile ? calculateAge(profile.date_of_birth) : null;
+  const comorbidities = profile ? formatCodedList(profile.comorbidities, COMORBIDITIES) : null;
 
-  const findParam = (key: string) => data?.parameters.find((p) => p.key === key);
-  const egfrParam = findParam("egfr");
-  const creatinineParam = findParam("creatinine");
-  const hemoglobinParam = findParam("hemoglobin");
-  const bpSystolicParam = findParam("bp_systolic");
-  const bpDiastolicParam = findParam("bp_diastolic");
-  const bpOutOfRange = bpSystolicParam?.is_out_of_range || bpDiastolicParam?.is_out_of_range;
+  // visits come newest first
+  const lastVisitDate = visits.length > 0 ? visits[0].visit_date : null;
+
+  const allParams = Object.values(groupedParameters).flat();
+  const outOfRange = parameters.filter((p) => p.is_out_of_range);
+  const lastMeasured = parameters
+    .map((p) => p.latest_date)
+    .filter((d): d is string => !!d)
+    .sort()
+    .pop();
 
   const paramMeta = Object.fromEntries(
-    (data?.parameters ?? []).map((p) => [
+    parameters.map((p) => [
       p.key,
       { label: p.label, unit: p.unit, normalLow: p.normal_range_low, normalHigh: p.normal_range_high, decimals: p.decimals },
     ])
@@ -316,120 +292,121 @@ export default function PatientDashboardPage() {
 
   return (
     <div className="dashboard-page">
+      {/* ---------- Header ---------- */}
       {profile && (
-        <div className="patient-header-card">
-          <div className="patient-header-left">
-            <div className="patient-avatar">👤</div>
+        <header className="pd-hero">
+          <div className="pd-hero-left">
+            <div className="pd-hero-avatar">{getInitials(profile.full_name)}</div>
             <div>
-              <h2 className="patient-header-name">{profile.full_name}</h2>
-              <p className="patient-header-subline">
-                {age !== null ? `${age} год.` : "—"} · {profile.sex === "male" ? "Машки" : "Женски"}
-                {profile.ckd_etiology && <> · {ETIOLOGY_LABELS[profile.ckd_etiology]}</>}
+              <h2 className="pd-hero-name">{profile.full_name}</h2>
+              <p className="pd-hero-sub">
+                {age !== null && <span>{age} година</span>}
+                <span>{profile.sex === "male" ? "Машки" : "Женски"}</span>
+                {profile.ckd_etiology && <span>{ETIOLOGY_LABELS[profile.ckd_etiology]}</span>}
               </p>
             </div>
           </div>
 
-          {data?.current_ckd_stage && (
-            <div className={`stage-pill-block stage-pill-${stageTone(data.current_ckd_stage)}`}>
-              <span className="stage-pill-code">{data.current_ckd_stage}</span>
-              <span className="stage-pill-range">eGFR {STAGE_EGFR_RANGE_LABEL[data.current_ckd_stage] ?? ""}</span>
+          {comorbidities && (
+            <div className="pd-hero-chips">
+              <span className="pd-hero-chip">
+                <strong>Коморбидитети:</strong> {comorbidities}
+              </span>
             </div>
           )}
-        </div>
+        </header>
       )}
 
-      {hasAnyData && (
-        <div className="quick-stats-row">
-          <div className="quick-stat-tile">
-            <span className="quick-stat-label">EGFR</span>
-            <span className={`quick-stat-value ${egfrParam?.is_out_of_range ? "quick-stat-value-alert" : ""}`}>
-              {egfrParam?.latest_value?.toFixed(egfrParam?.decimals) ?? "—"}
-            </span>
-            <span className="quick-stat-unit">{egfrParam?.unit ?? "mL/min/1.73m²"}</span>
-          </div>
-          <div className="quick-stat-tile">
-            <span className="quick-stat-label">Креатинин</span>
-            <span className={`quick-stat-value ${creatinineParam?.is_out_of_range ? "quick-stat-value-alert" : ""}`}>
-              {creatinineParam?.latest_value?.toFixed(creatinineParam?.decimals) ?? "—"}
-            </span>
-            <span className="quick-stat-unit">{creatinineParam?.unit ?? "µmol/L"}</span>
-          </div>
-          <div className="quick-stat-tile">
-            <span className="quick-stat-label">Хемоглобин</span>
-            <span className={`quick-stat-value ${hemoglobinParam?.is_out_of_range ? "quick-stat-value-alert" : ""}`}>
-              {hemoglobinParam?.latest_value?.toFixed(hemoglobinParam?.decimals) ?? "—"}
-            </span>
-            <span className="quick-stat-unit">{hemoglobinParam?.unit ?? "g/L"}</span>
-          </div>
-          <div className="quick-stat-tile">
-            <span className="quick-stat-label">Притисок</span>
-            <span className={`quick-stat-value ${bpOutOfRange ? "quick-stat-value-alert" : ""}`}>
-              {bpSystolicParam?.latest_value?.toFixed(0) ?? "—"}/{bpDiastolicParam?.latest_value?.toFixed(0) ?? "—"}
-            </span>
-            <span className="quick-stat-unit">mmHg</span>
-          </div>
-        </div>
-      )}
-
-      {hasAnyData && (
-        <div className="ai-analysis-section">
-          <button
-            type="button"
-            className="ai-analysis-button"
-            onClick={generateAiAnalysis}
-            disabled={aiLoading}
-          >
-            {aiLoading ? "Се генерира..." : "🤖 Генерирај AI анализа"}
-          </button>
-          {aiError && <p className="ai-analysis-error">{aiError}</p>}
-          {analysis && (
-            <div className="ai-analysis-box">
-              <div className="ai-analysis-box-header">🤖 Claude AI анализа</div>
-              <p className="ai-analysis-text">{analysis}</p>
+      <div className="pd-layout">
+        {/* ---------- Main column ---------- */}
+        <main className="pd-main">
+          <div className="main-head">
+            <div>
+              <div className="eyebrow eyebrow-blue">Лабораториски трендови</div>
+              <h3 className="section-title">Показатели низ времето</h3>
             </div>
-          )}
-        </div>
-      )}
-
-      <div className="tab-bar">
-        <button
-          type="button"
-          className={`tab-button ${activeTab === "overview" ? "tab-button-active" : ""}`}
-          onClick={() => setActiveTab("overview")}
-        >
-          Преглед
-        </button>
-        <button
-          type="button"
-          className={`tab-button ${activeTab === "results" ? "tab-button-active" : ""}`}
-          onClick={() => setActiveTab("results")}
-        >
-          Резултати
-        </button>
-      </div>
-
-      {activeTab === "overview" && (
-        <>
-          {!hasAnyData && (
-            <div className="dashboard-empty">
-              Сè уште нема евидентирани лабораториски резултати. Графиците ќе се прикажат откако ќе се внесат прегледи.
-            </div>
-          )}
-
-          {Object.entries(groupedParameters).map(([category, params]) => (
-            <section key={category} className="param-category-section">
-              <h3 className="param-category-title">{category}</h3>
-              <div className="param-grid">
-                {params.map((param) => (
-                  <ParameterChart key={param.key} param={param} />
-                ))}
+            <div className="main-head-right">
+              {lastMeasured && (
+                <span className="last-measure">
+                  <span className="last-measure-dot" aria-hidden="true" />
+                  Последно мерење: {formatLongDate(lastMeasured)}
+                </span>
+              )}
+              <div className="view-toggle">
+                <button
+                  type="button"
+                  className={view === "charts" ? "view-toggle-active" : ""}
+                  onClick={() => setView("charts")}
+                >
+                  Графици
+                </button>
+                <button
+                  type="button"
+                  className={view === "results" ? "view-toggle-active" : ""}
+                  onClick={() => setView("results")}
+                >
+                  Резултати
+                </button>
               </div>
-            </section>
-          ))}
-        </>
-      )}
+            </div>
+          </div>
 
-      {activeTab === "results" && <VisitHistoryList visits={visits} paramMeta={paramMeta} />}
+          {view === "charts" && (
+            <>
+              {outOfRange.length > 0 && (
+                <div className="attention-banner">
+                  <span aria-hidden="true">⚠</span>
+                  <p>
+                    <strong>Клиничко внимание:</strong> надвор од референтниот опсег се{" "}
+                    {outOfRange.map((p) => p.label).join(", ")}.
+                  </p>
+                </div>
+              )}
+
+              {!hasAnyData ? (
+                <div className="dashboard-empty">
+                  Сè уште нема евидентирани лабораториски резултати. Графиците ќе се прикажат откако ќе се внесат прегледи.
+                </div>
+              ) : (
+                <div className="trend-grid">
+                  {allParams.map((param, index) => (
+                    <TrendCell
+                      key={param.key}
+                      param={param}
+                      color={CHART_COLORS[param.key] ?? FALLBACK_COLORS[index % FALLBACK_COLORS.length]}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {hasAnyData && (
+                <div className="ai-analysis-section">
+                  <button
+                    type="button"
+                    className="ai-analysis-button"
+                    onClick={generateAiAnalysis}
+                    disabled={aiLoading}
+                  >
+                    {aiLoading ? "Се генерира..." : "🤖 Генерирај AI анализа"}
+                  </button>
+                  {aiError && <p className="ai-analysis-error">{aiError}</p>}
+                  {analysis && (
+                    <div className="ai-analysis-box">
+                      <div className="ai-analysis-box-header">🤖 Claude AI анализа</div>
+                      <p className="ai-analysis-text">{analysis}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {view === "results" && <VisitHistoryList visits={visits} paramMeta={paramMeta} />}
+        </main>
+
+        {/* ---------- Sidebar ---------- */}
+        <PatientSidebar patientId={patientId} lastVisitDate={lastVisitDate} />
+      </div>
     </div>
   );
 }

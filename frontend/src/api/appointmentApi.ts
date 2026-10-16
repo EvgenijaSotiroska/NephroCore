@@ -13,11 +13,14 @@ const appointmentApi = {
     );
   },
 
-  list: async (date?: string) => {
+   list: async (date?: string, patientId?: string) => {
     return await axiosInstance.get<AppointmentResponse[]>(
       "/appointments",
       {
-        params: date ? { appointment_date: date } : undefined,
+        params: {
+          ...(date ? { appointment_date: date } : {}),
+          ...(patientId ? { patient_id: patientId } : {}),
+        },
       }
     );
   },
