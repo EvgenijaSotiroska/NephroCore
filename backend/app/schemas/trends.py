@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -19,18 +18,18 @@ class ParameterTrend(BaseModel):
     category: str
     scale: str
     decimals: int
-    normal_range_low: Optional[float] = None
-    normal_range_high: Optional[float] = None
+    normal_range_low: float | None = None
+    normal_range_high: float | None = None
     higher_is_worse: bool
     points: list[TrendPoint]
     # simple linear regression slope over the returned points, in units/year
-    slope_per_year: Optional[float] = None
-    latest_value: Optional[float] = None
-    latest_date: Optional[datetime.date] = None
+    slope_per_year: float | None = None
+    latest_value: float | None = None
+    latest_date: datetime.date | None = None
     is_out_of_range: bool = False
 
 
 class PatientTrendsResponse(BaseModel):
     patient_id: uuid.UUID
-    current_ckd_stage: Optional[str] = None
+    current_ckd_stage: str | None = None
     parameters: list[ParameterTrend]

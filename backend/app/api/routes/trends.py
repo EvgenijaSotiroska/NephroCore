@@ -1,27 +1,19 @@
 import uuid
-from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
 
-from app.api.deps import get_current_user, get_db
-from app.core.lab_parameters import CKDStage, get_stage_parameter_meta
-from app.models.patient_profile import PatientProfile
-from app.models.result import LabResult, Visit
+from app.api.deps import get_current_user, get_viewable_patient
+from app.core.lab_parameters import get_stage_parameter_meta
+from app.db.session import get_db
+from app.models.result import CKDStage, LabResult, Visit
+from app.models.user import User
 from app.schemas.trends import ParameterTrend, PatientTrendsResponse, TrendPoint
 
 router = APIRouter()
 
-
-def _assert_can_view_patient(patient: PatientProfile, current_user) -> None:
-    """Doctor who created the patient, or the patient themself, can view."""
-    is_owning_doctor = patient.created_by_doctor_id == current_user.id
-    is_the_patient = patient.user_id == current_user.id
-    if not (is_owning_doctor or is_the_patient):
-        raise HTTPException(status_code=403, detail="Not authorized to view this patient")
-
-
-def _linear_slope_per_year(points: list[TrendPoint]) -> Optional[float]:
+def _linear_slope_per_year(points: list[TrendPoint]) -> float | None:
     """Least-squares slope of value vs. time, expressed as change per year."""
     if len(points) < 2:
         return None
@@ -51,19 +43,17 @@ def _stage_from_visit(visit: Visit) -> CKDStage:
 def get_patient_trends(
     patient_id: uuid.UUID,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
-    patient = db.query(PatientProfile).filter(PatientProfile.id == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    _assert_can_view_patient(patient, current_user)
+    get_viewable_patient(db, patient_id, current_user)
 
-    visits = (
-        db.query(Visit)
-        .filter(Visit.patient_id == patient_id)
+    # Load each visit together with its lab result in one query.
+    visits = db.scalars(
+        select(Visit)
+        .options(joinedload(Visit.lab_result))
+        .where(Visit.patient_id == patient_id)
         .order_by(Visit.visit_date.asc())
-        .all()
-    )
+    ).all()
 
     if not visits:
         return PatientTrendsResponse(
@@ -82,7 +72,7 @@ def get_patient_trends(
         key = meta["key"]
         points: list[TrendPoint] = []
         for visit in visits:
-            lab: Optional[LabResult] = visit.lab_result
+            lab: LabResult | None = visit.lab_result
             if lab is None:
                 continue
             raw_value = getattr(lab, key, None)
@@ -126,7 +116,6 @@ def get_patient_trends(
                 is_out_of_range=is_out_of_range,
             )
         )
-
 
     return PatientTrendsResponse(
         patient_id=patient_id,

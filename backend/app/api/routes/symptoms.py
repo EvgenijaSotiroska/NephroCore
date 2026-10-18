@@ -5,9 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_own_patient_profile, get_owned_patient, patient_ids_of
 from app.db.session import get_db
-from app.models.patient_profile import PatientProfile
 from app.models.symptom import Symptom, SymptomIntensity
 from app.models.user import User, UserRole
 from app.schemas.symptom import SymptomCreate, SymptomResponse, SymptomUpdate
@@ -16,23 +15,11 @@ from app.schemas.symptom import SymptomCreate, SymptomResponse, SymptomUpdate
 router = APIRouter(prefix="/symptoms", tags=["Symptoms"])
 
 
-def _own_profile(db: Session, user: User) -> PatientProfile:
-    profile = db.scalar(
-        select(PatientProfile).where(PatientProfile.user_id == user.id)
-    )
-    if profile is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found.",
-        )
-    return profile
-
-
 def _scope(query, db: Session, user: User):
     """Doctors see symptoms of their patients, patients see only their own."""
     if user.role == UserRole.doctor:
-        return query.where(Symptom.doctor_id == user.id)
-    return query.where(Symptom.patient_id == _own_profile(db, user).id)
+        return query.where(Symptom.patient_id.in_(patient_ids_of(user)))
+    return query.where(Symptom.patient_id == get_own_patient_profile(db, user).id)
 
 
 def _get_symptom_or_404(db: Session, symptom_id: UUID, user: User) -> Symptom:
@@ -59,25 +46,16 @@ def create_symptom(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="patient_id is required.",
             )
-        patient = db.scalar(
-            select(PatientProfile).where(
-                PatientProfile.id == data.patient_id,
-                PatientProfile.created_by_doctor_id == current_user.id,
-                PatientProfile.is_active.is_(True),
-            )
-        )
-        if patient is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Patient not found.",
-            )
-        doctor_id = current_user.id
+        patient = get_owned_patient(db, data.patient_id, current_user, active_only=True)
     else:
-        patient = _own_profile(db, current_user)
-        doctor_id = patient.created_by_doctor_id
+        patient = get_own_patient_profile(db, current_user)
+        if not patient.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your profile is not active. Ask your doctor.",
+            )
 
     symptom = Symptom(
-        doctor_id=doctor_id,
         patient_id=patient.id,
         symptom_date=data.symptom_date,
         description=data.description,

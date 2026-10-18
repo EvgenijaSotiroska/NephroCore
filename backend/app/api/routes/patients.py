@@ -1,20 +1,32 @@
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_doctor, require_patient
+from app.api.deps import (
+    get_own_patient_profile,
+    get_owned_patient,
+    require_doctor,
+    require_patient,
+)
 from app.core.config import settings
 from app.core.security import generate_invite_code
 from app.db.session import get_db
 from app.models.patient_profile import PatientProfile
 from app.models.user import User, UserRole
-from app.schemas.patient import PatientCreateRequest, PatientCreateResponse, PatientOut
+from app.schemas.patient import (
+    PatientCreateRequest,
+    PatientCreateResponse,
+    PatientOut,
+    PatientStatusUpdate,
+)
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
 
-@router.post("", response_model=PatientCreateResponse, status_code=201)
+@router.post("", response_model=PatientCreateResponse, status_code=status.HTTP_201_CREATED)
 def create_patient(
     payload: PatientCreateRequest,
     db: Session = Depends(get_db),
@@ -28,9 +40,7 @@ def create_patient(
 
     invite_code = generate_invite_code()
 
-    while db.query(PatientProfile).filter(
-        PatientProfile.invite_code == invite_code
-    ).first():
+    while db.scalar(select(PatientProfile).where(PatientProfile.invite_code == invite_code)):
         invite_code = generate_invite_code()
 
     profile = PatientProfile(
@@ -82,30 +92,41 @@ def get_my_profile(
     db: Session = Depends(get_db),
     current_patient: User = Depends(require_patient),
 ):
-    profile = db.query(PatientProfile).filter(PatientProfile.user_id == current_patient.id).first()
-    if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
-    return profile
+    return get_own_patient_profile(db, current_patient)
 
 
 @router.get("/{patient_id}", response_model=PatientOut)
 def get_patient(
-    patient_id: str,
+    patient_id: UUID,
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    profile = db.query(PatientProfile).filter(
-        PatientProfile.id == patient_id,
-        PatientProfile.created_by_doctor_id == current_doctor.id,
-    ).first()
-    if not profile:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    return profile
+    return get_owned_patient(db, patient_id, current_doctor)
+
+
+@router.patch("/{patient_id}/status", response_model=PatientOut)
+def set_patient_status(
+    patient_id: UUID,
+    payload: PatientStatusUpdate,
+    db: Session = Depends(get_db),
+    current_doctor: User = Depends(require_doctor),
+):
+    """Mark a patient active (currently followed) or inactive (kept on record, e.g.
+    switched doctor). Patients are never deleted and stay in the doctor's list."""
+    patient = get_owned_patient(db, patient_id, current_doctor)
+    patient.is_active = payload.is_active
+    db.commit()
+    db.refresh(patient)
+    return patient
 
 
 @router.get("", response_model=list[PatientOut])
 def list_my_patients(
+    is_active: bool | None = Query(default=None, description="Only active or only inactive patients."),
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    return db.query(PatientProfile).filter(PatientProfile.created_by_doctor_id == current_doctor.id).all()
+    query = select(PatientProfile).where(PatientProfile.created_by_doctor_id == current_doctor.id)
+    if is_active is not None:
+        query = query.where(PatientProfile.is_active.is_(is_active))
+    return db.scalars(query).all()

@@ -1,12 +1,12 @@
 import uuid
-from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.db.session import get_db
-from app.core.lab_parameters import CKDStage, get_stage_parameter_definitions, get_all_parameters
-from app.models.result import Visit, LabResult
+from app.core.lab_parameters import get_stage_parameter_definitions, get_all_parameters
+from app.models.result import CKDStage, Visit, LabResult
 from app.models.user import User
 from app.schemas.result import (
     VisitCreate,
@@ -17,12 +17,17 @@ from app.schemas.result import (
     ParameterDefinition
 )
 
-from app.api.deps import require_doctor, require_doctor_or_self
+from app.api.deps import (
+    get_current_user,
+    get_owned_patient,
+    get_owned_visit,
+    get_viewable_patient,
+    require_doctor,
+)
 
 router = APIRouter(prefix="/results", tags=["results"])
 
-
-@router.get("/parameters", response_model=List[StageParametersResponse])
+@router.get("/parameters", response_model=list[StageParametersResponse])
 def get_all_stage_parameters(db: Session = Depends(get_db)):
     """Full catalog: for every CKD stage, which parameters the entry form
     should show, already carrying their Macedonian label/unit/reference."""
@@ -34,7 +39,7 @@ def get_all_stage_parameters(db: Session = Depends(get_db)):
         for stage in CKDStage
     ]
 
-@router.get("/parameters/all", response_model=List[ParameterDefinition])
+@router.get("/parameters/all", response_model=list[ParameterDefinition])
 def get_all_parameters_catalog(db: Session = Depends(get_db)):
     return get_all_parameters(db)
 
@@ -53,8 +58,10 @@ def create_visit(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
+    patient = get_owned_patient(db, payload.patient_id, current_doctor, active_only=True)
+
     visit = Visit(
-        patient_id=payload.patient_id,
+        patient_id=patient.id,
         doctor_id=current_doctor.id,
         visit_date=payload.visit_date,
         ckd_stage=payload.ckd_stage,
@@ -75,16 +82,18 @@ def create_visit(
 def list_patient_visits(
     patient_id: uuid.UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_doctor_or_self),
+    current_user: User = Depends(get_current_user),
 ):
-    query = (
-        db.query(Visit)
+    get_viewable_patient(db, patient_id, current_user)
+
+    visits = db.scalars(
+        select(Visit)
         .options(joinedload(Visit.lab_result))
-        .filter(Visit.patient_id == patient_id)
+        .where(Visit.patient_id == patient_id)
         .order_by(Visit.visit_date.desc())
-    )
-    visits = query.all()
+    ).all()
     return VisitListResponse(visits=visits, total=len(visits))
+
 
 @router.get("/{visit_id}", response_model=VisitResponse)
 def get_visit(
@@ -92,15 +101,7 @@ def get_visit(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    visit = (
-        db.query(Visit)
-        .options(joinedload(Visit.lab_result))
-        .filter(Visit.id == visit_id)
-        .first()
-    )
-    if not visit:
-        raise HTTPException(status_code=404, detail="Visit not found")
-    return visit
+    return get_owned_visit(db, visit_id, current_doctor)
 
 
 @router.put("/{visit_id}", response_model=VisitResponse)
@@ -110,25 +111,25 @@ def update_visit(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    visit = (
-        db.query(Visit)
-        .options(joinedload(Visit.lab_result))
-        .filter(Visit.id == visit_id)
-        .first()
-    )
-    if not visit:
-        raise HTTPException(status_code=404, detail="Visit not found")
+    visit = get_owned_visit(db, visit_id, current_doctor)
 
-    if payload.visit_date is not None:
+    # Only fields that were actually sent are changed. Sending "notes": null clears the notes;
+    # visit_date and ckd_stage cannot be null (the schema rejects that).
+    sent = payload.model_fields_set
+    if "visit_date" in sent:
         visit.visit_date = payload.visit_date
-    if payload.ckd_stage is not None:
+    if "ckd_stage" in sent:
         visit.ckd_stage = payload.ckd_stage
-    if payload.notes is not None:
+    if "notes" in sent:
         visit.notes = payload.notes
 
     if payload.lab_result is not None:
-        for key, value in payload.lab_result.model_dump(exclude_unset=True).items():
-            setattr(visit.lab_result, key, value)
+        lab_values = payload.lab_result.model_dump(exclude_unset=True)
+        if visit.lab_result is None:
+            visit.lab_result = LabResult(**lab_values)
+        else:
+            for key, value in lab_values.items():
+                setattr(visit.lab_result, key, value)
 
     db.commit()
     db.refresh(visit)
@@ -141,8 +142,6 @@ def delete_visit(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    visit = db.query(Visit).filter(Visit.id == visit_id).first()
-    if not visit:
-        raise HTTPException(status_code=404, detail="Visit not found")
+    visit = get_owned_visit(db, visit_id, current_doctor)
     db.delete(visit)
     db.commit()

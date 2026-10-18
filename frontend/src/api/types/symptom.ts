@@ -15,7 +15,6 @@ export interface UpdateSymptomRequest {
 
 export interface SymptomResponse {
   id: string;
-  doctor_id: string;
   patient_id: string;
   symptom_date: string;
   description: string;

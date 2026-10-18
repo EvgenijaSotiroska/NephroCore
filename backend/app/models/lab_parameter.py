@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, Numeric, Stri
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
-from app.core.lab_parameters import CKDStage
+from app.models.result import CKDStage
 
 
 class ParameterValueType(str, enum.Enum):

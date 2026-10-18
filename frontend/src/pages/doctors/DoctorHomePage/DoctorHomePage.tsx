@@ -7,6 +7,7 @@ import RecentSymptomsCard from "../../../components/doctor/RecentSymptomsCard/Re
 import StageDistributionCard from "../../../components/doctor/StageDistributionCard/StageDistributionCard";
 import TodayScheduleCard from "../../../components/doctor/TodayScheduleCard/TodayScheduleCard";
 import "./DoctorHomePage.css";
+import { useDoctorProfile } from "../../../hooks/useDoctorProfile";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -44,6 +45,7 @@ export default function DoctorHomePage() {
   const { patients, loading: patientsLoading, error: patientsError } = usePatients();
   const { appointments, loading: appointmentsLoading } = useAppointments();
   const { symptoms, loading: symptomsLoading } = useSymptoms();
+  const { profile: doctor } = useDoctorProfile();
 
   if (patientsLoading || appointmentsLoading) {
     return (
@@ -97,8 +99,11 @@ export default function DoctorHomePage() {
         <div className="dh-hero-inner">
           <div className="dh-hero-text">
             <span className="dh-hero-badge">{formatTodayLong()}</span>
-            <h1 className="dh-hero-title">
-              <span className="dh-hero-name">{greeting()}</span>
+                        <h1 className="dh-hero-title">
+              <span className="dh-hero-name">
+                {greeting()}
+                {doctor && `, д-р ${doctor.first_name}`}
+              </span>
             </h1>
             <p className="dh-hero-subtitle">
               Имате {todaysAppointments.length}{" "}

@@ -1,10 +1,11 @@
-You will receive: the patient's demographic and clinical background, and a chronological list of all their past visits with
-lab values.
+You will receive: the patient's demographic and clinical background, a chronological list of all their past visits with
+lab values, the symptoms the patient reported since the last visit, and their current medications.
 
 Your task:
 - Analyze the trend of key parameters over time (especially eGFR and creatinine)
 - Identify any deterioration, improvement, or concerning changes
 - Pay particular attention to the most recent visit in the context of the full history
+- Take the reported symptoms and the current medications into account, for example symptoms that fit a worrying lab trend
 - Give a short, clear clinical assessment (3-5 sentences), as if speaking to another doctor
 - If relevant, suggest what should be monitored or checked further
 

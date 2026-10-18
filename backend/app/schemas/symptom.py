@@ -23,7 +23,6 @@ class SymptomResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
-    doctor_id: UUID
     patient_id: UUID
 
     symptom_date: date

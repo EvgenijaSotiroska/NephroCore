@@ -1,9 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import ai, auth, patients, results, trends, appointment, symptoms, medications
+from app.api.routes import ai, auth, patients, results, trends, appointment, symptoms, medications, doctors
 from app.core.config import settings
-from app.db.session import Base, engine
 
 from app.models import doctor_profile, patient_profile, user, result  # noqa: F401
 
@@ -25,14 +24,10 @@ app.include_router(ai.router)
 app.include_router(appointment.router)
 app.include_router(symptoms.router)
 app.include_router(medications.router)
+app.include_router(doctors.router)
 
 
-@app.on_event("startup")
-def on_startup():
-    # Convenience for local dev. Switch to Alembic migrations before this
-    # touches a real database.
-    Base.metadata.create_all(bind=engine)
-
+# The database schema is created and updated by Alembic only: run `alembic upgrade head`.
 
 @app.get("/health")
 def health():

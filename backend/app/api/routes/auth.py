@@ -1,10 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from jose import JWTError
+from sqlalchemy import func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -31,12 +31,25 @@ def _issue_token(user: User) -> TokenResponse:
     )
 
 
+# The request schemas lowercase emails and usernames. Comparing with lower() on the
+# column as well also matches accounts that were saved before that rule existed.
+
 @router.post("/register/doctor", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 def register_doctor(payload: DoctorRegisterRequest, db: Session = Depends(get_db)):
-    if db.query(User).filter(
-        (User.username == payload.username) | (User.email == payload.email)
-    ).first():
-        raise HTTPException(status_code=400, detail="Username or email already registered")
+    already_registered = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Username or email already registered.",
+    )
+
+    if db.scalar(
+        select(User).where(
+            or_(
+                func.lower(User.username) == payload.username,
+                func.lower(User.email) == payload.email,
+            )
+        )
+    ):
+        raise already_registered
 
     user = User(
         username=payload.username,
@@ -45,17 +58,23 @@ def register_doctor(payload: DoctorRegisterRequest, db: Session = Depends(get_db
         role=UserRole.doctor,
         is_active=True,
     )
-    db.add(user)
-    db.flush()  # get user.id before commit
+    try:
+        db.add(user)
+        db.flush()  # get user.id before commit
 
-    profile = DoctorProfile(
-        user_id=user.id,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        hospital=payload.hospital,
-    )
-    db.add(profile)
-    db.commit()
+        profile = DoctorProfile(
+            user_id=user.id,
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            hospital=payload.hospital,
+        )
+        db.add(profile)
+        db.commit()
+    except IntegrityError:
+        # Another request registered the same username or email a moment ago.
+        db.rollback()
+        raise already_registered
+
     db.refresh(user)
 
     return _issue_token(user)
@@ -65,26 +84,30 @@ def register_doctor(payload: DoctorRegisterRequest, db: Session = Depends(get_db
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     invalid_credentials = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid username or password",
+        detail="Invalid username or password.",
     )
 
     if payload.role == "doctor":
         if not payload.email:
             raise invalid_credentials
 
-        user = db.query(User).filter(
-            User.email == payload.email,
-            User.role == UserRole.doctor,
-        ).first()
+        user = db.scalar(
+            select(User).where(
+                func.lower(User.email) == payload.email,
+                User.role == UserRole.doctor,
+            )
+        )
 
     else:
         if not payload.username:
             raise invalid_credentials
 
-        user = db.query(User).filter(
-            User.username == payload.username,
-            User.role == UserRole.patient,
-        ).first()
+        user = db.scalar(
+            select(User).where(
+                func.lower(User.username) == payload.username,
+                User.role == UserRole.patient,
+            )
+        )
 
     if not user or not user.hashed_password:
         raise invalid_credentials
@@ -95,7 +118,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account is not active",
+            detail="Account is not active.",
         )
 
     return _issue_token(user)
@@ -103,23 +126,39 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/activate", response_model=TokenResponse)
 def activate_invite(payload: ActivateInviteRequest, db: Session = Depends(get_db)):
-    profile = db.query(PatientProfile).filter(
-        PatientProfile.invite_code == payload.invite_code,
-        PatientProfile.is_activated.is_(False),
-    ).first()
+    profile = db.scalar(
+        select(PatientProfile).where(
+            PatientProfile.invite_code == payload.invite_code,
+            PatientProfile.is_activated.is_(False),
+        )
+    )
 
     if not profile:
-        raise HTTPException(status_code=400, detail="Invalid or already-used invite code")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or already-used invite code.",
+        )
 
     if profile.invite_code_expires_at and profile.invite_code_expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail="Invite code has expired. Ask your doctor for a new one.")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invite code has expired. Ask your doctor for a new one.",
+        )
 
-    if db.query(User).filter(User.username == payload.username).first():
-        raise HTTPException(status_code=400, detail="Username already taken")
+    username_taken = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Username already taken.",
+    )
 
-    user = db.query(User).filter(User.id == profile.user_id).first()
+    if db.scalar(select(User).where(func.lower(User.username) == payload.username)):
+        raise username_taken
+
+    user = db.scalar(select(User).where(User.id == profile.user_id))
     if not user:
-        raise HTTPException(status_code=500, detail="Linked user record not found")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Linked user record not found.",
+        )
 
     user.username = payload.username
     user.hashed_password = hash_password(payload.password)
@@ -129,7 +168,13 @@ def activate_invite(payload: ActivateInviteRequest, db: Session = Depends(get_db
     profile.invite_code = None
     profile.invite_code_expires_at = None
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # Someone took this username between the check above and the commit.
+        db.rollback()
+        raise username_taken
+
     db.refresh(user)
 
     return _issue_token(user)

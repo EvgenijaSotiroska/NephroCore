@@ -1,10 +1,9 @@
 import uuid
 from datetime import date, datetime
-from typing import Optional, List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.core.lab_parameters import CKDStage
+from app.models.result import CKDStage
 
 
 class ParameterDefinition(BaseModel):
@@ -16,31 +15,32 @@ class ParameterDefinition(BaseModel):
 
 class StageParametersResponse(BaseModel):
     stage: CKDStage
-    parameters: List[ParameterDefinition]
+    parameters: list[ParameterDefinition]
 
 class LabResultBase(BaseModel):
-    egfr: Optional[float] = None
-    creatinine: Optional[float] = None
-    acr: Optional[float] = None
-    bp_systolic: Optional[int] = None
-    bp_diastolic: Optional[int] = None
-    phosphate: Optional[float] = None
-    calcium: Optional[float] = None
-    hemoglobin: Optional[float] = None
-    potassium: Optional[float] = None
-    pth: Optional[float] = None
-    bicarbonate: Optional[float] = None
-    urea: Optional[float] = None
-    albumin: Optional[float] = None
-    sodium: Optional[float] = None
-    ferritin: Optional[float] = None
-    tsat: Optional[float] = None
-    vitamin_d: Optional[float] = None
-    magnesium: Optional[float] = None
-    uric_acid: Optional[float] = None
-    hba1c: Optional[float] = None
-    ldl_cholesterol: Optional[float] = None
-    kt_v: Optional[float] = None
+    # Every "le" is the largest value the matching NUMERIC(precision, scale) column can hold.
+    egfr: float | None = Field(default=None, ge=0, le=999.99)
+    creatinine: float | None = Field(default=None, ge=0, le=9999.99)
+    acr: float | None = Field(default=None, ge=0, le=99999.99)
+    bp_systolic: int | None = Field(default=None, ge=0, le=400)
+    bp_diastolic: int | None = Field(default=None, ge=0, le=400)
+    phosphate: float | None = Field(default=None, ge=0, le=99.99)
+    calcium: float | None = Field(default=None, ge=0, le=99.99)
+    hemoglobin: float | None = Field(default=None, ge=0, le=999.99)
+    potassium: float | None = Field(default=None, ge=0, le=99.99)
+    pth: float | None = Field(default=None, ge=0, le=9999.99)
+    bicarbonate: float | None = Field(default=None, ge=0, le=99.99)
+    urea: float | None = Field(default=None, ge=0, le=999.99)
+    albumin: float | None = Field(default=None, ge=0, le=999.99)
+    sodium: float | None = Field(default=None, ge=0, le=999.9)
+    ferritin: float | None = Field(default=None, ge=0, le=99999.9)
+    tsat: float | None = Field(default=None, ge=0, le=999.9)
+    vitamin_d: float | None = Field(default=None, ge=0, le=9999.9)
+    magnesium: float | None = Field(default=None, ge=0, le=99.99)
+    uric_acid: float | None = Field(default=None, ge=0, le=9999.9)
+    hba1c: float | None = Field(default=None, ge=0, le=999.9)
+    ldl_cholesterol: float | None = Field(default=None, ge=0, le=99.99)
+    kt_v: float | None = Field(default=None, ge=0, le=99.99)
 
 
 class LabResultResponse(LabResultBase):
@@ -52,15 +52,23 @@ class VisitCreate(BaseModel):
     patient_id: uuid.UUID
     visit_date: date
     ckd_stage: CKDStage
-    notes: Optional[str] = None
+    notes: str | None = None
     lab_result: LabResultBase
 
 
 class VisitUpdate(BaseModel):
-    visit_date: Optional[date] = None
-    ckd_stage: Optional[CKDStage] = None
-    notes: Optional[str] = None
-    lab_result: Optional[LabResultBase] = None
+    visit_date: date | None = None
+    ckd_stage: CKDStage | None = None
+    notes: str | None = None  # send null to clear the notes
+    lab_result: LabResultBase | None = None
+
+    @field_validator("visit_date", "ckd_stage")
+    @classmethod
+    def must_not_be_null(cls, value):
+        # Only runs when the field is sent; leaving it out keeps the current value.
+        if value is None:
+            raise ValueError("This field cannot be null.")
+        return value
 
 
 class VisitResponse(BaseModel):
@@ -71,11 +79,11 @@ class VisitResponse(BaseModel):
     doctor_id: uuid.UUID
     visit_date: date
     ckd_stage: CKDStage
-    notes: Optional[str] = None
+    notes: str | None = None
     created_at: datetime
-    lab_result: Optional[LabResultResponse] = None
+    lab_result: LabResultResponse | None = None
 
 
 class VisitListResponse(BaseModel):
-    visits: List[VisitResponse]
+    visits: list[VisitResponse]
     total: int

@@ -22,6 +22,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 # ---------- JWT ----------
 
+ALGORITHM = "HS256"
+
 def create_access_token(user_id: str, role: str) -> str:
     now = datetime.now(timezone.utc)
     payload = {
@@ -30,12 +32,12 @@ def create_access_token(user_id: str, role: str) -> str:
         "iat": now,
         "exp": now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_token(token: str) -> dict:
     """Raises jose.JWTError if invalid/expired."""
-    return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
 
 
 # ---------- Invite codes ----------

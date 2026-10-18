@@ -54,6 +54,8 @@ class PatientProfile(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=True)
 
+    # The patient's doctor. This is the single source of truth for who may access the patient
+    # (see patient_ids_of in api/deps.py); doctor_id columns elsewhere only record who created a row.
     created_by_doctor_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
 
     full_name = Column(String(150), nullable=False)

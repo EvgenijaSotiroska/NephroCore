@@ -20,13 +20,6 @@ class Symptom(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    doctor_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-
     patient_id = Column(
         UUID(as_uuid=True),
         ForeignKey("patient_profiles.id", ondelete="CASCADE"),
@@ -58,8 +51,6 @@ class Symptom(Base):
         onupdate=func.now(),
         nullable=False,
     )
-
-    doctor = relationship("User", foreign_keys=[doctor_id])
 
     patient = relationship(
         "PatientProfile",

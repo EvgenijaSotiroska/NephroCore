@@ -1,3 +1,4 @@
+import enum
 import uuid
 
 from sqlalchemy import Column, ForeignKey, Date, DateTime, Integer, Numeric, Text, Enum
@@ -6,7 +7,17 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.db.session import Base
-from app.core.lab_parameters import CKDStage
+
+
+class CKDStage(str, enum.Enum):
+    """CKD stage, from G1 to G5."""
+
+    G1 = "G1"
+    G2 = "G2"
+    G3A = "G3A"
+    G3B = "G3B"
+    G4 = "G4"
+    G5 = "G5"
 
 
 class Visit(Base):

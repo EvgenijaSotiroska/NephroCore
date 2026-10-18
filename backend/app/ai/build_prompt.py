@@ -1,9 +1,16 @@
 from functools import lru_cache
 from pathlib import Path
 
-from app.ai.build_context import format_patient_context, format_visit_history
+from app.ai.build_context import (
+    format_medications,
+    format_patient_context,
+    format_symptoms,
+    format_visit_history,
+)
+from app.models.medication import Medication
 from app.models.patient_profile import PatientProfile
 from app.models.result import Visit
+from app.models.symptom import Symptom
 
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
 
@@ -16,6 +23,8 @@ def load_prompt(name: str) -> str:
 def build_doctor_analysis_prompt(
     patient: PatientProfile,
     visits: list[Visit],
+    symptoms: list[Symptom],
+    medications: list[Medication],
     param_labels: dict[str, tuple[str, str]],
     retrieved_chunks: list[str],
 ) -> tuple[str, str]:
@@ -28,6 +37,8 @@ def build_doctor_analysis_prompt(
         f"{task_instructions}\n\n"
         f"PATIENT DATA:\n{format_patient_context(patient)}\n\n"
         f"VISIT HISTORY (chronological, oldest first):\n{format_visit_history(visits, param_labels)}\n\n"
+        f"SYMPTOMS REPORTED BY THE PATIENT SINCE THE LAST VISIT:\n{format_symptoms(symptoms)}\n\n"
+        f"CURRENT MEDICATIONS:\n{format_medications(medications)}\n\n"
         f"RELEVANT CLINICAL GUIDELINE EXCERPTS:\n{guidelines_text}\n\n"
         f"Give a clinical analysis focused on the most recent visit in the context of the full history. "
         f"Ground any recommendations in the guideline excerpts above where they apply."
@@ -38,6 +49,8 @@ def build_doctor_analysis_prompt(
 def build_patient_explanation_prompt(
     patient: PatientProfile,
     visits: list[Visit],
+    symptoms: list[Symptom],
+    medications: list[Medication],
     param_labels: dict[str, tuple[str, str]],
     doctor_analysis: str | None = None,
 ) -> tuple[str, str]:
@@ -51,6 +64,8 @@ def build_patient_explanation_prompt(
         f"{task_instructions}\n\n"
         f"PATIENT DATA:\n{format_patient_context(patient)}\n\n"
         f"VISIT HISTORY (chronological, oldest first):\n{format_visit_history(visits, param_labels)}\n\n"
+        f"SYMPTOMS REPORTED BY THE PATIENT SINCE THE LAST VISIT:\n{format_symptoms(symptoms)}\n\n"
+        f"CURRENT MEDICATIONS:\n{format_medications(medications)}\n\n"
         f"DOCTOR'S CLINICAL ANALYSIS OF THE MOST RECENT VISIT:\n{analysis_block}\n\n"
         f"Explain the most recent visit to the patient, in the context of their history, "
         f"following the instructions above."
