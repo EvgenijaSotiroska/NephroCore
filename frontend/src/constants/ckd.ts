@@ -1,4 +1,4 @@
-import type { CKDStage } from "../api/types/cdkStage";
+import type { CKDStage } from "../api/types/ckdStage";
 import type {
   CKDEtiology,
   DialysisModality,

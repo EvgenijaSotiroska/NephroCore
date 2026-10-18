@@ -1,5 +1,5 @@
 import { CODED_LIST_SEPARATOR, type CheckboxOption } from "../constants/clinical";
-import type { CKDStage } from "../api/types/cdkStage";
+import type { CKDStage } from "../api/types/ckdStage";
 import type { PatientProfile } from "../api/types/patient";
 
 export function calculateAge(dateOfBirth: string | null): number | null {

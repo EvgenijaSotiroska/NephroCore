@@ -259,14 +259,17 @@ export default function AppointmentModal({
                 Изберете пациент
               </option>
 
-              {patients.map((patient) => (
-                <option
-                  key={patient.id}
-                  value={patient.id}
-                >
-                  {patient.full_name}
-                </option>
-              ))}
+              {patients
+                .filter((patient) => patient.is_active || patient.id === patientId)
+                .map((patient) => (
+                  <option
+                    key={patient.id}
+                    value={patient.id}
+                  >
+                    {patient.full_name}
+                    {!patient.is_active && " (неактивен)"}
+                  </option>
+                ))}
             </select>
 
             {selectedPatient && (

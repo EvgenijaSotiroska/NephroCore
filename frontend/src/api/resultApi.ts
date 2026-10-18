@@ -1,5 +1,4 @@
 import axiosInstance from "../axios/axios.ts";
-import type { CKDStage } from "./types/cdkStage.ts";
 import type {
   StageParametersResponse,
   CreateVisitRequest,
@@ -12,14 +11,8 @@ const resultsApi = {
   getParameters: () =>
     axiosInstance.get<StageParametersResponse[]>("/results/parameters"),
 
-  getStageParameters: (stage: CKDStage) =>
-    axiosInstance.get<StageParametersResponse>(`/results/parameters/${stage}`),
-
-  getSuggestedStage: (patientId: string) =>
-    axiosInstance.get<CKDStage>(`/results/patient/${patientId}/suggested-stage`),
-
   create: (payload: CreateVisitRequest) =>
-    axiosInstance.post<VisitResponse>("/results", payload),
+    axiosInstance.post<VisitResponse>("/results/", payload),
 
   listForPatient: (patientId: string) =>
     axiosInstance.get<VisitListResponse>(`/results/patient/${patientId}`),

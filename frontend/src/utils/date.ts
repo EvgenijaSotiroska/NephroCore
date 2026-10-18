@@ -24,11 +24,6 @@ export function formatWeekdayDayMonth(dateStr: string): string {
   return `${MK_WEEKDAYS[d.getDay()]}, ${d.getDate()} ${MK_MONTHS[d.getMonth()]}`;
 }
 
-export function formatShortDate(dateStr: string): string {
-  const d = toDate(dateStr);
-  return `${d.getDate()} ${MK_MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`;
-}
-
 export function formatShortMonth(dateStr: string): string {
   return MK_MONTHS_SHORT[toDate(dateStr).getMonth()];
 }

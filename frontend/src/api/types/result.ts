@@ -1,4 +1,4 @@
-import type { CKDStage } from "./cdkStage.ts";
+import type { CKDStage } from "./ckdStage.ts";
 
 export interface ParameterDefinition {
   key: string;

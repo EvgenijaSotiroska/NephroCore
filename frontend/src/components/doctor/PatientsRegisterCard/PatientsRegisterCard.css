@@ -76,6 +76,10 @@
   color: #8a9ab0;
 }
 
+.dh-table-row-inactive {
+  opacity: 0.6;
+}
+
 .dh-table-link:hover {
   background: #f8fafc;
   border-radius: 12px;

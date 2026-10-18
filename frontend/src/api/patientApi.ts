@@ -14,6 +14,12 @@ const patientApi = {
   getById: async (patientId: string) => {
     return await axiosInstance.get<PatientProfile>(`/patients/${patientId}`);
   },
+  // Doctor: mark a patient active (followed) or inactive (kept on record).
+  setStatus: async (patientId: string, isActive: boolean) => {
+    return await axiosInstance.patch<PatientProfile>(`/patients/${patientId}/status`, {
+      is_active: isActive,
+    });
+  },
 };
 
 export default patientApi;

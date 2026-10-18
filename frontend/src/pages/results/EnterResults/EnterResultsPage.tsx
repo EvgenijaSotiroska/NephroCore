@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useResultParameters } from "../../../hooks/useResultParameters";
 import { usePatients } from "../../../hooks/usePatients";
 import { useResults } from "../../../hooks/useResults";
-import type { CKDStage } from "../../../api/types/cdkStage.ts";
-import { CKD_STAGE_ORDER } from "../../../api/types/cdkStage.ts";
+import type { CKDStage } from "../../../api/types/ckdStage.ts";
+import { CKD_STAGE_ORDER } from "../../../api/types/ckdStage.ts";
 import type { LabResultPayload } from "../../../api/types/result.ts";
 import {todayIso} from "../../../utils/date";
 
@@ -113,7 +113,7 @@ export default function EnterResults() {
                 disabled={patientsLoading}
               >
                 <option value="">Изберете пациент</option>
-                {patients.map((p) => (
+                {patients.filter((p) => p.is_active).map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.full_name}
                   </option>

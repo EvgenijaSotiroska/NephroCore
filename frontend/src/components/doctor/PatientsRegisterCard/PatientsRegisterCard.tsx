@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import type { AppointmentResponse } from "../../../api/types/appointment";
-import { CKD_STAGE_ORDER, type CKDStage } from "../../../api/types/cdkStage";
+import { CKD_STAGE_ORDER, type CKDStage } from "../../../api/types/ckdStage";
 import type { PatientProfile } from "../../../api/types/patient";
 import { ETIOLOGY_LABELS } from "../../../constants";
 import { daysUntil, formatDayMonth, formatTime } from "../../../utils/date";
@@ -21,6 +21,7 @@ function formatNextVisit(iso: string | undefined): string {
 export default function PatientsRegisterCard({ patients, appointments }: PatientsRegisterCardProps) {
   const [search, setSearch] = useState("");
   const [stage, setStage] = useState<CKDStage | "all">("all");
+  const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
 
   // Earliest upcoming scheduled appointment per patient.
   const nextVisitByPatient = useMemo(() => {
@@ -39,12 +40,15 @@ export default function PatientsRegisterCard({ patients, appointments }: Patient
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return patients.filter(
-      (patient) =>
-        (stage === "all" || stageFromEgfr(patient.baseline_egfr) === stage) &&
-        (query === "" || patient.full_name.toLowerCase().includes(query))
-    );
-  }, [patients, search, stage]);
+    return patients
+      .filter(
+        (patient) =>
+          (stage === "all" || stageFromEgfr(patient.baseline_egfr) === stage) &&
+          (status === "all" || patient.is_active === (status === "active")) &&
+          (query === "" || patient.full_name.toLowerCase().includes(query))
+      )
+      .sort((a, b) => Number(b.is_active) - Number(a.is_active)); // active patients first
+  }, [patients, search, stage, status]);
 
   return (
     <section className="dh-card">
@@ -86,6 +90,16 @@ export default function PatientsRegisterCard({ patients, appointments }: Patient
             </option>
           ))}
         </select>
+
+        <select
+          className="dh-select"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as "all" | "active" | "inactive")}
+        >
+          <option value="all">Сите пациенти</option>
+          <option value="active">Активни</option>
+          <option value="inactive">Неактивни</option>
+        </select>
       </div>
 
       {filtered.length === 0 ? (
@@ -108,7 +122,7 @@ export default function PatientsRegisterCard({ patients, appointments }: Patient
               <Link
                 key={patient.id}
                 to={`/patients/${patient.id}/trends`}
-                className="dh-table-row dh-table-link"
+                className={`dh-table-row dh-table-link ${patient.is_active ? "" : "dh-table-row-inactive"}`}
               >
                 <span className="dh-patient-cell">
                   <span className="dh-avatar">{getInitials(patient.full_name)}</span>
@@ -116,7 +130,8 @@ export default function PatientsRegisterCard({ patients, appointments }: Patient
                     <span className="dh-patient-name">{patient.full_name}</span>
                     <span className="dh-patient-sub">
                       {age !== null ? `${age} год.` : "—"}
-                      {!patient.is_activated && " · не е активиран"}
+                      {!patient.is_active && " · неактивен"}
+                      {patient.is_active && !patient.is_activated && " · не е активиран"}
                     </span>
                   </span>
                 </span>

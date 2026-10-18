@@ -70,7 +70,7 @@ function NextVisitPanel({ patientId }: { patientId?: string }) {
 
 // ==================== Therapy (doctor can add) ====================
 
-function TherapyPanel({ patientId }: { patientId?: string }) {
+function TherapyPanel({ patientId, isActive }: { patientId?: string; isActive: boolean }) {
   const { medications, loading, saving, addMedication, updateMedication, removeMedication } =
     useMedications(patientId);
 
@@ -157,15 +157,21 @@ function TherapyPanel({ patientId }: { patientId?: string }) {
 
       <div className="med-divider" />
 
-      <button
-        type="button"
-        className="med-add-toggle"
-        onClick={() => setShowForm((v) => !v)}
-      >
-        <span aria-hidden="true">{showForm ? "−" : "+"}</span> {showForm ? "Откажи" : "Додај лек"}
-      </button>
+      {!isActive && (
+        <p className="side-muted">Пациентот е неактивен, па не може да се додаваат нови лекови.</p>
+      )}
 
-      {showForm && (
+      {isActive && (
+        <button
+          type="button"
+          className="med-add-toggle"
+          onClick={() => setShowForm((v) => !v)}
+        >
+          <span aria-hidden="true">{showForm ? "−" : "+"}</span> {showForm ? "Откажи" : "Додај лек"}
+        </button>
+      )}
+
+      {isActive && showForm && (
         <form className="med-form" onSubmit={handleSubmit}>
           <input
             className="side-input"
@@ -285,13 +291,14 @@ function PatientSymptoms({
 interface PatientSidebarProps {
   patientId?: string;
   lastVisitDate: string | null;
+  isActive?: boolean;
 }
 
-export default function PatientSidebar({ patientId, lastVisitDate }: PatientSidebarProps) {
+export default function PatientSidebar({ patientId, lastVisitDate, isActive = true }: PatientSidebarProps) {
   return (
     <aside className="pd-side">
       <NextVisitPanel patientId={patientId} />
-      <TherapyPanel patientId={patientId} />
+      <TherapyPanel patientId={patientId} isActive={isActive} />
       <PatientSymptoms patientId={patientId} lastVisitDate={lastVisitDate} />
     </aside>
   );

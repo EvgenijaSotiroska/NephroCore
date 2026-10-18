@@ -1,4 +1,4 @@
-import type { CKDStage } from "./cdkStage";
+import type { CKDStage } from "./ckdStage";
 
 export type { CKDStage };
 

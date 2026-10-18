@@ -75,4 +75,7 @@ export interface PatientProfile {
   dialysis_modality: DialysisModality | null;
 
   is_activated: boolean;
+
+  // true: currently followed. false: kept on record (e.g. switched doctor), no new data is added.
+  is_active: boolean;
 }

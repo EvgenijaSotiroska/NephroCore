@@ -1,18 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import resultsApi from "../api/resultApi.ts";
-import type { CKDStage } from "../api/types/cdkStage.ts";
+import type { CKDStage } from "../api/types/ckdStage.ts";
+import type { ParameterDefinition } from "../api/types/result.ts";
 import {
     STAGE_EGFR_RANGE_LABEL, STAGE_SHORT_LABELS
 } from "../constants";
-
-export interface ParameterDefinition {
-  key: string;
-  value_type: "float" | "int";
-  label_mk: string;
-  unit: string;
-  reference_mk: string;
-}
 
 export interface StageParameters {
   stage: CKDStage;

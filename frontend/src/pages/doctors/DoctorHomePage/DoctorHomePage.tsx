@@ -89,7 +89,9 @@ export default function DoctorHomePage() {
   const newSymptoms = symptoms.filter((s) => new Date(s.created_at).getTime() >= now - 7 * DAY_MS);
   const severeSymptoms = newSymptoms.filter((s) => s.intensity === "large").length;
 
-  const activated = patients.filter((p) => p.is_activated).length;
+  // Inactive patients stay in the register but are not counted as current patients.
+  const activePatients = patients.filter((p) => p.is_active);
+  const activated = activePatients.filter((p) => p.is_activated).length;
 
   return (
     <div className="dh-page">
@@ -120,7 +122,7 @@ export default function DoctorHomePage() {
         <div className="dh-stats">
           <StatTile
             label="Активни пациенти"
-            value={patients.length}
+            value={activePatients.length}
             hint={`${activated} со активиран профил`}
             icon="👥"
             tone="teal"
@@ -157,7 +159,7 @@ export default function DoctorHomePage() {
 
           <aside className="dh-col">
             <TodayScheduleCard appointments={todaysAppointments} patients={patients} />
-            <StageDistributionCard patients={patients} />
+            <StageDistributionCard patients={activePatients} />
           </aside>
         </div>
       </div>

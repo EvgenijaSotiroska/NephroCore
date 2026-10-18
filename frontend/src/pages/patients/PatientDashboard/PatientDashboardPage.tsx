@@ -241,7 +241,7 @@ function VisitHistoryList({ visits, paramMeta }: VisitHistoryListProps) {
 export default function PatientDashboardPage() {
   const { patientId } = useParams<{ patientId: string }>();
   const { data, groupedParameters, loading, error, refetch } = useTrends(patientId);
-  const { profile } = usePatientProfile(patientId);
+  const { profile, setActive } = usePatientProfile(patientId);
   const { visits } = useVisits(patientId);
   const { analysis, loading: aiLoading, error: aiError, generate: generateAiAnalysis } = useAiAnalysis(patientId);
   const [view, setView] = useState<"charts" | "results">("charts");
@@ -303,23 +303,40 @@ export default function PatientDashboardPage() {
                 {age !== null && <span>{age} година</span>}
                 <span>{profile.sex === "male" ? "Машки" : "Женски"}</span>
                 {profile.ckd_etiology && <span>{ETIOLOGY_LABELS[profile.ckd_etiology]}</span>}
+                {!profile.is_active && <span className="pd-hero-inactive">Неактивен</span>}
               </p>
             </div>
           </div>
 
-          {comorbidities && (
-            <div className="pd-hero-chips">
-              <span className="pd-hero-chip">
-                <strong>Коморбидитети:</strong> {comorbidities}
-              </span>
-            </div>
-          )}
+          <div className="pd-hero-side">
+            {comorbidities && (
+              <div className="pd-hero-chips">
+                <span className="pd-hero-chip">
+                  <strong>Коморбидитети:</strong> {comorbidities}
+                </span>
+              </div>
+            )}
+            <button
+              type="button"
+              className="pd-status-button"
+              onClick={() => void setActive(!profile.is_active)}
+            >
+              {profile.is_active ? "Означи како неактивен" : "Означи како активен"}
+            </button>
+          </div>
         </header>
       )}
 
       <div className="pd-layout">
         {/* ---------- Main column ---------- */}
         <main className="pd-main">
+          {profile && !profile.is_active && (
+            <div className="pd-inactive-note">
+              Пациентот е неактивен. Досегашните прегледи и терапија остануваат зачувани, но не може да се
+              додаваат нови резултати, лекови или термини.
+            </div>
+          )}
+
           <div className="main-head">
             <div>
               <div className="eyebrow eyebrow-blue">Лабораториски трендови</div>
@@ -405,7 +422,11 @@ export default function PatientDashboardPage() {
         </main>
 
         {/* ---------- Sidebar ---------- */}
-        <PatientSidebar patientId={patientId} lastVisitDate={lastVisitDate} />
+        <PatientSidebar
+          patientId={patientId}
+          lastVisitDate={lastVisitDate}
+          isActive={profile?.is_active ?? true}
+        />
       </div>
     </div>
   );

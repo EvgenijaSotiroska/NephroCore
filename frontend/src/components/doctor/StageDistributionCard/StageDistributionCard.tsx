@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { PatientProfile } from "../../../api/types/patient";
-import { CKD_STAGE_ORDER } from "../../../api/types/cdkStage";
+import { CKD_STAGE_ORDER } from "../../../api/types/ckdStage";
 import { STAGE_EGFR_RANGE_LABEL } from "../../../constants";
 import { stageFromEgfr, stageTone } from "../../../utils/patient";
 import "./StageDistributionCard.css";
