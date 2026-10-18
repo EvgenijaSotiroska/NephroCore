@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -16,7 +16,7 @@ import PatientSidebar from "../../../components/doctor/PatientSidebar/PatientSid
 import type { ParameterTrend } from "../../../api/types/trends";
 import type { VisitResponse } from "../../../api/types/result";
 import { COMORBIDITIES, ETIOLOGY_LABELS, MK_MONTHS_SHORT } from "../../../constants";
-import { formatLongDate, toDate } from "../../../utils/date";
+import { formatDayMonth, formatLongDate, formatShortDate, toDate, toDateKey } from "../../../utils/date";
 import { calculateAge, formatCodedList, getInitials } from "../../../utils/patient";
 import "./PatientDashboardPage.css";
 
@@ -32,19 +32,38 @@ const CHART_COLORS: Record<string, string> = {
 };
 const FALLBACK_COLORS = ["#08aaa5", "#f97316", "#8b5cf6", "#0ea5e9", "#f4607a", "#64748b"];
 
-function formatMonthYear(dateStr: string): string {
-  const d = toDate(dateStr);
-  return `${MK_MONTHS_SHORT[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Which result dates get a label under the chart: all of them when there are few,
+ *  otherwise the first, the last and three evenly picked in between (so labels never overlap). */
+function pickAxisTicks(times: number[]): number[] {
+  if (times.length <= 5) return times;
+  const picks = [0, 0.25, 0.5, 0.75, 1].map((f) => times[Math.round(f * (times.length - 1))]);
+  return Array.from(new Set(picks));
 }
+
+const dateKeyOf = (time: number) => toDateKey(new Date(time));
 
 // ==================== Charts ====================
 
-function TrendCell({ param, color }: { param: ParameterTrend; color: string }) {
+interface TrendCellProps {
+  param: ParameterTrend;
+  color: string;
+  onRemove?: () => void; // only charts added from the dropdown can be removed
+}
+
+function TrendCell({ param, color, onRemove }: TrendCellProps) {
   const points = param.points;
-  const chartData = points.map((p) => ({
-    value: p.value,
-    dateLabel: formatMonthYear(p.date),
-  }));
+
+  // The horizontal axis is real time: the chart starts at the first result date and ends at
+  // the last one, and every result sits at its own date.
+  const chartData = points.map((p) => ({ time: toDate(p.date).getTime(), value: p.value }));
+  const times = Array.from(new Set(chartData.map((d) => d.time))).sort((a, b) => a - b);
+  const firstTime = times[0];
+  const lastTime = times[times.length - 1];
+  // With a single result there is no span, so give the dot a window around it.
+  const timeDomain: [number, number] =
+    firstTime === lastTime ? [firstTime - 15 * DAY_MS, firstTime + 15 * DAY_MS] : [firstTime, lastTime];
 
   const values = chartData.map((d) => d.value);
   const dataMin = Math.min(...values);
@@ -67,11 +86,18 @@ function TrendCell({ param, color }: { param: ParameterTrend; color: string }) {
     <div className="trend-cell">
       <div className="trend-top">
         <span className="trend-label">{param.label}</span>
-        {delta !== null && (
-          <span className={`trend-delta trend-delta-${tone}`}>
-            {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"} {Math.abs(delta).toFixed(Math.min(param.decimals, 1))}
-          </span>
-        )}
+        <div className="trend-top-right">
+          {delta !== null && (
+            <span className={`trend-delta trend-delta-${tone}`}>
+              {delta > 0 ? "↑" : delta < 0 ? "↓" : "→"} {Math.abs(delta).toFixed(Math.min(param.decimals, 1))}
+            </span>
+          )}
+          {onRemove && (
+            <button type="button" className="trend-remove" aria-label="Отстрани го графикот" onClick={onRemove}>
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="trend-value-row">
@@ -81,15 +107,33 @@ function TrendCell({ param, color }: { param: ParameterTrend; color: string }) {
         <span className="trend-unit">{param.unit}</span>
       </div>
 
-      <ResponsiveContainer width="100%" height={110}>
-        <AreaChart data={chartData} margin={{ top: 8, right: 6, left: 6, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={130}>
+        <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={color} stopOpacity={0.22} />
               <stop offset="100%" stopColor={color} stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="dateLabel" hide />
+          <XAxis
+            dataKey="time"
+            type="number"
+            scale="time"
+            domain={timeDomain}
+            ticks={pickAxisTicks(times)}
+            interval="preserveStartEnd"
+            minTickGap={10}
+            tickFormatter={(time: number) =>
+              time === firstTime || time === lastTime
+                ? formatShortDate(dateKeyOf(time))
+                : formatDayMonth(dateKeyOf(time))
+            }
+            tick={{ fontSize: 10, fill: "#9aa7b8" }}
+            tickMargin={6}
+            axisLine={false}
+            tickLine={false}
+            padding={{ left: 28, right: 28 }}
+          />
           <YAxis
             hide
             scale={param.scale === "log" ? "log" : "linear"}
@@ -104,7 +148,7 @@ function TrendCell({ param, color }: { param: ParameterTrend; color: string }) {
                 string
               ];
             }}
-            labelFormatter={(label) => (label ?? "") as React.ReactNode}
+            labelFormatter={(time) => formatLongDate(dateKeyOf(Number(time)))}
           />
           <Area
             type="monotone"
@@ -117,11 +161,6 @@ function TrendCell({ param, color }: { param: ParameterTrend; color: string }) {
           />
         </AreaChart>
       </ResponsiveContainer>
-
-      <div className="trend-axis">
-        <span>{chartData[0]?.dateLabel}</span>
-        <span>{chartData[chartData.length - 1]?.dateLabel}</span>
-      </div>
     </div>
   );
 }
@@ -132,6 +171,7 @@ const VISIT_KEY_ORDER = [
   "egfr", "creatinine", "acr", "bp_systolic", "bp_diastolic",
   "phosphate", "calcium", "hemoglobin", "potassium",
   "pth", "bicarbonate", "urea", "albumin",
+  "alkaline_phosphatase", "sodium", "ferritin", "tsat",
 ];
 
 function formatVisitDateParts(dateStr: string) {
@@ -240,11 +280,13 @@ function VisitHistoryList({ visits, paramMeta }: VisitHistoryListProps) {
 
 export default function PatientDashboardPage() {
   const { patientId } = useParams<{ patientId: string }>();
-  const { data, groupedParameters, loading, error, refetch } = useTrends(patientId);
+  const { data, loading, error, refetch } = useTrends(patientId);
   const { profile, setActive } = usePatientProfile(patientId);
   const { visits } = useVisits(patientId);
   const { analysis, loading: aiLoading, error: aiError, generate: generateAiAnalysis } = useAiAnalysis(patientId);
   const [view, setView] = useState<"charts" | "results">("charts");
+  // Parameters outside the stage defaults that the doctor chose to chart (from the dropdown).
+  const [shownExtras, setShownExtras] = useState<string[]>([]);
 
   if (loading) {
     return (
@@ -275,8 +317,15 @@ export default function PatientDashboardPage() {
   // visits come newest first
   const lastVisitDate = visits.length > 0 ? visits[0].visit_date : null;
 
-  const allParams = Object.values(groupedParameters).flat();
-  const outOfRange = parameters.filter((p) => p.is_out_of_range);
+  // The page charts the default parameters of the patient's stage. Anything else the doctor has
+  // entered values for is offered in a dropdown and charted when chosen.
+  const defaultParams = parameters.filter((p) => p.is_default);
+  const extraParams = parameters.filter((p) => !p.is_default);
+  const chosenExtras = extraParams.filter((p) => shownExtras.includes(p.key));
+  const dropdownOptions = extraParams.filter((p) => !shownExtras.includes(p.key));
+  const visibleParams = [...defaultParams, ...chosenExtras];
+
+  const outOfRange = visibleParams.filter((p) => p.is_out_of_range);
   const lastMeasured = parameters
     .map((p) => p.latest_date)
     .filter((d): d is string => !!d)
@@ -316,13 +365,18 @@ export default function PatientDashboardPage() {
                 </span>
               </div>
             )}
-            <button
-              type="button"
-              className="pd-status-button"
-              onClick={() => void setActive(!profile.is_active)}
-            >
-              {profile.is_active ? "Означи како неактивен" : "Означи како активен"}
-            </button>
+            <div className="pd-hero-actions">
+              <Link to={`/patients/${profile.id}/edit`} className="pd-status-button">
+                Измени профил
+              </Link>
+              <button
+                type="button"
+                className="pd-status-button"
+                onClick={() => void setActive(!profile.is_active)}
+              >
+                {profile.is_active ? "Означи како неактивен" : "Означи како активен"}
+              </button>
+            </div>
           </div>
         </header>
       )}
@@ -343,6 +397,11 @@ export default function PatientDashboardPage() {
               <h3 className="section-title">Показатели низ времето</h3>
             </div>
             <div className="main-head-right">
+              {profile?.is_active && (
+                <Link to={`/addResult?patientId=${patientId}`} className="add-result-button">
+                  + Додај резултати
+                </Link>
+              )}
               {lastMeasured && (
                 <span className="last-measure">
                   <span className="last-measure-dot" aria-hidden="true" />
@@ -380,17 +439,46 @@ export default function PatientDashboardPage() {
                 </div>
               )}
 
-              {!hasAnyData ? (
+              {dropdownOptions.length > 0 && (
+                <div className="chart-extras">
+                  <select
+                    className="chart-extras-select"
+                    value=""
+                    onChange={(e) => {
+                      const key = e.target.value;
+                      if (key) setShownExtras((prev) => [...prev, key]);
+                    }}
+                  >
+                    <option value="">+ Додај друг параметар на графиците…</option>
+                    {dropdownOptions.map((param) => (
+                      <option key={param.key} value={param.key}>
+                        {param.label}
+                        {param.unit && ` (${param.unit})`}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="chart-extras-hint">Параметри за кои има внесени вредности</span>
+                </div>
+              )}
+
+              {visibleParams.length === 0 ? (
                 <div className="dashboard-empty">
-                  Сè уште нема евидентирани лабораториски резултати. Графиците ќе се прикажат откако ќе се внесат прегледи.
+                  {hasAnyData
+                    ? "Нема внесени вредности за основните параметри на овој стадиум. Изберете друг параметар од листата погоре."
+                    : "Сè уште нема евидентирани лабораториски резултати. Графиците ќе се прикажат откако ќе се внесат прегледи."}
                 </div>
               ) : (
                 <div className="trend-grid">
-                  {allParams.map((param, index) => (
+                  {visibleParams.map((param, index) => (
                     <TrendCell
                       key={param.key}
                       param={param}
                       color={CHART_COLORS[param.key] ?? FALLBACK_COLORS[index % FALLBACK_COLORS.length]}
+                      onRemove={
+                        param.is_default
+                          ? undefined
+                          : () => setShownExtras((prev) => prev.filter((key) => key !== param.key))
+                      }
                     />
                   ))}
                 </div>

@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import patientApi from "../api/patientApi";
 import { useSnackbar } from "./useSnackbar";
-import type { CreatePatientRequest, CreatePatientResponse, PatientProfile } from "../api/types/patient";
+import type {
+  CreatePatientRequest,
+  CreatePatientResponse,
+  PatientProfile,
+  UpdatePatientRequest,
+} from "../api/types/patient";
 
 interface UsePatientsResult {
   patients: PatientProfile[];
@@ -10,6 +15,8 @@ interface UsePatientsResult {
   error: string | null;
   createPatient: (payload: CreatePatientRequest) => Promise<CreatePatientResponse | null>;
   creating: boolean;
+  updatePatient: (patientId: string, payload: UpdatePatientRequest) => Promise<boolean>;
+  updating: boolean;
 }
 
 export function usePatients(): UsePatientsResult {
@@ -18,6 +25,7 @@ export function usePatients(): UsePatientsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -53,5 +61,23 @@ export function usePatients(): UsePatientsResult {
     [refresh, showSnackbar]
   );
 
-  return { patients, loading, error, createPatient, creating };
+  const updatePatient = useCallback(
+    async (patientId: string, payload: UpdatePatientRequest): Promise<boolean> => {
+      setUpdating(true);
+      try {
+        await patientApi.update(patientId, payload);
+        showSnackbar("Профилот на пациентот е зачуван.", "success");
+        await refresh();
+        return true;
+      } catch (err) {
+        showSnackbar(getApiErrorMessage(err, "Не успеа да се зачуваат промените"), "error");
+        return false;
+      } finally {
+        setUpdating(false);
+      }
+    },
+    [refresh, showSnackbar]
+  );
+
+  return { patients, loading, error, createPatient, creating, updatePatient, updating };
 }

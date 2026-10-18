@@ -1,5 +1,10 @@
 import axiosInstance from "../axios/axios";
-import type { CreatePatientRequest, CreatePatientResponse, PatientProfile } from "./types/patient";
+import type {
+  CreatePatientRequest,
+  CreatePatientResponse,
+  PatientProfile,
+  UpdatePatientRequest,
+} from "./types/patient";
 
 const patientApi = {
   create: async (data: CreatePatientRequest) => {
@@ -13,6 +18,10 @@ const patientApi = {
   },
   getById: async (patientId: string) => {
     return await axiosInstance.get<PatientProfile>(`/patients/${patientId}`);
+  },
+  // Doctor: edit a patient's profile.
+  update: async (patientId: string, data: UpdatePatientRequest) => {
+    return await axiosInstance.patch<PatientProfile>(`/patients/${patientId}`, data);
   },
   // Doctor: mark a patient active (followed) or inactive (kept on record).
   setStatus: async (patientId: string, isActive: boolean) => {

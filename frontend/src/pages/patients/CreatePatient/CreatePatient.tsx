@@ -1,8 +1,10 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router";
 import { usePatients } from "../../../hooks/usePatients";
 import type {
   CreatePatientRequest,
   CreatePatientResponse,
+  PatientProfile,
 } from "../../../api/types/patient";
 import {
   ETIOLOGY_OPTIONS,
@@ -15,7 +17,7 @@ import {
   type CheckboxOption,
 } from "../../../constants";
 import { formatLongDate } from "../../../utils/date";
-import { joinCodedList } from "../../../utils/patient";
+import { joinCodedList, splitCodedList } from "../../../utils/patient";
 import "./CreatePatient.css";
 
 const initialForm: CreatePatientRequest = {
@@ -38,6 +40,24 @@ const initialForm: CreatePatientRequest = {
   dialysis_status: "pre_dialysis",
   dialysis_modality: null,
 };
+
+// Edit mode: fill the form with the patient's saved values. The four checkbox lists
+// (history, risk factors, comorbidities, medications) are filled separately below.
+function formFromProfile(profile: PatientProfile): CreatePatientRequest {
+  return {
+    ...initialForm,
+    full_name: profile.full_name,
+    date_of_birth: profile.date_of_birth ?? "",
+    sex: profile.sex,
+    height_cm: profile.height_cm === null ? null : Number(profile.height_cm),
+    smoking: profile.smoking,
+    ckd_etiology: profile.ckd_etiology,
+    diagnosis_date: profile.diagnosis_date ?? "",
+    baseline_egfr: profile.baseline_egfr === null ? null : Number(profile.baseline_egfr),
+    dialysis_status: profile.dialysis_status,
+    dialysis_modality: profile.dialysis_modality,
+  };
+}
 
 interface CheckboxGroupProps {
   title: string;
@@ -90,27 +110,33 @@ function CheckboxGroup({
   );
 }
 
-export default function CreatePatient() {
+interface CreatePatientProps {
+  // Set when editing: the form starts with this patient's values and saves them back.
+  existing?: PatientProfile;
+}
+
+export default function CreatePatient({ existing }: CreatePatientProps) {
   const [form, setForm] =
-    useState<CreatePatientRequest>(initialForm);
+    useState<CreatePatientRequest>(existing ? formFromProfile(existing) : initialForm);
 
   const [result, setResult] =
     useState<CreatePatientResponse | null>(null);
 
   const [previousConditions, setPreviousConditions] =
-    useState<string[]>([]);
+    useState<string[]>(splitCodedList(existing?.previous_conditions));
 
   const [geneticRiskFactors, setGeneticRiskFactors] =
-    useState<string[]>([]);
+    useState<string[]>(splitCodedList(existing?.genetic_risk_factors));
 
   const [comorbidities, setComorbidities] =
-    useState<string[]>([]);
+    useState<string[]>(splitCodedList(existing?.comorbidities));
 
   const [currentMedications, setCurrentMedications] =
-    useState<string[]>([]);
+    useState<string[]>(splitCodedList(existing?.current_medications));
 
 
-  const { createPatient, creating } = usePatients();
+  const { createPatient, creating, updatePatient, updating } = usePatients();
+  const navigate = useNavigate();
 
   function update<K extends keyof CreatePatientRequest>(
     field: K
@@ -157,7 +183,7 @@ export default function CreatePatient() {
     e.preventDefault();
     setResult(null);
 
-    const data = await createPatient({
+    const payload: CreatePatientRequest = {
       ...form,
 
       date_of_birth:
@@ -191,7 +217,15 @@ export default function CreatePatient() {
         form.dialysis_status === "on_dialysis"
           ? form.dialysis_modality
           : null,
-    });
+    };
+
+    if (existing) {
+      const saved = await updatePatient(existing.id, payload);
+      if (saved) navigate(`/patients/${existing.id}/trends`);
+      return;
+    }
+
+    const data = await createPatient(payload);
 
     if (data) {
       setResult(data);
@@ -210,7 +244,7 @@ export default function CreatePatient() {
       {/* ==================== PAGE HEADER ==================== */}
 
       <div className="create-patient-header">
-        <h2>Креирај нов пациент</h2>
+        <h2>{existing ? "Измени профил на пациент" : "Креирај нов пациент"}</h2>
 
         <p>
           Пополнете ги информациите. Полињата со * се задолжителни.
@@ -538,12 +572,18 @@ export default function CreatePatient() {
         <button
           type="submit"
           className="create-patient-button"
-          disabled={creating}
+          disabled={creating || updating}
         >
-          {creating
-            ? "Креирање..."
-            : "Креирај пациент и генерирај код за покана"}
+          {existing
+            ? (updating ? "Зачувување..." : "Зачувај промени")
+            : (creating ? "Креирање..." : "Креирај пациент и генерирај код за покана")}
         </button>
+
+        {existing && (
+          <Link to={`/patients/${existing.id}/trends`} className="create-patient-cancel">
+            Откажи
+          </Link>
+        )}
 
       </form>
 

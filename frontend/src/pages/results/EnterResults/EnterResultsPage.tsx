@@ -1,5 +1,6 @@
 import "./EnterResultsPage.css";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 
 import { useResultParameters } from "../../../hooks/useResultParameters";
 import { usePatients } from "../../../hooks/usePatients";
@@ -20,7 +21,9 @@ export default function EnterResults() {
   } = useResultParameters();
   const { createResult, creating } = useResults();
 
-  const [patientId, setPatientId] = useState("");
+  // The patient page links here with ?patientId=..., so that patient is already selected.
+  const [searchParams] = useSearchParams();
+  const [patientId, setPatientId] = useState(searchParams.get("patientId") ?? "");
   const [visitDate, setVisitDate] = useState(todayIso());
   const [stage, setStage] = useState<CKDStage>("G1");
   const [values, setValues] = useState<LabResultPayload>({});

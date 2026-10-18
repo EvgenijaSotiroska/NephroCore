@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import get_current_user, get_viewable_patient
-from app.core.lab_parameters import get_stage_parameter_meta
+from app.core.lab_parameters import get_all_parameter_meta, get_stage_parameter_meta
 from app.db.session import get_db
 from app.models.result import CKDStage, LabResult, Visit
 from app.models.user import User
@@ -64,7 +64,10 @@ def get_patient_trends(
 
     current_stage = _stage_from_visit(visits[-1])
 
-    param_meta_list = get_stage_parameter_meta(current_stage, db)
+    # Every parameter that has values is returned. The ones that are defaults for the current
+    # stage are marked, so the page charts those first and offers the rest in a dropdown.
+    default_keys = {meta["key"] for meta in get_stage_parameter_meta(current_stage, db)}
+    param_meta_list = get_all_parameter_meta(db)
 
     parameter_trends: list[ParameterTrend] = []
 
@@ -114,6 +117,7 @@ def get_patient_trends(
                 latest_value=latest.value,
                 latest_date=latest.date,
                 is_out_of_range=is_out_of_range,
+                is_default=key in default_keys,
             )
         )
 

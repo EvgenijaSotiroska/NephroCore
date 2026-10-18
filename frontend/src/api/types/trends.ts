@@ -24,6 +24,7 @@ export interface ParameterTrend {
   latest_value: number | null;
   latest_date: string | null;
   is_out_of_range: boolean;
+  is_default: boolean;
 }
 
 export interface PatientTrendsResponse {

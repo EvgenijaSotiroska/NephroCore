@@ -21,6 +21,7 @@ from app.schemas.patient import (
     PatientCreateResponse,
     PatientOut,
     PatientStatusUpdate,
+    PatientUpdateRequest,
 )
 
 router = APIRouter(prefix="/patients", tags=["patients"])
@@ -102,6 +103,24 @@ def get_patient(
     current_doctor: User = Depends(require_doctor),
 ):
     return get_owned_patient(db, patient_id, current_doctor)
+
+
+@router.patch("/{patient_id}", response_model=PatientOut)
+def update_patient(
+    patient_id: UUID,
+    payload: PatientUpdateRequest,
+    db: Session = Depends(get_db),
+    current_doctor: User = Depends(require_doctor),
+):
+    """Edit a patient's profile. Works for inactive patients too."""
+    patient = get_owned_patient(db, patient_id, current_doctor)
+
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(patient, field, value)
+
+    db.commit()
+    db.refresh(patient)
+    return patient
 
 
 @router.patch("/{patient_id}/status", response_model=PatientOut)

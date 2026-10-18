@@ -6,6 +6,7 @@ import SessionExpiryBanner from "./components/SessionExpiryBanner";
 import Layout from "./components/layout/Layout/Layout";
 import HomePage from "./pages/home/HomePage";
 import CreatePatient from "./pages/patients/CreatePatient/CreatePatient";
+import EditPatientPage from "./pages/patients/EditPatient/EditPatientPage";
 import EnterResultsPage from "./pages/results/EnterResults/EnterResultsPage.tsx";
 import PatientProfilePage from "./pages/patients/PatientDashboard/PatientDashboardPage.tsx";
 import PatientHomePage from "./pages/patients/PatientHomePage/PatientHomePage.tsx";
@@ -54,6 +55,15 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute allowedRoles={["doctor"]}>
                             <EnterResultsPage/>
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/patients/:patientId/edit"
+                    element={
+                        <ProtectedRoute allowedRoles={["doctor"]}>
+                            <EditPatientPage/>
                         </ProtectedRoute>
                     }
                 />

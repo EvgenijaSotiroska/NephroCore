@@ -24,6 +24,12 @@ export function formatWeekdayDayMonth(dateStr: string): string {
   return `${MK_WEEKDAYS[d.getDay()]}, ${d.getDate()} ${MK_MONTHS[d.getMonth()]}`;
 }
 
+/** "2026-01-05" -> "5 јан 2026" */
+export function formatShortDate(dateStr: string): string {
+  const d = toDate(dateStr);
+  return `${d.getDate()} ${MK_MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 export function formatShortMonth(dateStr: string): string {
   return MK_MONTHS_SHORT[toDate(dateStr).getMonth()];
 }

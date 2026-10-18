@@ -97,4 +97,6 @@ class LabResult(Base):
     ldl_cholesterol = Column(Numeric(4, 2), nullable=True)
     kt_v = Column(Numeric(4, 2), nullable=True)
 
+    alkaline_phosphatase = Column(Numeric(6, 1), nullable=True)
+
     visit = relationship("Visit", back_populates="lab_result")

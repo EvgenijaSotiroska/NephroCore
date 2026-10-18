@@ -27,6 +27,7 @@ class ParameterTrend(BaseModel):
     latest_value: float | None = None
     latest_date: datetime.date | None = None
     is_out_of_range: bool = False
+    is_default: bool = True
 
 
 class PatientTrendsResponse(BaseModel):

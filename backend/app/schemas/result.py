@@ -41,6 +41,7 @@ class LabResultBase(BaseModel):
     hba1c: float | None = Field(default=None, ge=0, le=999.9)
     ldl_cholesterol: float | None = Field(default=None, ge=0, le=99.99)
     kt_v: float | None = Field(default=None, ge=0, le=99.99)
+    alkaline_phosphatase: float | None = Field(default=None, ge=0, le=99999.9)
 
 
 class LabResultResponse(LabResultBase):

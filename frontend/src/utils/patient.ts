@@ -24,6 +24,15 @@ export function joinCodedList(values: string[]): string {
   return values.join(CODED_LIST_SEPARATOR);
 }
 
+/** The opposite of joinCodedList: "a|b" -> ["a", "b"] (used to fill the edit form). */
+export function splitCodedList(raw: string | null | undefined): string[] {
+  if (!raw) return [];
+  return raw
+    .split(CODED_LIST_SEPARATOR)
+    .map((code) => code.trim())
+    .filter(Boolean);
+}
+
 export function formatCodedList(
   raw: string | null | undefined,
   options: CheckboxOption[]

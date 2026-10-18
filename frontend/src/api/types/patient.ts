@@ -43,6 +43,9 @@ export interface CreatePatientRequest {
   dialysis_modality?: DialysisModality | null;
 }
 
+// Edit a profile: only the fields that are sent are changed, null clears an optional field.
+export type UpdatePatientRequest = Partial<CreatePatientRequest>;
+
 export interface CreatePatientResponse {
   id: string;
   full_name: string;

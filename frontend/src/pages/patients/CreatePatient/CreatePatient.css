@@ -337,6 +337,20 @@
     transform 0.1s ease;
 }
 
+.create-patient-cancel {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  color: #71819a;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.create-patient-cancel:hover {
+  color: #17243a;
+}
+
 .create-patient-button:hover {
   background: #079792;
 }
