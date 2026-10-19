@@ -80,3 +80,20 @@ def build_patient_explanation_prompt(
         f"following the instructions above."
     )
     return system_prompt, user_prompt
+
+def build_chat_system_prompt(
+    patient: PatientProfile,
+    visits: list[Visit],
+    symptoms: list[Symptom],
+    medications: list[Medication],
+    param_labels: dict[str, tuple[str, str]],
+) -> str:
+    """The instructions plus the patient's data, sent as the system prompt of every chat message."""
+    visit_history = format_visit_history(visits, param_labels) if visits else "No visits recorded yet."
+    return (
+        f"{load_prompt('chat_prompt')}\n\n"
+        f"PATIENT DATA:\n{format_patient_context(patient)}\n\n"
+        f"VISIT HISTORY (chronological, oldest first):\n{visit_history}\n\n"
+        f"SYMPTOMS REPORTED BY THE PATIENT (newest first):\n{format_symptoms(symptoms)}\n\n"
+        f"CURRENT MEDICATIONS:\n{format_medications(medications)}"
+    )

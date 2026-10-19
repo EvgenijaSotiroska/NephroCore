@@ -20,6 +20,7 @@ import NextVisitCard from "../../../components/patient/NextVisitCard/NextVisitCa
 import SymptomsCard from "../../../components/patient/SymptomsCard/SymptomsCard";
 import "./PatientHomePage.css";
 import AiAnalysisModal from "../../../components/doctor/AiAnalysisModal/AiAnalysisModal";
+import ChatPanel from "../../../components/patient/ChatPanel/ChatPanel";
 
 // ==================== Helpers ====================
 
@@ -415,7 +416,7 @@ export default function PatientHomePage() {
                                 />
                             </section>
                         )}
-                        
+
                         <h3 className="ph-heading">Мои резултати</h3>
 
                         {sortedVisits.length === 0 ? (
@@ -444,6 +445,7 @@ export default function PatientHomePage() {
                     </aside>
                 </div>
             </div>
+            <ChatPanel patientId={patientId}/>
         </div>
     );
 }

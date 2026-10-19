@@ -38,3 +38,9 @@ ai_limiter = RateLimiter(
     window_seconds=60 * 60,
     detail="You have reached the AI analysis limit. Try again later.",
 )
+
+chat_limiter = RateLimiter(
+    limit=30,
+    window_seconds=60 * 60,
+    detail="You have reached the question limit. Try again later.",
+)
