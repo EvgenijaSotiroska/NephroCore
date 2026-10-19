@@ -19,6 +19,7 @@ import MedicationsCard from "../../../components/patient/MedicationsCard/Medicat
 import NextVisitCard from "../../../components/patient/NextVisitCard/NextVisitCard";
 import SymptomsCard from "../../../components/patient/SymptomsCard/SymptomsCard";
 import "./PatientHomePage.css";
+import AiAnalysisModal from "../../../components/doctor/AiAnalysisModal/AiAnalysisModal";
 
 // ==================== Helpers ====================
 
@@ -258,11 +259,14 @@ export default function PatientHomePage() {
     const {appointment: nextAppointment} = useNextAppointment();
     const {appointments, loading: appointmentsLoading} = useAppointments();
     const {
-        explanation,
+        history: explanations,
         loading: explainLoading,
+        historyLoading: explainHistoryLoading,
         error: explainError,
-        generate: generateExplanation
+        generate: generateExplanation,
+        loadHistory: loadExplanations
     } = useExplainResults(patientId);
+    const [explainOpen, setExplainOpen] = useState(false);
 
     if (profileLoading || (patientId && (trendsLoading || visitsLoading))) {
         return (
@@ -377,35 +381,41 @@ export default function PatientHomePage() {
 
                     {/* ============ Middle: analysis + results ============ */}
                     <div className="ph-main ph-col-main">
-                        {latestVisit && (
+                                                {latestVisit && (
                             <section className="ph-card">
                                 <div className="ph-card-head">
                                     <h3 className="ph-card-title">AI анализа на резултатите</h3>
                                     <button
                                         type="button"
                                         className="ph-explain-button"
-                                        onClick={() => void generateExplanation()}
-                                        disabled={explainLoading}
+                                        onClick={() => {
+                                            setExplainOpen(true);
+                                            void loadExplanations();
+                                        }}
                                     >
-                                        {explainLoading ? "Се генерира…" : "Генерирај анализа"}
+                                        Отвори анализа
                                     </button>
                                 </div>
 
-                                {explainError && <p className="ph-explain-error">{explainError}</p>}
+                                <p className="ph-muted">
+                                    Добијте едноставно објаснување на вашите најнови резултати и вратете се на претходните.
+                                </p>
 
-                                {explanation ? (
-                                    <div className="ph-explain-box">
-                                        <div className="ph-explain-box-header">🤖 AI Објаснување на резултатите</div>
-                                        <p className="ph-explain-text">{explanation}</p>
-                                    </div>
-                                ) : (
-                                    <p className="ph-muted">
-                                        Добијте едноставно објаснување на вашите најнови резултати.
-                                    </p>
-                                )}
+                                <AiAnalysisModal
+                                    isOpen={explainOpen}
+                                    title="🤖 AI објаснување на резултатите"
+                                    subtitle="Едноставно објаснување на вашите резултати. Не е замена за разговор со лекар."
+                                    generateLabel="Генерирај ново објаснување"
+                                    items={explanations}
+                                    loading={explainLoading}
+                                    historyLoading={explainHistoryLoading}
+                                    error={explainError}
+                                    onGenerate={() => void generateExplanation()}
+                                    onClose={() => setExplainOpen(false)}
+                                />
                             </section>
                         )}
-
+                        
                         <h3 className="ph-heading">Мои резултати</h3>
 
                         {sortedVisits.length === 0 ? (

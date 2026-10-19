@@ -2,49 +2,67 @@ import { useCallback, useState } from "react";
 import type { AxiosResponse } from "axios";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import aiApi from "../api/aiApi";
-import type { AIAnalysisResponse } from "../api/types/ai";
+import type { AIAnalysis } from "../api/types/ai";
 
 interface UseAiTextResult {
-  text: string | null;
-  loading: boolean;
+  history: AIAnalysis[]; // newest first
+  loading: boolean; // generating a new one
+  historyLoading: boolean;
   error: string | null;
   generate: () => Promise<void>;
+  loadHistory: () => Promise<void>;
 }
 
 function useAiText(
   patientId: string | undefined,
-  request: (patientId: string) => Promise<AxiosResponse<AIAnalysisResponse>>,
+  generateRequest: (patientId: string) => Promise<AxiosResponse<AIAnalysis>>,
+  listRequest: (patientId: string) => Promise<AxiosResponse<AIAnalysis[]>>,
   errorMessage: string
 ): UseAiTextResult {
-  const [text, setText] = useState<string | null>(null);
+  const [history, setHistory] = useState<AIAnalysis[]>([]);
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const loadHistory = useCallback(async () => {
+    if (!patientId) return;
+    setHistoryLoading(true);
+    try {
+      const { data } = await listRequest(patientId);
+      setHistory(data);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Не може да се вчита претходните анализи"));
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [patientId, listRequest]);
 
   const generate = useCallback(async () => {
     if (!patientId) return;
     setLoading(true);
     setError(null);
     try {
-      const { data } = await request(patientId);
-      setText(data.analysis);
+      const { data } = await generateRequest(patientId);
+      setHistory((prev) => [data, ...prev]);
     } catch (err) {
       setError(getApiErrorMessage(err, errorMessage));
     } finally {
       setLoading(false);
     }
-  }, [patientId, request, errorMessage]);
+  }, [patientId, generateRequest, errorMessage]);
 
-  return { text, loading, error, generate };
+  return { history, loading, historyLoading, error, generate, loadHistory };
 }
 
-// Doctor-facing clinical analysis
 export function useAiAnalysis(patientId: string | undefined) {
-  const { text, ...rest } = useAiText(patientId, aiApi.generateAnalysis, "Неуспешна AI анализа");
-  return { analysis: text, ...rest };
+  return useAiText(patientId, aiApi.generateAnalysis, aiApi.listAnalyses, "Неуспешна AI анализа");
 }
 
-// Patient-facing plain-language explanation
 export function useExplainResults(patientId: string | undefined) {
-  const { text, ...rest } = useAiText(patientId, aiApi.explainResults, "Неуспешно објаснување на резултатите");
-  return { explanation: text, ...rest };
+  return useAiText(
+    patientId,
+    aiApi.explainResults,
+    aiApi.listExplanations,
+    "Неуспешно објаснување на резултатите"
+  );
 }

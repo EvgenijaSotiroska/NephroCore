@@ -11,6 +11,8 @@ from app.models.medication import Medication
 from app.models.patient_profile import PatientProfile
 from app.models.result import Visit
 from app.models.symptom import Symptom
+from app.rag.retriever import RetrievedChunk
+from app.rag.sources import describe_source
 
 PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
 
@@ -19,6 +21,13 @@ PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
 def load_prompt(name: str) -> str:
     return (PROMPTS_DIR / f"{name}.txt").read_text(encoding="utf-8")
 
+def format_guideline_excerpts(chunks: list[RetrievedChunk]) -> str:
+    if not chunks:
+        return "None retrieved."
+    return "\n\n---\n\n".join(
+        f"[Извор {number}] {describe_source(chunk)}\n{chunk.text}"
+        for number, chunk in enumerate(chunks, start=1)
+    )
 
 def build_doctor_analysis_prompt(
     patient: PatientProfile,
@@ -26,12 +35,12 @@ def build_doctor_analysis_prompt(
     symptoms: list[Symptom],
     medications: list[Medication],
     param_labels: dict[str, tuple[str, str]],
-    retrieved_chunks: list[str],
+    retrieved_chunks: list[RetrievedChunk],
 ) -> tuple[str, str]:
     """Returns (system_prompt, user_prompt)."""
     system_prompt = load_prompt("system_prompt")
     task_instructions = load_prompt("doctor_analysis_prompt")
-    guidelines_text = "\n\n---\n\n".join(retrieved_chunks) if retrieved_chunks else "None retrieved."
+    guidelines_text = format_guideline_excerpts(retrieved_chunks)
 
     user_prompt = (
         f"{task_instructions}\n\n"

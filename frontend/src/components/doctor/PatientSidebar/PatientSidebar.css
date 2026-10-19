@@ -391,3 +391,14 @@
     min-height: 0;
   }
 }
+.ai-side-button {
+  width: 100%;
+  border: none;
+  background: linear-gradient(90deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+}

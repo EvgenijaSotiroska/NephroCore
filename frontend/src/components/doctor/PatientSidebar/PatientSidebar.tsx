@@ -2,6 +2,8 @@ import { INTENSITY_LABELS } from "../../../constants";
 import { Link } from "react-router-dom";
 import { useMedications } from "../../../hooks/useMedications";
 import { useSymptoms } from "../../../hooks/useSymptoms";
+import { useAiAnalysis } from "../../../hooks/useAi";
+import AiAnalysisModal from "../AiAnalysisModal/AiAnalysisModal";
 import { useState, type SubmitEvent } from "react";
 import {
   daysUntil,
@@ -234,6 +236,36 @@ function TherapyPanel({ patientId, isActive }: { patientId?: string; isActive: b
   );
 }
 
+function AiAnalysisPanel({ patientId }: { patientId?: string }) {
+  const { history, loading, historyLoading, error, generate, loadHistory } = useAiAnalysis(patientId);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+    void loadHistory();
+  };
+
+  return (
+    <section className="side-section">
+      <button type="button" className="ai-side-button" onClick={handleOpen}>
+        🤖 AI анализа
+      </button>
+
+      <AiAnalysisModal
+        isOpen={open}
+        title="🤖 AI анализа"
+        subtitle="Генерирана од Claude врз основа на резултатите, симптомите и терапијата."
+        generateLabel="Генерирај нова анализа"
+        items={history}
+        loading={loading}
+        historyLoading={historyLoading}
+        error={error}
+        onGenerate={() => void generate()}
+        onClose={() => setOpen(false)}
+      />
+    </section>
+  );
+}
 // ==================== Symptoms since last visit ====================
 
 function PatientSymptoms({
@@ -292,14 +324,22 @@ interface PatientSidebarProps {
   patientId?: string;
   lastVisitDate: string | null;
   isActive?: boolean;
+  // The AI analysis needs at least one result to work with.
+  canAnalyse?: boolean;
 }
 
-export default function PatientSidebar({ patientId, lastVisitDate, isActive = true }: PatientSidebarProps) {
+export default function PatientSidebar({
+  patientId,
+  lastVisitDate,
+  isActive = true,
+  canAnalyse = false,
+}: PatientSidebarProps) {
   return (
     <aside className="pd-side">
       <NextVisitPanel patientId={patientId} />
       <TherapyPanel patientId={patientId} isActive={isActive} />
       <PatientSymptoms patientId={patientId} lastVisitDate={lastVisitDate} />
+      {canAnalyse && <AiAnalysisPanel patientId={patientId} />}
     </aside>
   );
 }

@@ -12,6 +12,7 @@ from app.api.deps import get_own_patient_profile, get_owned_patient, require_doc
 from app.core.config import settings
 from app.core.rate_limit import ai_limiter
 from app.db.session import get_db
+from app.models.ai_analysis import AIAnalysis, AIAnalysisKind
 from app.models.lab_parameter import LabParameter
 from app.models.medication import Medication
 from app.models.result import Visit
@@ -19,11 +20,16 @@ from app.models.symptom import Symptom
 from app.models.user import User
 from app.rag.retriever import retrieve_relevant_chunks
 from app.schemas.ai import AIAnalysisResponse
+from app.rag.sources import append_sources
 
 router = APIRouter(prefix="/patients", tags=["ai"])
 
 CLAUDE_TIMEOUT_SECONDS = 90
 MAX_SYMPTOMS_IN_PROMPT = 30
+MAX_SAVED_ANALYSES_RETURNED = 50
+# Macedonian (Cyrillic) text needs many more tokens than English, so this is generous.
+DOCTOR_ANALYSIS_MAX_TOKENS = 8000
+PATIENT_EXPLANATION_MAX_TOKENS = 4000
 
 
 def _load_visits(db: Session, patient_id: uuid.UUID) -> list[Visit]:
@@ -58,6 +64,29 @@ def _load_active_medications(db: Session, patient_id: uuid.UUID) -> list[Medicat
             select(Medication)
             .where(Medication.patient_id == patient_id, Medication.is_active.is_(True))
             .order_by(Medication.name)
+        )
+    )
+
+
+def _save_analysis(
+    db: Session, patient_id: uuid.UUID, author: User, kind: AIAnalysisKind, text: str
+) -> AIAnalysis:
+    """Store one generated analysis so it can be opened again later."""
+    row = AIAnalysis(patient_id=patient_id, author_id=author.id, kind=kind, analysis=text)
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+def _load_saved(db: Session, patient_id: uuid.UUID, kind: AIAnalysisKind) -> list[AIAnalysis]:
+    """Saved analyses of one kind for this patient, newest first."""
+    return list(
+        db.scalars(
+            select(AIAnalysis)
+            .where(AIAnalysis.patient_id == patient_id, AIAnalysis.kind == kind)
+            .order_by(AIAnalysis.created_at.desc())
+            .limit(MAX_SAVED_ANALYSES_RETURNED)
         )
     )
 
@@ -99,7 +128,21 @@ def _ask_claude(system_prompt: str, user_prompt: str, max_tokens: int) -> str:
             detail="Could not connect to the AI service.",
         )
 
-    return next((b.text for b in response.content if b.type == "text"), "")
+    text = next((b.text for b in response.content if b.type == "text"), "")
+    if response.stop_reason == "max_tokens":
+        text += "\n\n[Одговорот е скратен поради должина. Притиснете „Генерирај повторно“.]"
+    return text
+
+
+@router.get("/{patient_id}/ai-analysis", response_model=list[AIAnalysisResponse])
+def list_ai_analyses(
+    patient_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_doctor: User = Depends(require_doctor),
+):
+    """Earlier clinical analyses of this patient. Doctors only, for their own patients."""
+    get_owned_patient(db, patient_id, current_doctor)
+    return _load_saved(db, patient_id, AIAnalysisKind.DOCTOR)
 
 
 @router.post("/{patient_id}/ai-analysis", response_model=AIAnalysisResponse)
@@ -140,7 +183,22 @@ def generate_ai_analysis(
         patient, visits, symptoms, medications, param_labels, retrieved_chunks
     )
 
-    return AIAnalysisResponse(analysis=_ask_claude(system_prompt, user_prompt, max_tokens=4096))
+    text = _ask_claude(system_prompt, user_prompt, max_tokens=DOCTOR_ANALYSIS_MAX_TOKENS)
+    text = append_sources(text, retrieved_chunks)
+    return _save_analysis(db, patient_id, current_doctor, AIAnalysisKind.DOCTOR, text)
+
+
+@router.get("/{patient_id}/explain-results", response_model=list[AIAnalysisResponse])
+def list_patient_explanations(
+    patient_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_patient: User = Depends(require_patient),
+):
+    """Earlier explanations of the patient's own results. Patients only, about themself."""
+    patient = get_own_patient_profile(db, current_patient)
+    if patient.id != patient_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found.")
+    return _load_saved(db, patient_id, AIAnalysisKind.PATIENT)
 
 
 @router.post("/{patient_id}/explain-results", response_model=AIAnalysisResponse)
@@ -160,9 +218,7 @@ def generate_patient_explanation(
     lab_parameters = db.scalars(select(LabParameter)).all()
     param_labels = {row.key: (row.label_en, row.unit) for row in lab_parameters}
 
-    # Reuse the doctor's existing analysis for this visit if you're storing it;
-    # otherwise pass None and the prompt falls back to reasoning from raw data.
-    doctor_analysis = None  # e.g. latest_visit.ai_analysis if you persist it
+    doctor_analysis = None
 
     symptoms = _load_symptoms_since_last_visit(db, patient_id, visits)
     medications = _load_active_medications(db, patient_id)
@@ -171,4 +227,5 @@ def generate_patient_explanation(
         patient, visits, symptoms, medications, param_labels, doctor_analysis
     )
 
-    return AIAnalysisResponse(analysis=_ask_claude(system_prompt, user_prompt, max_tokens=1024))
+    text = _ask_claude(system_prompt, user_prompt, max_tokens=PATIENT_EXPLANATION_MAX_TOKENS)
+    return _save_analysis(db, patient_id, current_patient, AIAnalysisKind.PATIENT, text)

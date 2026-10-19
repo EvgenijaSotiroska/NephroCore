@@ -7,3 +7,4 @@ from app.models.symptom import Symptom
 from app.models.medication import Medication
 from app.models.lab_parameter import LabParameter, ParameterStage
 from app.models.document_chunk import DocumentChunk
+from app.models.ai_analysis import AIAnalysis

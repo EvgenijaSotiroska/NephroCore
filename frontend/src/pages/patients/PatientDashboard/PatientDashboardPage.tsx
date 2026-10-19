@@ -11,7 +11,6 @@ import {
 import { useTrends } from "../../../hooks/useTrends";
 import { usePatientProfile } from "../../../hooks/usePatientProfile";
 import { useVisits } from "../../../hooks/useVisits";
-import { useAiAnalysis } from "../../../hooks/useAi.ts";
 import PatientSidebar from "../../../components/doctor/PatientSidebar/PatientSidebar";
 import type { ParameterTrend } from "../../../api/types/trends";
 import type { VisitResponse } from "../../../api/types/result";
@@ -283,7 +282,6 @@ export default function PatientDashboardPage() {
   const { data, loading, error, refetch } = useTrends(patientId);
   const { profile, setActive } = usePatientProfile(patientId);
   const { visits } = useVisits(patientId);
-  const { analysis, loading: aiLoading, error: aiError, generate: generateAiAnalysis } = useAiAnalysis(patientId);
   const [view, setView] = useState<"charts" | "results">("charts");
   // Parameters outside the stage defaults that the doctor chose to chart (from the dropdown).
   const [shownExtras, setShownExtras] = useState<string[]>([]);
@@ -484,25 +482,6 @@ export default function PatientDashboardPage() {
                 </div>
               )}
 
-              {hasAnyData && (
-                <div className="ai-analysis-section">
-                  <button
-                    type="button"
-                    className="ai-analysis-button"
-                    onClick={generateAiAnalysis}
-                    disabled={aiLoading}
-                  >
-                    {aiLoading ? "Се генерира..." : "🤖 Генерирај AI анализа"}
-                  </button>
-                  {aiError && <p className="ai-analysis-error">{aiError}</p>}
-                  {analysis && (
-                    <div className="ai-analysis-box">
-                      <div className="ai-analysis-box-header">🤖 Claude AI анализа</div>
-                      <p className="ai-analysis-text">{analysis}</p>
-                    </div>
-                  )}
-                </div>
-              )}
             </>
           )}
 
@@ -514,6 +493,7 @@ export default function PatientDashboardPage() {
           patientId={patientId}
           lastVisitDate={lastVisitDate}
           isActive={profile?.is_active ?? true}
+          canAnalyse={hasAnyData}
         />
       </div>
     </div>

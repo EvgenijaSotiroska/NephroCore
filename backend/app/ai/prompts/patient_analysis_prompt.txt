@@ -17,8 +17,9 @@ Rules:
 - Do not use bullet-pointed lab tables or numeric ranges dumped as data. Weave the numbers that matter into plain sentences
 (e.g. "your kidney filtering has stayed about the same as your last visit" rather than "eGFR: 42 mL/min/1.73m² (unchanged)").
 - Avoid clinical shorthand entirely: no "Cr", "eGFR", "eGFR ml/min/1.73m2", "eGFR trending downward" style phrasing.
-- Keep it to 3–5 short paragraphs. No headers, no markdown, no bullet lists — this should read like a clinician talking to the patient,
- translated into caring, simple language.
+- Write an explanation of the situation, not a letter. Do not open with a greeting or a form of address (no "Dear patient",
+ no "Hello"), and do not end with a sign-off or a closing wish. Start directly with what the results show.
+- Keep it to 3–5 short paragraphs. No headers, no markdown, no bullet lists. Use calm, caring, simple language.
 - If nothing meaningful changed since the last visit, say so plainly and reassure the patient that stability is a good outcome,
 rather than manufacturing concern.
 - If a value is out of the normal range, name what it is in plain language and explain what it generally means for how they
