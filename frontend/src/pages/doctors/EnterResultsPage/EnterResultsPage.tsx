@@ -2,13 +2,13 @@ import "./EnterResultsPage.css";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 
-import { useResultParameters } from "../../../hooks/useResultParameters";
-import { usePatients } from "../../../hooks/usePatients";
-import { useResults } from "../../../hooks/useResults";
+import { useResultParameters } from "../../../hooks/useResultParameters.ts";
+import { usePatients } from "../../../hooks/usePatients.ts";
+import { useResults } from "../../../hooks/useResults.ts";
 import type { CKDStage } from "../../../api/types/ckdStage.ts";
 import { CKD_STAGE_ORDER } from "../../../api/types/ckdStage.ts";
 import type { LabResultPayload } from "../../../api/types/result.ts";
-import {todayIso} from "../../../utils/date";
+import {todayIso} from "../../../utils/date.ts";
 
 export default function EnterResults() {
   const { patients, loading: patientsLoading } = usePatients();

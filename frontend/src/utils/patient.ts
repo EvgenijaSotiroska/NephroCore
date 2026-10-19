@@ -1,6 +1,7 @@
 import { CODED_LIST_SEPARATOR, type CheckboxOption } from "../constants/clinical";
 import type { CKDStage } from "../api/types/ckdStage";
 import type { PatientProfile } from "../api/types/patient";
+import type { ParameterTrend } from "../api/types/trends";
 
 export function calculateAge(dateOfBirth: string | null): number | null {
   if (!dateOfBirth) return null;
@@ -71,4 +72,16 @@ export function getInitials(fullName: string): string {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+export type ResultStatus = "ok" | "low" | "high" | "none";
+
+/** Where a lab value sits against the normal range of its parameter. */
+export function getStatus(value: number, param: ParameterTrend): ResultStatus {
+  const lo = param.normal_range_low;
+  const hi = param.normal_range_high;
+  if (lo === null && hi === null) return "none";
+  if (lo !== null && value < lo) return "low";
+  if (hi !== null && value > hi) return "high";
+  return "ok";
 }

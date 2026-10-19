@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { AIAnalysis } from "../../../api/types/ai";
-import { formatShortDate, formatTime, toDateKey } from "../../../utils/date";
+import type { AIAnalysis } from "../../../api/types/ai.ts";
+import { formatShortDate, formatTime, toDateKey } from "../../../utils/date.ts";
 import "./AiAnalysisModal.css";
 
 interface AiAnalysisModalProps {

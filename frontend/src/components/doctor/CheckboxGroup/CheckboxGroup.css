@@ -1,0 +1,104 @@
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-group-title {
+  color: #23334d;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+/* Grid containing individual options */
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+
+/* Individual checkbox */
+
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+
+  min-height: 48px;
+  padding: 12px 14px;
+
+  border: 1px solid #dce4ee;
+  border-radius: 13px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.checkbox-option:hover {
+  border-color: #16b5b1;
+  background: #f7fffe;
+}
+
+
+/* Actual checkbox */
+
+.checkbox-option input[type="checkbox"] {
+  width: 19px;
+  height: 19px;
+
+  margin: 1px 0 0;
+
+  flex-shrink: 0;
+
+  accent-color: #08aaa5;
+
+  cursor: pointer;
+}
+
+
+/* Text */
+
+.checkbox-option span {
+  color: #354761;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+
+/* Selected option */
+
+.checkbox-option-selected {
+  border-color: #8bd8d4;
+  background: #f2fcfb;
+  box-shadow: 0 0 0 1px rgba(8, 170, 165, 0.05);
+}
+
+.checkbox-option-selected span {
+  color: #23434b;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkbox-option {
+    padding: 11px 12px;
+  }
+
+  .checkbox-option span {
+    font-size: 13px;
+  }
+}

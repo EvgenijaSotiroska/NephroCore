@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import type { PatientProfile } from "../../../api/types/patient";
+import type { PatientProfile } from "../../../api/types/patient.ts";
 import type {
   AppointmentResponse,
   AppointmentStatus,
   CreateAppointmentRequest,
   UpdateAppointmentRequest,
-} from "../../../api/types/appointment";
+} from "../../../api/types/appointment.ts";
 import "./AppointmentModal.css";
 import {APPOINTMENT_TYPES, APPOINTMENT_DURATIONS, APPOINTMENT_STATUS_OPTIONS} from "../../../constants";
-import {todayIso, toDateKey, formatTime} from "../../../utils/date";
+import {todayIso, toDateKey, formatTime} from "../../../utils/date.ts";
 
 interface AppointmentModalProps {
   isOpen: boolean;

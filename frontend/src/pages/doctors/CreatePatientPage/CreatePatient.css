@@ -1,0 +1,113 @@
+.create-patient-page {
+  min-height: 100vh;
+  background: #f7f9fc;
+  padding: 28px 40px 60px;
+  box-sizing: border-box;
+}
+
+
+/* ==================== HEADER ==================== */
+
+.create-patient-header {
+  max-width: 1200px;
+  margin: 0 auto 28px;
+}
+
+.create-patient-header h2 {
+  margin: 0 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 400;
+  color: #17243a;
+}
+
+.create-patient-header p {
+  margin: 0;
+  color: #71819a;
+  font-size: 16px;
+}
+
+
+/* ==================== FORM ==================== */
+
+.create-patient-form {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+/* ==================== SUBMIT ==================== */
+
+.create-patient-button {
+  width: 100%;
+  height: 56px;
+
+  border: none;
+  border-radius: 15px;
+
+  background: #08aaa5;
+  color: white;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+.create-patient-cancel {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  color: #71819a;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.create-patient-cancel:hover {
+  color: #17243a;
+}
+
+.create-patient-button:hover {
+  background: #079792;
+}
+
+.create-patient-button:active {
+  transform: translateY(1px);
+}
+
+.create-patient-button:disabled {
+  background: #a9d8d6;
+  cursor: not-allowed;
+}
+
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+
+  .create-patient-page {
+    padding: 20px 16px 40px;
+  }
+
+  .create-patient-header h2 {
+    font-size: 30px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .create-patient-page {
+    padding: 16px 12px 32px;
+  }
+
+  .create-patient-header h2 {
+    font-size: 27px;
+  }
+}

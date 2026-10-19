@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useMedications } from "../../../hooks/useMedications";
 import { useSymptoms } from "../../../hooks/useSymptoms";
 import { useAiAnalysis } from "../../../hooks/useAi";
-import AiAnalysisModal from "../AiAnalysisModal/AiAnalysisModal";
+import AiAnalysisModal from "../../ai/AiAnalysisModal/AiAnalysisModal";
 import { useState, type SubmitEvent } from "react";
 import {
   daysUntil,
