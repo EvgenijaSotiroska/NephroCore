@@ -1,0 +1,123 @@
+.hc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.hc-chip {
+  padding: 7px 14px;
+  border: 1px solid #99ece3;
+  border-radius: 999px;
+  background: #f0fdfa;
+  color: #0f766e;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* The picture of a chat window */
+
+.hc-window {
+  width: 100%;
+  max-width: 460px;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(23, 36, 58, 0.18);
+  overflow: hidden;
+  font-family: "Poppins", system-ui, sans-serif;
+}
+
+.hc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(90deg, #0d9488 0%, #0284c7 100%);
+  color: #ffffff;
+}
+
+.hc-header strong {
+  display: block;
+  font-size: 0.84rem;
+}
+
+.hc-header small {
+  display: block;
+  color: #b7f3ec;
+  font-size: 0.68rem;
+}
+
+.hc-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hc-online {
+  margin-left: auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #34d399;
+}
+
+.hc-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+.hc-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.74rem;
+  line-height: 1.55;
+}
+
+.hc-bubble--user {
+  align-self: flex-end;
+  background: linear-gradient(90deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.hc-bubble--assistant {
+  align-self: flex-start;
+  background: #f1f4f9;
+  color: #17243a;
+  border-bottom-left-radius: 4px;
+}
+
+.hc-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 16px 16px;
+  padding: 8px 8px 8px 16px;
+  border: 1px solid #e4eaf1;
+  border-radius: 14px;
+  color: #9aa7b8;
+  font-size: 0.74rem;
+}
+
+.hc-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #ffffff;
+  font-size: 1rem;
+}

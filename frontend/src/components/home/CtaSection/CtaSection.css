@@ -1,0 +1,27 @@
+.hx-section {
+  padding-bottom: 96px;
+}
+
+.hx-container {
+  text-align: center;
+}
+
+.hx-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 24px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  font-size: 24px;
+}
+
+.hx-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
+}

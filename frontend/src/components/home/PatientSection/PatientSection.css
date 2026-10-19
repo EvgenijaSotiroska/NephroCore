@@ -1,0 +1,53 @@
+.hp-list {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.hp-item {
+  display: flex;
+  gap: 16px;
+}
+
+.hp-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #d9f4f7;
+  font-size: 18px;
+}
+
+.hp-item-title {
+  margin: 0 0 4px;
+  color: #17243a;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hp-item-text {
+  margin: 0;
+  color: #6b7a90;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.hp-card {
+  right: -28px;
+  top: -22px;
+}
+
+@media (max-width: 860px) {
+  .hp-card {
+    right: 12px;
+    top: -16px;
+  }
+}

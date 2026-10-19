@@ -7,11 +7,20 @@ import {
 } from "../../components/auth/authStyles";
 import {useOutletContext} from "react-router";
 import type { AuthContext } from "../../components/layout/Layout/Layout";
+import StatsStrip from "../../components/home/StatsStrip/StatsStrip";
+import FeaturesSection from "../../components/home/FeaturesSection/FeaturesSection";
+import StagesSection from "../../components/home/StagesSection/StagesSection";
+import DoctorSection from "../../components/home/DoctorSection/DoctorSection";
+import PatientSection from "../../components/home/PatientSection/PatientSection";
+import ChatbotSection from "../../components/home/ChatbotSection/ChatbotSection";
+import CtaSection from "../../components/home/CtaSection/CtaSection";
+import Footer from "../../components/layout/Footer/Footer";
 
 export default function HomePage() {
     const {openLogin, openRegister} = useOutletContext<AuthContext>();
 
     return (
+        <>
         <Box className="home-hero">
             <Box className="home-hero-overlay"/>
 
@@ -77,5 +86,15 @@ export default function HomePage() {
                 </Box>
             </Box>
         </Box>
+
+        <StatsStrip/>
+        <FeaturesSection/>
+        <StagesSection/>
+        <DoctorSection onRegister={openRegister}/>
+        <PatientSection/>
+        <ChatbotSection/>
+        <CtaSection onRegister={openRegister}/>
+        <Footer onLogin={openLogin} onRegister={openRegister}/>
+        </>
     );
 }

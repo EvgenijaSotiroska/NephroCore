@@ -1,0 +1,42 @@
+.stats-strip {
+  background: linear-gradient(90deg, #0d9488 0%, #0284c7 100%);
+  padding: 30px 24px;
+}
+
+.stats-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+
+.stats-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stats-value {
+  color: #ffffff;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-label {
+  color: rgba(255, 255, 255, 0.88);
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.74rem;
+}
+
+@media (max-width: 700px) {
+  .stats-inner {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 22px;
+  }
+}

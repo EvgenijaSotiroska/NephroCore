@@ -1,0 +1,130 @@
+.hk-container {
+  max-width: 840px;
+}
+
+.hk-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hk-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(23, 36, 58, 0.04);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hk-row:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(23, 36, 58, 0.1);
+}
+
+.hk-row--active {
+  border-color: #7de3d6;
+}
+
+.hk-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 6px;
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.hk-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.hk-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.hk-name {
+  color: #17243a;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.hk-range {
+  color: #71819a;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.hk-bar {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: #f0f2f7;
+  overflow: hidden;
+}
+
+.hk-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.hk-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 22px 24px;
+  border: 1px solid #edf0f4;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.hk-detail-title {
+  margin: 0 0 6px;
+  color: #17243a;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hk-detail-text {
+  margin: 0;
+  color: #5d6c82;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 520px) {
+  .hk-row {
+    padding: 12px 14px;
+  }
+
+  .hk-line {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

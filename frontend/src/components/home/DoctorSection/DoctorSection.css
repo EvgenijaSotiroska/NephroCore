@@ -1,0 +1,63 @@
+.hd-steps {
+  margin: 28px 0 32px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.hd-step {
+  display: flex;
+  gap: 16px;
+}
+
+.hd-step-number {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #ffffff;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.hd-step-title {
+  margin: 0 0 4px;
+  color: #17243a;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hd-step-text {
+  margin: 0;
+  color: #6b7a90;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.hd-card {
+  left: -28px;
+  bottom: -28px;
+}
+
+.hd-card-source {
+  display: block;
+  margin-top: 8px;
+  color: #0f9d8f;
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .hd-card {
+    left: 12px;
+    bottom: -20px;
+  }
+}

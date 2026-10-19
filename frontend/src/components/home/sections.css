@@ -1,0 +1,164 @@
+/* Styles shared by all sections of the home page. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+.hs-section {
+  padding: 68px 24px;
+  background: #ffffff;
+  scroll-margin-top: 80px;
+}
+
+.hs-section--tinted {
+  background: #f6fafc;
+}
+
+.hs-container {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.hs-heading {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hs-eyebrow {
+  display: block;
+  margin-bottom: 14px;
+  color: #0f9d8f;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hs-eyebrow--blue {
+  color: #0284c7;
+}
+
+.hs-title {
+  margin: 0;
+  color: #17243a;
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.hs-subtitle {
+  margin: 12px 0 0;
+  color: #71819a;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.84rem;
+}
+
+.hs-text {
+  margin: 16px 0 0;
+  color: #5d6c82;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+/* Two columns: text on one side, a picture or mock-up on the other */
+
+.hs-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.hs-button {
+  display: inline-block;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 26px;
+  background: linear-gradient(90deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #ffffff;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hs-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(20, 184, 166, 0.5);
+}
+
+.hs-button--light {
+  background: #ffffff;
+  color: #17243a;
+  border: 1px solid #e4eaf1;
+  box-shadow: none;
+}
+
+.hs-button--light:hover {
+  box-shadow: 0 6px 18px rgba(23, 36, 58, 0.08);
+}
+
+/* A picture with a gradient behind it, so the block still looks fine if the file is missing */
+
+.hs-media {
+  position: relative;
+  min-height: 380px;
+  border-radius: 24px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 24px 60px rgba(23, 36, 58, 0.18);
+}
+
+.hs-float-card {
+  position: absolute;
+  max-width: 260px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 14px 36px rgba(23, 36, 58, 0.16);
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #17243a;
+}
+
+.hs-float-card small {
+  display: block;
+  color: #71819a;
+  font-size: 10px;
+}
+
+@media (max-width: 860px) {
+  .hs-section {
+    padding: 48px 20px;
+  }
+
+  .hs-split {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .hs-media {
+    min-height: 280px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hf-card,
+  .hk-row,
+  .hs-button {
+    transition: none;
+  }
+
+  .hf-card:hover,
+  .hk-row:hover,
+  .hs-button:hover {
+    transform: none;
+  }
+}
