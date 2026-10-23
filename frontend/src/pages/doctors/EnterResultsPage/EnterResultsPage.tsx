@@ -69,11 +69,17 @@ export default function EnterResults() {
   const handleSubmit = async () => {
     if (!patientId || !currentStageConfig || !enoughValues) return;
 
+    // Send only the values of the fields that are on screen (not leftovers of removed fields).
+    const shownValues: LabResultPayload = {};
+    Object.entries(values).forEach(([key, value]) => {
+      if (shownKeys.has(key)) shownValues[key] = value;
+    });
+
     const result = await createResult({
       patient_id: patientId,
       visit_date: visitDate,
       ckd_stage: stage,
-      lab_result: values,
+      lab_result: shownValues,
     });
 
     if (result) {
@@ -230,9 +236,15 @@ export default function EnterResults() {
                       <button
                         type="button"
                         className="remove-extra-param"
-                        onClick={() =>
-                          setExtraKeys((prev) => prev.filter((k) => k !== param.key))
-                        }
+                        onClick={() => {
+                          setExtraKeys((prev) => prev.filter((k) => k !== param.key));
+                          // forget the typed value too, so it is not saved or shown again later
+                          setValues((prev) => {
+                            const next = { ...prev };
+                            delete next[param.key];
+                            return next;
+                          });
+                        }}
                       >
                         ✕ Отстрани
                       </button>

@@ -25,6 +25,7 @@ from app.rag.sources import append_sources
 router = APIRouter(prefix="/patients", tags=["ai"])
 
 CLAUDE_TIMEOUT_SECONDS = 180
+CLAUDE_RETRY_TIMEOUT_SECONDS = 90
 MAX_SYMPTOMS_IN_PROMPT = 30
 MAX_SAVED_ANALYSES_RETURNED = 50
 # Macedonian (Cyrillic) text needs many more tokens than English, so this is generous.
@@ -93,40 +94,51 @@ def _load_saved(db: Session, patient_id: uuid.UUID, kind: AIAnalysisKind) -> lis
 
 def _ask_claude(system_prompt: str, user_prompt: str, max_tokens: int) -> str:
     """Send the prompts to Claude and return the text of the answer."""
-    client = anthropic.Anthropic(
-        api_key=settings.ANTHROPIC_API_KEY,
-        timeout=CLAUDE_TIMEOUT_SECONDS,
-        max_retries=0,
-    )
-    try:
-        response = client.messages.create(
-            model="claude-sonnet-5",
-            max_tokens=max_tokens,
-            system=system_prompt,
-            messages=[{"role": "user", "content": user_prompt}],
+    # The first try waits up to CLAUDE_TIMEOUT_SECONDS. If it fails for a temporary reason, one more
+    # try is made that waits up to CLAUDE_RETRY_TIMEOUT_SECONDS.
+    response = None
+    for attempt, timeout in enumerate((CLAUDE_TIMEOUT_SECONDS, CLAUDE_RETRY_TIMEOUT_SECONDS)):
+        is_last_attempt = attempt == 1
+        client = anthropic.Anthropic(
+            api_key=settings.ANTHROPIC_API_KEY,
+            timeout=timeout,
+            max_retries=0,
         )
-    except anthropic.RateLimitError:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="The AI service is busy. Try again in a moment.",
-        )
-    # A timeout is a kind of connection error, so it must be caught before it.
-    except anthropic.APITimeoutError:
-        raise HTTPException(
-            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            detail="The AI service took too long to answer. Try again.",
-        )
-    # The provider's own error text is not shown to users (it can contain billing or key details).
-    except anthropic.APIStatusError:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="The AI analysis failed. Try again later.",
-        )
-    except anthropic.APIConnectionError:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Could not connect to the AI service.",
-        )
+        try:
+            response = client.messages.create(
+                model="claude-sonnet-5",
+                max_tokens=max_tokens,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_prompt}],
+            )
+            break
+        # A busy service is not retried straight away: that would only be refused again.
+        except anthropic.RateLimitError:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="The AI service is busy. Try again in a moment.",
+            )
+        # A timeout is a kind of connection error, so it must be caught before it.
+        except anthropic.APITimeoutError:
+            if is_last_attempt:
+                raise HTTPException(
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                    detail="The AI service took too long to answer. Try again.",
+                )
+        # The provider's own error text is not shown to users (it can contain billing or key details).
+        # Only server-side errors (5xx) are worth a second try; a 4xx would fail the same way again.
+        except anthropic.APIStatusError as error:
+            if is_last_attempt or error.status_code < 500:
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail="The AI analysis failed. Try again later.",
+                )
+        except anthropic.APIConnectionError:
+            if is_last_attempt:
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail="Could not connect to the AI service.",
+                )
 
     text = next((b.text for b in response.content if b.type == "text"), "")
     if response.stop_reason == "max_tokens":
@@ -183,6 +195,10 @@ def generate_ai_analysis(
         patient, visits, symptoms, medications, param_labels, retrieved_chunks
     )
 
+    # Everything needed is now plain text. Give the connection back to the pool while waiting for
+    # Claude; saving the answer below opens a new one.
+    db.close()
+
     text = _ask_claude(system_prompt, user_prompt, max_tokens=DOCTOR_ANALYSIS_MAX_TOKENS)
     text = append_sources(text, retrieved_chunks)
     return _save_analysis(db, patient_id, current_doctor, AIAnalysisKind.DOCTOR, text)
@@ -226,6 +242,10 @@ def generate_patient_explanation(
     system_prompt, user_prompt = build_patient_explanation_prompt(
         patient, visits, symptoms, medications, param_labels, doctor_analysis
     )
+
+    # Everything needed is now plain text. Give the connection back to the pool while waiting for
+    # Claude; saving the answer below opens a new one.
+    db.close()
 
     text = _ask_claude(system_prompt, user_prompt, max_tokens=PATIENT_EXPLANATION_MAX_TOKENS)
     return _save_analysis(db, patient_id, current_patient, AIAnalysisKind.PATIENT, text)
