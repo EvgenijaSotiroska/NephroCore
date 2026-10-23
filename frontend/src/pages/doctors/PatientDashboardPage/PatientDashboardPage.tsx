@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useTrends } from "../../../hooks/useTrends.ts";
 import { usePatientProfile } from "../../../hooks/usePatientProfile.ts";
 import { useVisits } from "../../../hooks/useVisits.ts";
+import { useResults } from "../../../hooks/useResults.ts";
 import PatientSidebar from "../../../components/doctor/PatientSidebar/PatientSidebar.tsx";
 import { COMORBIDITIES, ETIOLOGY_LABELS } from "../../../constants";
 import { formatLongDate } from "../../../utils/date.ts";
@@ -28,8 +29,9 @@ const FALLBACK_COLORS = ["#08aaa5", "#f97316", "#8b5cf6", "#0ea5e9", "#f4607a", 
 export default function PatientDashboardPage() {
   const { patientId } = useParams<{ patientId: string }>();
   const { data, loading, error, refetch } = useTrends(patientId);
-  const { profile, setActive } = usePatientProfile(patientId);
-  const { visits } = useVisits(patientId);
+  const { profile, setActive, regenerateInviteCode } = usePatientProfile(patientId);
+  const { visits, refresh: refreshVisits } = useVisits(patientId);
+  const { updateResult, deleteResult } = useResults();
   const [view, setView] = useState<"charts" | "results">("charts");
   // Parameters outside the stage defaults that the doctor chose to chart (from the dropdown).
   const [shownExtras, setShownExtras] = useState<string[]>([]);
@@ -58,6 +60,9 @@ export default function PatientDashboardPage() {
   const parameters = data?.parameters ?? [];
   const hasAnyData = parameters.length > 0;
   const age = profile ? calculateAge(profile.date_of_birth) : null;
+  const inviteExpired =
+    !!profile?.invite_code_expires_at &&
+    new Date(profile.invite_code_expires_at).getTime() < Date.now();
   const comorbidities = profile ? formatCodedList(profile.comorbidities, COMORBIDITIES) : null;
 
   // visits come newest first
@@ -131,14 +136,28 @@ export default function PatientDashboardPage() {
         {/* ---------- Main column ---------- */}
         <main className="pd-main">
           {profile && !profile.is_activated && profile.invite_code && (
-            <div className="pd-invite-note">
+            <div
+              className={`pd-invite-note${
+                inviteExpired ? " pd-invite-note-expired" : ""
+              }`}
+            >
               <span>
-                Пациентот сè уште не го активирал профилот. Код за активација
+                Пациентот сè уште не го активирал профилот.{" "}
+                {inviteExpired ? "Кодот за активација истече" : "Код за активација"}
                 {profile.invite_code_expires_at &&
-                  ` (истекува на ${formatLongDate(profile.invite_code_expires_at)})`}
+                  ` (${inviteExpired ? "на" : "истекува на"} ${formatLongDate(
+                    profile.invite_code_expires_at
+                  )})`}
                 :
               </span>
               <code>{profile.invite_code}</code>
+              <button
+                type="button"
+                className="pd-invite-regenerate"
+                onClick={() => void regenerateInviteCode()}
+              >
+                Генерирај нов код
+              </button>
             </div>
           )}
 
@@ -245,7 +264,22 @@ export default function PatientDashboardPage() {
             </>
           )}
 
-          {view === "results" && <VisitHistoryList visits={visits} paramMeta={paramMeta} />}
+          {view === "results" && (
+            <VisitHistoryList
+              visits={visits}
+              paramMeta={paramMeta}
+              onUpdate={async (visitId, payload) => {
+                const ok = await updateResult(visitId, payload);
+                if (ok) await Promise.all([refreshVisits(), refetch()]);
+                return ok;
+              }}
+              onDelete={async (visitId) => {
+                const ok = await deleteResult(visitId);
+                if (ok) await Promise.all([refreshVisits(), refetch()]);
+                return ok;
+              }}
+            />
+          )}
         </main>
 
         {/* ---------- Sidebar ---------- */}

@@ -102,7 +102,13 @@ export default function AiAnalysisModal({
           </nav>
 
           <div className="ai-modal__body">
-            {loading && <p className="ai-modal__status">Се генерира анализата…</p>}
+            {loading && (
+              <div className="ai-modal__loading" role="status" aria-live="polite">
+                <span className="ai-modal__spinner ai-modal__spinner--large" aria-hidden="true" />
+                <p className="ai-modal__status">Се генерира анализата…</p>
+                <p className="ai-modal__hint">Ова може да потрае неколку секунди.</p>
+              </div>
+            )}
 
             {!loading && error && <p className="ai-modal__error">{error}</p>}
 
@@ -126,7 +132,13 @@ export default function AiAnalysisModal({
             Затвори
           </button>
           <button type="button" className="ai-modal__primary" onClick={onGenerate} disabled={loading}>
-            {loading ? "Се генерира…" : generateLabel}
+            {loading ? (
+              <>
+                <span className="ai-modal__spinner" aria-hidden="true" /> Се генерира…
+              </>
+            ) : (
+              generateLabel
+            )}
           </button>
         </div>
       </div>

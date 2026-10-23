@@ -24,7 +24,7 @@ from app.rag.sources import append_sources
 
 router = APIRouter(prefix="/patients", tags=["ai"])
 
-CLAUDE_TIMEOUT_SECONDS = 90
+CLAUDE_TIMEOUT_SECONDS = 180
 MAX_SYMPTOMS_IN_PROMPT = 30
 MAX_SAVED_ANALYSES_RETURNED = 50
 # Macedonian (Cyrillic) text needs many more tokens than English, so this is generous.
@@ -96,7 +96,7 @@ def _ask_claude(system_prompt: str, user_prompt: str, max_tokens: int) -> str:
     client = anthropic.Anthropic(
         api_key=settings.ANTHROPIC_API_KEY,
         timeout=CLAUDE_TIMEOUT_SECONDS,
-        max_retries=1,
+        max_retries=0,
     )
     try:
         response = client.messages.create(

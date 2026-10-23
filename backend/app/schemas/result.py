@@ -6,6 +6,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from app.models.result import CKDStage
 
 
+# Fewest lab values a new result must contain.
+MIN_RESULT_VALUES = 3
+
+
 class ParameterDefinition(BaseModel):
     key: str
     value_type: str
@@ -55,6 +59,15 @@ class VisitCreate(BaseModel):
     ckd_stage: CKDStage
     notes: str | None = None
     lab_result: LabResultBase
+
+    @field_validator("lab_result")
+    @classmethod
+    def must_have_enough_values(cls, value: LabResultBase):
+        # Prevents saving an empty (or nearly empty) result.
+        filled = sum(1 for v in value.model_dump().values() if v is not None)
+        if filled < MIN_RESULT_VALUES:
+            raise ValueError(f"At least {MIN_RESULT_VALUES} lab values must be entered.")
+        return value
 
 
 class VisitUpdate(BaseModel):

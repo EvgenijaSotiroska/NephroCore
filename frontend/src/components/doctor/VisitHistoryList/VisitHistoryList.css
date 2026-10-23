@@ -136,6 +136,104 @@
   color: #8a9ab0;
 }
 
+.visit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 18px 12px;
+}
+
+.visit-action-button {
+  padding: 7px 16px;
+  border: 1px solid #dbe4ee;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #17243a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.visit-action-button:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.visit-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.visit-action-danger {
+  border-color: #f1b8b4;
+  color: #b3453f;
+}
+
+.visit-action-primary {
+  background: #08aaa5;
+  border-color: #08aaa5;
+  color: #ffffff;
+}
+
+.visit-action-primary:hover:not(:disabled) {
+  background: #079792;
+}
+
+.visit-edit {
+  padding: 0 18px 4px;
+}
+
+.visit-edit-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.visit-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.visit-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: #8a9ab0;
+}
+
+.visit-edit-field input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  background: #f8fafc;
+  font: inherit;
+  font-size: 14px;
+  color: #17243a;
+}
+
+.visit-edit-field input:focus {
+  outline: 2px solid #08aaa5;
+  outline-offset: -1px;
+  background: #ffffff;
+}
+
+.visit-edit-hint {
+  margin: 0 0 8px;
+  color: #c9701c;
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .visit-edit-row {
+    flex-direction: column;
+  }
+}
+
 .visit-history-empty {
   margin: 24px 32px;
   background: #f8fafc;

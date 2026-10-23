@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,17 @@ from app.schemas.patient import (
 router = APIRouter(prefix="/patients", tags=["patients"])
 
 
+def _new_unique_invite_code(db: Session) -> str:
+    invite_code = generate_invite_code()
+    while db.scalar(select(PatientProfile).where(PatientProfile.invite_code == invite_code)):
+        invite_code = generate_invite_code()
+    return invite_code
+
+
+def _invite_code_expiry() -> datetime:
+    return datetime.now(timezone.utc) + timedelta(days=settings.INVITE_CODE_EXPIRE_DAYS)
+
+
 @router.post("", response_model=PatientCreateResponse, status_code=status.HTTP_201_CREATED)
 def create_patient(
     payload: PatientCreateRequest,
@@ -39,10 +50,7 @@ def create_patient(
     db.add(patient_user)
     db.flush()
 
-    invite_code = generate_invite_code()
-
-    while db.scalar(select(PatientProfile).where(PatientProfile.invite_code == invite_code)):
-        invite_code = generate_invite_code()
+    invite_code = _new_unique_invite_code(db)
 
     profile = PatientProfile(
         user_id=patient_user.id,
@@ -70,10 +78,7 @@ def create_patient(
 
         # Invite / activation
         invite_code=invite_code,
-        invite_code_expires_at=(
-            datetime.now(timezone.utc)
-            + timedelta(days=settings.INVITE_CODE_EXPIRE_DAYS)
-        ),
+        invite_code_expires_at=_invite_code_expiry(),
         is_activated=False,
     )
 
@@ -123,6 +128,27 @@ def update_patient(
     return patient
 
 
+@router.post("/{patient_id}/invite-code", response_model=PatientOut)
+def regenerate_invite_code(
+    patient_id: UUID,
+    db: Session = Depends(get_db),
+    current_doctor: User = Depends(require_doctor),
+):
+    patient = get_owned_patient(db, patient_id, current_doctor)
+
+    if patient.is_activated:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Patient has already activated their account.",
+        )
+
+    patient.invite_code = _new_unique_invite_code(db)
+    patient.invite_code_expires_at = _invite_code_expiry()
+    db.commit()
+    db.refresh(patient)
+    return patient
+
+
 @router.patch("/{patient_id}/status", response_model=PatientOut)
 def set_patient_status(
     patient_id: UUID,
@@ -130,8 +156,6 @@ def set_patient_status(
     db: Session = Depends(get_db),
     current_doctor: User = Depends(require_doctor),
 ):
-    """Mark a patient active (currently followed) or inactive (kept on record, e.g.
-    switched doctor). Patients are never deleted and stay in the doctor's list."""
     patient = get_owned_patient(db, patient_id, current_doctor)
     patient.is_active = payload.is_active
     db.commit()

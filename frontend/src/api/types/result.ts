@@ -26,7 +26,9 @@ export interface CreateVisitRequest {
   lab_result: LabResultPayload;
 }
 
-export type UpdateVisitRequest = Partial<Omit<CreateVisitRequest, "patient_id">>;
+export type UpdateVisitRequest = Partial<Omit<CreateVisitRequest, "patient_id" | "notes">> & {
+  notes?: string | null; // null clears the notes
+};
 
 export type LabResultResponse = LabResultPayload & {
   id: string;

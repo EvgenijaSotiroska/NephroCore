@@ -255,6 +255,12 @@
 
 /* ==================== SUBMIT ==================== */
 
+.results-min-hint {
+  margin: 0 0 12px;
+  color: #c9701c;
+  font-size: 13px;
+}
+
 .results-submit {
   width: 100%;
   height: 56px;

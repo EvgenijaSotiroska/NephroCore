@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
@@ -9,6 +9,8 @@ from app.core.lab_parameters import get_stage_parameter_definitions, get_all_par
 from app.models.result import CKDStage, Visit, LabResult
 from app.models.user import User
 from app.schemas.result import (
+    MIN_RESULT_VALUES,
+    LabResultBase,
     VisitCreate,
     VisitUpdate,
     VisitResponse,
@@ -130,6 +132,18 @@ def update_visit(
         else:
             for key, value in lab_values.items():
                 setattr(visit.lab_result, key, value)
+
+    # A result must keep at least MIN_RESULT_VALUES values (nothing is committed on error).
+    if visit.lab_result is not None:
+        filled = sum(
+            1 for key in LabResultBase.model_fields if getattr(visit.lab_result, key, None) is not None
+        )
+        if filled < MIN_RESULT_VALUES:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"At least {MIN_RESULT_VALUES} lab values must be entered.",
+            )
 
     db.commit()
     db.refresh(visit)

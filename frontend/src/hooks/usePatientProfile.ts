@@ -10,6 +10,8 @@ interface UsePatientProfileResult {
   error: string | null;
   // Doctor only: mark the patient active or inactive. Resolves to true when it worked.
   setActive: (isActive: boolean) => Promise<boolean>;
+  // Doctor only: replace the activation code of a patient who has not activated yet.
+  regenerateInviteCode: () => Promise<boolean>;
 }
 
 export function usePatientProfile(patientId?: string): UsePatientProfileResult {
@@ -56,5 +58,18 @@ export function usePatientProfile(patientId?: string): UsePatientProfileResult {
     [patientId, showSnackbar]
   );
 
-  return { profile, loading, error, setActive };
+  const regenerateInviteCode = useCallback(async () => {
+    if (!patientId) return false;
+    try {
+      const { data } = await patientApi.regenerateInviteCode(patientId);
+      setProfile(data);
+      showSnackbar("Генериран е нов код за активација.", "success");
+      return true;
+    } catch (err) {
+      showSnackbar(getApiErrorMessage(err, "Не успеа генерирањето на нов код"), "error");
+      return false;
+    }
+  }, [patientId, showSnackbar]);
+
+  return { profile, loading, error, setActive, regenerateInviteCode };
 }

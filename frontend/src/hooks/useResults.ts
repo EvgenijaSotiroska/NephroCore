@@ -2,10 +2,12 @@ import { useCallback, useState } from "react";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import resultsApi from "../api/resultApi.ts";
 import { useSnackbar } from "./useSnackbar";
-import type { CreateVisitRequest, VisitResponse } from "../api/types/result";
+import type { CreateVisitRequest, UpdateVisitRequest, VisitResponse } from "../api/types/result";
 
 interface UseResultsResult {
   createResult: (payload: CreateVisitRequest) => Promise<VisitResponse | null>;
+  updateResult: (visitId: string, payload: UpdateVisitRequest) => Promise<boolean>;
+  deleteResult: (visitId: string) => Promise<boolean>;
   creating: boolean;
   error: string | null;
 }
@@ -35,5 +37,33 @@ export function useResults(): UseResultsResult {
     [showSnackbar]
   );
 
-  return { createResult, creating, error };
+  const updateResult = useCallback(
+    async (visitId: string, payload: UpdateVisitRequest): Promise<boolean> => {
+      try {
+        await resultsApi.update(visitId, payload);
+        showSnackbar("Резултатите се изменети.", "success");
+        return true;
+      } catch (err) {
+        showSnackbar(getApiErrorMessage(err, "Не успеаја да се изменат резултатите"), "error");
+        return false;
+      }
+    },
+    [showSnackbar]
+  );
+
+  const deleteResult = useCallback(
+    async (visitId: string): Promise<boolean> => {
+      try {
+        await resultsApi.remove(visitId);
+        showSnackbar("Резултатите се избришани.", "success");
+        return true;
+      } catch (err) {
+        showSnackbar(getApiErrorMessage(err, "Не успеаја да се избришат резултатите"), "error");
+        return false;
+      }
+    },
+    [showSnackbar]
+  );
+
+  return { createResult, updateResult, deleteResult, creating, error };
 }

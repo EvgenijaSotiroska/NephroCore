@@ -23,6 +23,10 @@ const patientApi = {
   update: async (patientId: string, data: UpdatePatientRequest) => {
     return await axiosInstance.patch<PatientProfile>(`/patients/${patientId}`, data);
   },
+  // Doctor: replace the activation code of a patient who has not activated yet.
+  regenerateInviteCode: async (patientId: string) => {
+    return await axiosInstance.post<PatientProfile>(`/patients/${patientId}/invite-code`);
+  },
   // Doctor: mark a patient active (followed) or inactive (kept on record).
   setStatus: async (patientId: string, isActive: boolean) => {
     return await axiosInstance.patch<PatientProfile>(`/patients/${patientId}/status`, {

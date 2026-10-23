@@ -10,6 +10,9 @@ import { CKD_STAGE_ORDER } from "../../../api/types/ckdStage.ts";
 import type { LabResultPayload } from "../../../api/types/result.ts";
 import {todayIso} from "../../../utils/date.ts";
 
+// Fewest lab values that must be filled in for a result to be saved (prevents empty results).
+const MIN_RESULT_VALUES = 3;
+
 export default function EnterResults() {
   const { patients, loading: patientsLoading } = usePatients();
   const {
@@ -53,8 +56,18 @@ export default function EnterResults() {
     }));
   };
 
+  // Only values of the parameters currently shown count (removed extras are ignored).
+  const shownKeys = new Set([
+    ...(currentStageConfig?.parameters ?? []).map((p) => p.key),
+    ...extraKeys,
+  ]);
+  const filledCount = Object.entries(values).filter(
+    ([key, value]) => shownKeys.has(key) && value !== null && value !== undefined && !Number.isNaN(value)
+  ).length;
+  const enoughValues = filledCount >= MIN_RESULT_VALUES;
+
   const handleSubmit = async () => {
-    if (!patientId || !currentStageConfig) return;
+    if (!patientId || !currentStageConfig || !enoughValues) return;
 
     const result = await createResult({
       patient_id: patientId,
@@ -250,10 +263,17 @@ export default function EnterResults() {
 
           <div className="results-divider" />
 
+          {!enoughValues && (
+            <p className="results-min-hint">
+              Внесете најмалку {MIN_RESULT_VALUES} вредности за да се зачуваат резултатите
+              (внесени: {filledCount}).
+            </p>
+          )}
+
           <button
             type="button"
             className="results-submit"
-            disabled={!patientId || creating}
+            disabled={!patientId || creating || !enoughValues}
             onClick={handleSubmit}
           >
             {creating ? "Се зачувува..." : "Зачувај резултати"}

@@ -145,6 +145,48 @@
   font-size: 14px;
 }
 
+.ai-modal__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.ai-modal__hint {
+  margin: 0;
+  color: #8a9ab0;
+  font-size: 12px;
+}
+
+.ai-modal__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ai-modal-spin 0.8s linear infinite;
+}
+
+.ai-modal__spinner--large {
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  border-width: 4px;
+  border-color: #d9f7f6;
+  border-top-color: #14b8a6;
+}
+
+@keyframes ai-modal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .ai-modal__error {
   margin: 0 0 12px;
   color: #b3453f;

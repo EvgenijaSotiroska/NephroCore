@@ -53,6 +53,9 @@
 .dh-table {
   display: flex;
   flex-direction: column;
+  /* header + 3 patient rows are visible, the rest scrolls */
+  max-height: 222px;
+  overflow-y: auto;
 }
 
 .dh-table-row {
@@ -68,6 +71,10 @@
 }
 
 .dh-table-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #ffffff;
   padding-top: 4px;
   font-size: 11px;
   font-weight: 700;
@@ -146,6 +153,10 @@
 }
 
 @media (max-width: 760px) {
+  .dh-table {
+    max-height: 366px;
+  }
+
   .dh-table-head {
     display: none;
   }

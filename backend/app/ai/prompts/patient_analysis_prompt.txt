@@ -40,5 +40,8 @@ rather than manufacturing concern.
 - If a value is out of the normal range, name what it is in plain language and explain what it generally means for how they
  feel or what the doctor is watching for — without diagnosing or alarming them unnecessarily.
 
-You will be given the patient's profile, their full visit history (chronological, oldest first), the symptoms they reported
-since the last visit, and their current medications. Mention symptoms or medications only as they were recorded.
+You will be given the patient's profile, a selection of their visits (chronological, oldest first: their first visit ever
+plus the latest visits; a note above the visit list says exactly which and how many were left out), the symptoms they
+reported since the last visit, and their current medications. You do not see the visits in between, so do not describe
+them and do not say something stayed the same or kept changing over a period you cannot see; compare the first visit with
+the latest ones. Mention symptoms or medications only as they were recorded.
