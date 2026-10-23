@@ -18,15 +18,20 @@ export default function Layout() {
     "login" | "register" | "activate" | null
   >(null);
 
+  const [loginNotice, setLoginNotice] = useState<string | null>(null);
+
   const handleCloseAuth = () => {
     setAuthDialog(null);
+    setLoginNotice(null);
   };
 
   const openLogin = () => {
+    setLoginNotice(null);
     setAuthDialog("login");
   };
 
   const openRegister = () => {
+    setLoginNotice(null);
     setAuthDialog("register");
   };
 
@@ -68,6 +73,7 @@ export default function Layout() {
             onClose={handleCloseAuth}
             onSwitchToRegister={openRegister}
             onLoginSuccess={handleCloseAuth}
+            notice={loginNotice}
           />
         )}
 
@@ -76,7 +82,10 @@ export default function Layout() {
             onClose={handleCloseAuth}
             onSwitchToLogin={openLogin}
             onSwitchToActivate={openActivate}
-            onRegisterSuccess={handleCloseAuth}
+            onRegisterSuccess={() => {
+              setAuthDialog("login");
+              setLoginNotice("Успешна регистрација. Ве молам логирајте се.");
+            }}
           />
         )}
 

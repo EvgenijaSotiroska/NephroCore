@@ -112,4 +112,7 @@ class PatientOut(BaseModel):
     dialysis_modality: DialysisModality | None
 
     is_activated: bool
+    # Only set until the patient activates their account (cleared on activation).
+    invite_code: str | None = None
+    invite_code_expires_at: datetime | None = None
     is_active: bool

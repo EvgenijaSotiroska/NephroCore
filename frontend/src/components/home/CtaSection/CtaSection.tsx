@@ -12,9 +12,7 @@ export default function CtaSection({ onRegister }: CtaSectionProps) {
   return (
     <section className="hs-section hx-section">
       <div className="hs-container hx-container">
-        <span className="hx-icon" aria-hidden="true">
-          🫁
-        </span>
+        <img className="hx-icon" src="/kidney.svg" alt="" />
 
         <h2 className="hs-title">
           Започнете со следење

@@ -130,6 +130,18 @@ export default function PatientDashboardPage() {
       <div className="pd-layout">
         {/* ---------- Main column ---------- */}
         <main className="pd-main">
+          {profile && !profile.is_activated && profile.invite_code && (
+            <div className="pd-invite-note">
+              <span>
+                Пациентот сè уште не го активирал профилот. Код за активација
+                {profile.invite_code_expires_at &&
+                  ` (истекува на ${formatLongDate(profile.invite_code_expires_at)})`}
+                :
+              </span>
+              <code>{profile.invite_code}</code>
+            </div>
+          )}
+
           {profile && !profile.is_active && (
             <div className="pd-inactive-note">
               Пациентот е неактивен. Досегашните прегледи и терапија остануваат зачувани, но не може да се

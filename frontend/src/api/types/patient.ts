@@ -79,6 +79,10 @@ export interface PatientProfile {
 
   is_activated: boolean;
 
+  // Only present until the patient activates their account.
+  invite_code: string | null;
+  invite_code_expires_at: string | null;
+
   // true: currently followed. false: kept on record (e.g. switched doctor), no new data is added.
   is_active: boolean;
 }

@@ -30,8 +30,12 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
-  font-size: 17px;
+  background: #ffffff;
+}
+
+.site-footer__logo-icon img {
+  width: 22px;
+  height: 22px;
 }
 
 .site-footer__brand p {
@@ -71,6 +75,12 @@
 .site-footer__column a:hover,
 .site-footer__column button:hover {
   color: #ffffff;
+}
+
+.site-footer__bottom-icon {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
 }
 
 .site-footer__note {

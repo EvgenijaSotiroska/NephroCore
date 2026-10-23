@@ -10,6 +10,7 @@ interface LoginFormProps {
     onClose: () => void;
     onSwitchToRegister: () => void;
     onLoginSuccess: () => void;
+    notice?: string | null;
 }
 
 interface FormData {
@@ -28,6 +29,7 @@ export default function LoginForm({
                        onClose,
                        onSwitchToRegister,
                        onLoginSuccess,
+                       notice,
                    }: LoginFormProps) {
     const [role, setRole] = useState<AuthRole>("doctor");
     const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -110,6 +112,15 @@ export default function LoginForm({
             <RoleToggle value={role} onChange={setRole}/>
 
             <Box component="form" onSubmit={handleSubmit}>
+                {notice && (
+                    <Typography
+                        variant="body2"
+                        sx={{mb: 2, color: "#0f766e", fontWeight: 600}}
+                    >
+                        {notice}
+                    </Typography>
+                )}
+
                 {role === "doctor" ? (
                     <>
                         <Typography variant="body2" sx={labelStyles}>

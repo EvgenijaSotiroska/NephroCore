@@ -134,7 +134,7 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
                   fontWeight: 600,
                 }}
               >
-                НЕФРОЛОГИЈА
+                ГРИЖА ЗА ВАШИТЕ БУБРЕЗИ
               </Typography>
             </Box>
           </Box>

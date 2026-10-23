@@ -131,7 +131,12 @@ export default function DoctorHomePage() {
         {/* ============ Main grid ============ */}
         <div className="dh-grid">
           <div className="dh-col">
-            <RecentSymptomsCard symptoms={symptoms} patients={patients} loading={symptomsLoading} />
+            <RecentSymptomsCard
+              symptoms={symptoms}
+              since={now - 7 * DAY_MS}
+              patients={patients}
+              loading={symptomsLoading}
+            />
             <PatientsRegisterCard patients={patients} appointments={appointments} />
           </div>
 

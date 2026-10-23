@@ -20,8 +20,8 @@ export default function Footer({ onLogin, onRegister }: FooterProps) {
       <div className="site-footer__inner">
         <div className="site-footer__brand">
           <span className="site-footer__logo">
-            <span className="site-footer__logo-icon" aria-hidden="true">
-              🫁
+            <span className="site-footer__logo-icon">
+              <img src="/kidney.svg" alt="" />
             </span>
             NephroCore
           </span>
@@ -59,7 +59,9 @@ export default function Footer({ onLogin, onRegister }: FooterProps) {
 
       <div className="site-footer__bottom">
         <span>© {new Date().getFullYear()} NephroCore · Сите права задржани</span>
-        <span>Направено со грижа за бубрезите 🫁</span>
+        <span>
+          Направено со грижа за бубрезите <img className="site-footer__bottom-icon" src="/kidney.svg" alt="" />
+        </span>
       </div>
     </footer>
   );
