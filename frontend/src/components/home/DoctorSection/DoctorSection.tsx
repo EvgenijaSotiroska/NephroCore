@@ -2,8 +2,7 @@ import "../sections.css";
 import "./DoctorSection.css";
 
 // If the picture cannot be loaded, the gradient behind it is shown instead.
-const DOCTOR_IMAGE =
-  "https://images.unsplash.com/photo-1602052577122-f73b9710adba?auto=format&fit=crop&w=1200&q=80";
+import DOCTOR_IMAGE from "../../../assets/images/doctor-section.jpg";
 
 const STEPS = [
   {

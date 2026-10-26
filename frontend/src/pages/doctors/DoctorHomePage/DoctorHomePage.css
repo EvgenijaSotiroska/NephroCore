@@ -37,7 +37,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
-  background-image: url("https://t3.ftcdn.net/jpg/00/92/34/56/360_F_92345619_pUlEznFdreTJy5amSBspNNtQT0sqhTwM.jpg");
+  background-image: url("../../../assets/images/hero-background.jpg");
   background-size: cover;
   background-position: center;
   padding-bottom: 56px; /* room for the stat row overlapping the hero */

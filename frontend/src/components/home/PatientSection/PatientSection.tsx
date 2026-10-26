@@ -2,8 +2,7 @@ import "../sections.css";
 import "./PatientSection.css";
 
 // If the picture cannot be loaded, the gradient behind it is shown instead.
-const PATIENT_IMAGE =
-  "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&w=1200&q=80";
+import PATIENT_IMAGE from "../../../assets/images/patient-section.jpg";
 
 const ITEMS = [
   {

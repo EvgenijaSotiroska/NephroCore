@@ -1,5 +1,6 @@
 import "../sections.css";
 import "./CtaSection.css";
+import kidneyIcon from "../../../assets/images/kidney.svg";
 
 // Fill in an address to show the "Контактирајте нè" button. While it is empty the button is hidden.
 const CONTACT_EMAIL = "";
@@ -12,7 +13,7 @@ export default function CtaSection({ onRegister }: CtaSectionProps) {
   return (
     <section className="hs-section hx-section">
       <div className="hs-container hx-container">
-        <img className="hx-icon" src="/kidney.svg" alt="" />
+        <img className="hx-icon" src={kidneyIcon} alt="" />
 
         <h2 className="hs-title">
           Започнете со следење
