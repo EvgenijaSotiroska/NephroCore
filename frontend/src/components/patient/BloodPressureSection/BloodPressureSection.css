@@ -1,0 +1,49 @@
+.ph-bp-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ph-bp-error {
+  margin: 0;
+  font-size: 13px;
+  color: #b3453f;
+}
+
+.ph-bp-alert {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fde4e4;
+  color: #b3453f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ph-bp-alert p {
+  margin: 0 0 8px;
+}
+
+.ph-bp-alert-close {
+  border: 1px solid currentColor;
+  background: #ffffff;
+  color: inherit;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ph-bp-list {
+  margin-top: 14px;
+}
+
+.ph-bp-value {
+  font-weight: 600;
+}
+
+.ph-bp-high {
+  color: #b3453f;
+}

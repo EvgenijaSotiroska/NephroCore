@@ -402,3 +402,57 @@
   border-radius: 999px;
   cursor: pointer;
 }
+
+/* ==================== HOME BLOOD PRESSURE ==================== */
+
+.bp-summary {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.bp-summary-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #17243a;
+}
+
+.bp-summary-label {
+  display: block;
+  font-size: 11px;
+  color: #8a9ab0;
+}
+
+.bp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid #eef1f6;
+  font-size: 13px;
+}
+
+.bp-row:last-child {
+  border-bottom: none;
+}
+
+.bp-row-date {
+  width: 70px;
+  color: #8a9ab0;
+}
+
+.bp-row-value {
+  font-weight: 600;
+  color: #17243a;
+}
+
+.bp-high {
+  color: #b3453f;
+}

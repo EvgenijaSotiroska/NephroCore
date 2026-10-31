@@ -3,6 +3,7 @@ import { useSymptoms } from "../../../hooks/useSymptoms";
 import type { SymptomIntensity } from "../../../api/types/symptom";
 import { INTENSITY_LABELS, SYMPTOM_INTENSITIES } from "../../../constants";
 import { formatLongDate, todayIso } from "../../../utils/date";
+import BloodPressureSection from "../BloodPressureSection/BloodPressureSection";
 import "./SymptomsCard.css";
 
 export default function SymptomsCard() {
@@ -33,7 +34,7 @@ export default function SymptomsCard() {
 
   return (
     <section className="ph-card">
-      <h3 className="ph-card-title">Мои симптоми</h3>
+      <h3 className="ph-card-title">Симптоми и притисок</h3>
 
       <form className="ph-sym-form" onSubmit={handleSubmit}>
         <label className="ph-field">
@@ -118,6 +119,8 @@ export default function SymptomsCard() {
           </ul>
         )}
       </div>
+
+      <BloodPressureSection />
     </section>
   );
 }

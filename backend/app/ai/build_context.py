@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 from app.core.config import CLINIC_TZ
+from app.models.blood_pressure import BloodPressureReading
 from app.models.medication import Medication
 from app.models.patient_profile import PatientProfile
 from app.models.result import Visit
@@ -199,6 +200,50 @@ KIDNEY_REPLACEMENT_QUERY = (
 
 # Lab values of the latest visits are checked against the normal range for these topics.
 VISITS_CHECKED_FOR_TOPICS = 3
+
+
+# How many of the latest home blood pressure readings are listed one by one in the prompt.
+MAX_BLOOD_PRESSURE_READINGS_LISTED = 14
+
+
+def format_blood_pressure(
+    readings: list[BloodPressureReading],
+    normal_ranges: dict[str, tuple[float | None, float | None]],
+) -> str:
+    """The home blood pressure diary: a summary worked out here, then the latest readings.
+    `readings` is oldest first. The numbers are worked out here because the model is unreliable at arithmetic."""
+    if not readings:
+        return "None entered since the last visit."
+
+    count = len(readings)
+    average_systolic = round(sum(r.systolic for r in readings) / count)
+    average_diastolic = round(sum(r.diastolic for r in readings) / count)
+    highest = max(readings, key=lambda r: (r.systolic, r.diastolic))
+    lowest = min(readings, key=lambda r: (r.systolic, r.diastolic))
+
+    lines = [
+        f"{count} readings between {readings[0].reading_date} and {readings[-1].reading_date} "
+        f"(the patient enters at most 3 per day).",
+        f"Average: {average_systolic}/{average_diastolic} mmHg.",
+        f"Highest: {highest.systolic}/{highest.diastolic} mmHg on {highest.reading_date}. "
+        f"Lowest: {lowest.systolic}/{lowest.diastolic} mmHg on {lowest.reading_date}.",
+    ]
+
+    systolic_limit = normal_ranges.get("bp_systolic", (None, None))[1]
+    diastolic_limit = normal_ranges.get("bp_diastolic", (None, None))[1]
+    if systolic_limit is not None and diastolic_limit is not None:
+        above = sum(
+            1 for r in readings if r.systolic > systolic_limit or r.diastolic > diastolic_limit
+        )
+        lines.append(
+            f"Readings above {systolic_limit:g}/{diastolic_limit:g} mmHg: {above} of {count}."
+        )
+
+    listed = readings[-MAX_BLOOD_PRESSURE_READINGS_LISTED:]
+    lines.append(f"The latest {len(listed)} readings, oldest first:")
+    for r in listed:
+        lines.append(f"- {r.reading_date}: {r.systolic}/{r.diastolic} mmHg")
+    return "\n".join(lines)
 
 
 def get_out_of_range_keys(

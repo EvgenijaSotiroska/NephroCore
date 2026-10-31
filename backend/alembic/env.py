@@ -14,6 +14,7 @@ from app.models.result import Visit
 from app.models.result import LabResult
 from app.models.lab_parameter import LabParameter, ParameterStage
 from app.models.appointment import Appointment
+from app.models.blood_pressure import BloodPressureReading
 from app.models.document_chunk import DocumentChunk
 
 

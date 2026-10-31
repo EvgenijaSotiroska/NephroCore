@@ -108,6 +108,12 @@ class PatientProfile(Base):
         cascade="all, delete-orphan",
     )
 
+    blood_pressure_readings = relationship(
+        "BloodPressureReading",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+    )
+
     medications = relationship(
         "Medication",
         back_populates="patient",

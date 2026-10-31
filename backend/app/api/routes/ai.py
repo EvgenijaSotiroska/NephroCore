@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.core.rate_limit import ai_limiter
 from app.db.session import get_db
 from app.models.ai_analysis import AIAnalysis, AIAnalysisKind
+from app.models.blood_pressure import BloodPressureReading
 from app.models.lab_parameter import LabParameter
 from app.models.medication import Medication
 from app.models.result import Visit
@@ -54,6 +55,22 @@ def _load_symptoms_since_last_visit(db: Session, patient_id: uuid.UUID, visits: 
             .where(Symptom.patient_id == patient_id, Symptom.symptom_date >= visits[-1].visit_date)
             .order_by(Symptom.symptom_date.desc())
             .limit(MAX_SYMPTOMS_IN_PROMPT)
+        )
+    )
+
+
+def _load_blood_pressure_since_last_visit(
+    db: Session, patient_id: uuid.UUID, visits: list[Visit]
+) -> list[BloodPressureReading]:
+    """Home blood pressure readings on or after the most recent visit, oldest first."""
+    return list(
+        db.scalars(
+            select(BloodPressureReading)
+            .where(
+                BloodPressureReading.patient_id == patient_id,
+                BloodPressureReading.reading_date >= visits[-1].visit_date,
+            )
+            .order_by(BloodPressureReading.reading_date.asc(), BloodPressureReading.created_at.asc())
         )
     )
 
@@ -191,9 +208,17 @@ def generate_ai_analysis(
 
     symptoms = _load_symptoms_since_last_visit(db, patient_id, visits)
     medications = _load_active_medications(db, patient_id)
+    blood_pressure = _load_blood_pressure_since_last_visit(db, patient_id, visits)
 
     system_prompt, user_prompt = build_doctor_analysis_prompt(
-        patient, visits, symptoms, medications, param_labels, normal_ranges, retrieved_chunks
+        patient,
+        visits,
+        symptoms,
+        medications,
+        param_labels,
+        normal_ranges,
+        blood_pressure,
+        retrieved_chunks,
     )
 
     # Everything needed is now plain text. Give the connection back to the pool while waiting for

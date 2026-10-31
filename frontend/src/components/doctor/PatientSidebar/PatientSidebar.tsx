@@ -1,7 +1,8 @@
-import { INTENSITY_LABELS } from "../../../constants";
+import { INTENSITY_LABELS, isAboveTarget } from "../../../constants";
 import { Link } from "react-router-dom";
 import { useMedications } from "../../../hooks/useMedications";
 import { useSymptoms } from "../../../hooks/useSymptoms";
+import { useBloodPressure } from "../../../hooks/useBloodPressure";
 import { useAiAnalysis } from "../../../hooks/useAi";
 import AiAnalysisModal from "../../ai/AiAnalysisModal/AiAnalysisModal";
 import { useState, type SubmitEvent } from "react";
@@ -318,6 +319,74 @@ function PatientSymptoms({
   );
 }
 
+// ==================== Home blood pressure since last visit ====================
+
+const SHOWN_BLOOD_PRESSURE_READINGS = 7;
+
+function PatientBloodPressure({
+  patientId,
+  lastVisitDate,
+}: {
+  patientId?: string;
+  lastVisitDate: string | null;
+}) {
+  // The server only returns the readings since the patient's latest visit, newest first.
+  const { readings, loading } = useBloodPressure(patientId);
+
+  const count = readings.length;
+  const averageSystolic = count ? Math.round(readings.reduce((sum, r) => sum + r.systolic, 0) / count) : 0;
+  const averageDiastolic = count ? Math.round(readings.reduce((sum, r) => sum + r.diastolic, 0) / count) : 0;
+  const aboveTarget = readings.filter((r) => isAboveTarget(r.systolic, r.diastolic)).length;
+
+  return (
+    <section className="side-section">
+      <div className="side-eyebrow">Од пациентот</div>
+      <h3 className="side-title">Притисок од последната посета</h3>
+      <p className="side-note">
+        {lastVisitDate
+          ? `${count} мерења од прегледот на ${formatLongDate(lastVisitDate)}`
+          : `${count} мерења вкупно`}
+      </p>
+
+      {loading ? (
+        <p className="side-muted">Се вчитува…</p>
+      ) : count === 0 ? (
+        <p className="side-muted">Пациентот не внел мерења на притисок од последниот преглед.</p>
+      ) : (
+        <>
+          <div className="bp-summary">
+            <div>
+              <span className="bp-summary-value">
+                {averageSystolic}/{averageDiastolic}
+              </span>
+              <span className="bp-summary-label">просек (mmHg)</span>
+            </div>
+            <div>
+              <span className={`bp-summary-value ${aboveTarget > 0 ? "bp-high" : ""}`}>
+                {aboveTarget} од {count}
+              </span>
+              <span className="bp-summary-label">над целта</span>
+            </div>
+          </div>
+
+          <ul className="bp-list">
+            {readings.slice(0, SHOWN_BLOOD_PRESSURE_READINGS).map((reading) => (
+              <li key={reading.id} className="bp-row">
+                <span className="bp-row-date">{formatDayMonth(reading.reading_date)}</span>
+                <span
+                  className={`bp-row-value ${isAboveTarget(reading.systolic, reading.diastolic) ? "bp-high" : ""}`}
+                >
+                  {reading.systolic}/{reading.diastolic}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </section>
+  );
+}
+
 // ==================== Sidebar ====================
 
 interface PatientSidebarProps {
@@ -339,6 +408,7 @@ export default function PatientSidebar({
       <NextVisitPanel patientId={patientId} />
       <TherapyPanel patientId={patientId} isActive={isActive} />
       <PatientSymptoms patientId={patientId} lastVisitDate={lastVisitDate} />
+      <PatientBloodPressure patientId={patientId} lastVisitDate={lastVisitDate} />
       {canAnalyse && <AiAnalysisPanel patientId={patientId} />}
     </aside>
   );

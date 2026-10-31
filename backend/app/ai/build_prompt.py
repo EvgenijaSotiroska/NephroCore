@@ -3,11 +3,13 @@ from pathlib import Path
 
 from app.ai.build_context import (
     describe_time_span,
+    format_blood_pressure,
     format_medications,
     format_patient_context,
     format_symptoms,
     format_visit_history,
 )
+from app.models.blood_pressure import BloodPressureReading
 from app.models.medication import Medication
 from app.models.patient_profile import PatientProfile
 from app.models.result import Visit
@@ -65,6 +67,7 @@ def build_doctor_analysis_prompt(
     medications: list[Medication],
     param_labels: dict[str, tuple[str, str]],
     normal_ranges: dict[str, tuple[float | None, float | None]],
+    blood_pressure_readings: list[BloodPressureReading],
     retrieved_chunks: list[RetrievedChunk],
 ) -> tuple[str, str]:
     """Returns (system_prompt, user_prompt)."""
@@ -81,6 +84,8 @@ def build_doctor_analysis_prompt(
         f"VISIT HISTORY (chronological, oldest first). {history_note}\n"
         f"{format_visit_history(selected_visits, param_labels, normal_ranges)}\n\n"
         f"SYMPTOMS REPORTED BY THE PATIENT SINCE THE LAST VISIT:\n{format_symptoms(symptoms)}\n\n"
+        f"HOME BLOOD PRESSURE DIARY SINCE THE LAST VISIT (measured and entered by the patient):\n"
+        f"{format_blood_pressure(blood_pressure_readings, normal_ranges)}\n\n"
         f"CURRENT MEDICATIONS:\n{format_medications(medications)}\n\n"
         f"RELEVANT CLINICAL GUIDELINE EXCERPTS:\n{guidelines_text}\n\n"
         f"Give a clinical analysis focused on the most recent visit in the context of the visit history provided. "
