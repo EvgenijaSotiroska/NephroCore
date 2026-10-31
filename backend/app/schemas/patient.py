@@ -22,7 +22,6 @@ class PatientCreateRequest(BaseModel):
 
     # Clinical history
     previous_conditions: str | None = None
-    genetic_risk_factors: str | None = None
     comorbidities: str | None = None
     current_medications: str | None = None
     smoking: bool | None = None
@@ -49,7 +48,6 @@ class PatientUpdateRequest(BaseModel):
 
     # Clinical history
     previous_conditions: str | None = None
-    genetic_risk_factors: str | None = None
     comorbidities: str | None = None
     current_medications: str | None = None
     smoking: bool | None = None
@@ -98,7 +96,6 @@ class PatientOut(BaseModel):
 
     # Clinical history
     previous_conditions: str | None
-    genetic_risk_factors: str | None
     comorbidities: str | None
     current_medications: str | None
     smoking: bool | None

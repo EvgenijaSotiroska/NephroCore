@@ -64,7 +64,6 @@ class PatientProfile(Base):
     height_cm = Column(Numeric(5, 1), nullable=True)
 
     previous_conditions = Column(Text, nullable=True)
-    genetic_risk_factors = Column(Text, nullable=True)
     comorbidities = Column(Text, nullable=True)
     current_medications = Column(Text, nullable=True)
     smoking = Column(Boolean, nullable=True)

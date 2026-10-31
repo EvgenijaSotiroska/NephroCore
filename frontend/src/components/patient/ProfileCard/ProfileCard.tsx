@@ -4,7 +4,6 @@ import {
   DIALYSIS_STATUS_LABELS,
   DIALYSIS_MODALITY_LABELS,
   PREVIOUS_CONDITIONS,
-  GENETIC_RISK_FACTORS,
   COMORBIDITIES,
   CURRENT_MEDICATIONS,
 } from "../../../constants";
@@ -50,10 +49,6 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     {
       label: "Претходни заболувања",
       value: formatCodedList(profile.previous_conditions, PREVIOUS_CONDITIONS),
-    },
-    {
-      label: "Генетски ризик фактори",
-      value: formatCodedList(profile.genetic_risk_factors, GENETIC_RISK_FACTORS),
     },
     {
       label: "Придружни болести",

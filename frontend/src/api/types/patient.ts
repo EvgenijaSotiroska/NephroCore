@@ -29,7 +29,6 @@ export interface CreatePatientRequest {
 
   // Clinical history
   previous_conditions?: string | null;
-  genetic_risk_factors?: string | null;
   comorbidities?: string | null;
   current_medications?: string | null;
   smoking?: boolean | null;
@@ -64,7 +63,6 @@ export interface PatientProfile {
 
   // Clinical history
   previous_conditions: string | null;
-  genetic_risk_factors: string | null;
   comorbidities: string | null;
   current_medications: string | null;
   smoking: boolean | null;

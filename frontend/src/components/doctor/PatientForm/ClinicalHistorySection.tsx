@@ -1,7 +1,6 @@
 import CheckboxGroup from "../CheckboxGroup/CheckboxGroup.tsx";
 import {
   PREVIOUS_CONDITIONS,
-  GENETIC_RISK_FACTORS,
   COMORBIDITIES,
   CURRENT_MEDICATIONS,
 } from "../../../constants";
@@ -40,13 +39,6 @@ export default function ClinicalHistorySection({ form, update, lists, onListChan
           options={PREVIOUS_CONDITIONS}
           selectedValues={lists.previous_conditions}
           onChange={(values) => onListChange("previous_conditions", values)}
-        />
-
-        <CheckboxGroup
-          title="Генетски ризик фактори"
-          options={GENETIC_RISK_FACTORS}
-          selectedValues={lists.genetic_risk_factors}
-          onChange={(values) => onListChange("genetic_risk_factors", values)}
         />
 
         <CheckboxGroup

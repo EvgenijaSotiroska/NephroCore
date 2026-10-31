@@ -22,7 +22,6 @@ const initialForm: CreatePatientRequest = {
   height_cm: null,
 
   previous_conditions: "",
-  genetic_risk_factors: "",
   comorbidities: "",
   current_medications: "",
 
@@ -141,9 +140,6 @@ export default function CreatePatient({ existing }: CreatePatientProps) {
 
       previous_conditions:
         joinCodedList(lists.previous_conditions),
-
-      genetic_risk_factors:
-        joinCodedList(lists.genetic_risk_factors),
 
       comorbidities:
         joinCodedList(lists.comorbidities),

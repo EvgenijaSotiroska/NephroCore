@@ -64,7 +64,6 @@ def create_patient(
 
         # Clinical history
         previous_conditions=payload.previous_conditions,
-        genetic_risk_factors=payload.genetic_risk_factors,
         comorbidities=payload.comorbidities,
         current_medications=payload.current_medications,
         smoking=payload.smoking,

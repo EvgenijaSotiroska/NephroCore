@@ -13,17 +13,15 @@ export interface SectionProps {
   update: FieldUpdater;
 }
 
-/** The four checkbox lists, kept as arrays of codes while the form is open. */
+/** The three checkbox lists, kept as arrays of codes while the form is open. */
 export interface ClinicalLists {
   previous_conditions: string[];
-  genetic_risk_factors: string[];
   comorbidities: string[];
   current_medications: string[];
 }
 
 export const emptyLists: ClinicalLists = {
   previous_conditions: [],
-  genetic_risk_factors: [],
   comorbidities: [],
   current_medications: [],
 };
@@ -31,7 +29,6 @@ export const emptyLists: ClinicalLists = {
 export function listsFromProfile(profile?: PatientProfile): ClinicalLists {
   return {
     previous_conditions: splitCodedList(profile?.previous_conditions),
-    genetic_risk_factors: splitCodedList(profile?.genetic_risk_factors),
     comorbidities: splitCodedList(profile?.comorbidities),
     current_medications: splitCodedList(profile?.current_medications),
   };

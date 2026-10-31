@@ -12,26 +12,11 @@ export const PREVIOUS_CONDITIONS: CheckboxOption[] = [
   { value: "cardiovascular_disease", label: "Кардиоваскуларна болест" },
 ];
 
-export const GENETIC_RISK_FACTORS: CheckboxOption[] = [
-  {
-    value: "family_history_ckd_kidney_failure_dialysis",
-    label: "Семејна историја на бубрежна болест / бубрежна слабост",
-  },
-  {
-    value: "family_history_pckd",
-    label: "Семејна историја на полицистична бубрежна болест",
-  },
-  { value: "family_history_diabetes", label: "Семејна историја на дијабетес" },
-  { value: "family_history_hypertension", label: "Семејна историја на хипертензија" },
-];
-
 export const COMORBIDITIES: CheckboxOption[] = [
   { value: "type_1_diabetes", label: "Дијабетес тип 1" },
   { value: "type_2_diabetes", label: "Дијабетес тип 2" },
   { value: "hypertension", label: "Хипертензија" },
-  { value: "obesity", label: "Дебелина" },
   { value: "anemia", label: "Анемија" },
-  { value: "dyslipidemia", label: "Дислипидемија" },
 ];
 
 export const CURRENT_MEDICATIONS: CheckboxOption[] = [
