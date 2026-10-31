@@ -7,7 +7,7 @@ import anthropic
 import openai
 
 from app.ai.build_prompt import build_doctor_analysis_prompt, build_patient_explanation_prompt
-from app.ai.build_context import build_retrieval_query
+from app.ai.build_context import build_retrieval_queries, parameter_labels_and_ranges
 from app.api.deps import get_own_patient_profile, get_owned_patient, require_doctor, require_patient
 from app.core.config import settings
 from app.core.rate_limit import ai_limiter
@@ -18,7 +18,7 @@ from app.models.medication import Medication
 from app.models.result import Visit
 from app.models.symptom import Symptom
 from app.models.user import User
-from app.rag.retriever import retrieve_relevant_chunks
+from app.rag.retriever import retrieve_chunks_for_queries
 from app.schemas.ai import AIAnalysisResponse
 from app.rag.sources import append_sources
 
@@ -92,8 +92,15 @@ def _load_saved(db: Session, patient_id: uuid.UUID, kind: AIAnalysisKind) -> lis
     )
 
 
-def _ask_claude(system_prompt: str, user_prompt: str, max_tokens: int) -> str:
-    """Send the prompts to Claude and return the text of the answer."""
+def _ask_claude(
+    system_prompt: str, user_prompt: str, max_tokens: int, *, thinking_enabled: bool = True
+) -> str:
+    """Send the prompts to Claude and return the text of the answer.
+
+    Unless `thinking_enabled` is False, the model may reason before it answers, and those hidden
+    tokens are billed as output and count toward `max_tokens`.
+    """
+    extra_options = {} if thinking_enabled else {"thinking": {"type": "disabled"}}
     # The first try waits up to CLAUDE_TIMEOUT_SECONDS. If it fails for a temporary reason, one more
     # try is made that waits up to CLAUDE_RETRY_TIMEOUT_SECONDS.
     response = None
@@ -110,6 +117,7 @@ def _ask_claude(system_prompt: str, user_prompt: str, max_tokens: int) -> str:
                 max_tokens=max_tokens,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
+                **extra_options,
             )
             break
         # A busy service is not retried straight away: that would only be refused again.
@@ -170,18 +178,11 @@ def generate_ai_analysis(
     visits = _load_visits(db, patient_id)
 
     lab_parameters = db.scalars(select(LabParameter)).all()
-    param_labels = {row.key: (row.label_en, row.unit) for row in lab_parameters}
-    normal_ranges = {
-        row.key: (
-            float(row.normal_range_low) if row.normal_range_low is not None else None,
-            float(row.normal_range_high) if row.normal_range_high is not None else None,
-        )
-        for row in lab_parameters
-    }
+    param_labels, normal_ranges = parameter_labels_and_ranges(lab_parameters, language="en")
 
-    retrieval_query = build_retrieval_query(patient, visits[-1], param_labels, normal_ranges)
+    retrieval_queries = build_retrieval_queries(patient, visits, normal_ranges)
     try:
-        retrieved_chunks = retrieve_relevant_chunks(db, retrieval_query, top_k=5)
+        retrieved_chunks = retrieve_chunks_for_queries(db, retrieval_queries)
     except openai.OpenAIError:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -192,7 +193,7 @@ def generate_ai_analysis(
     medications = _load_active_medications(db, patient_id)
 
     system_prompt, user_prompt = build_doctor_analysis_prompt(
-        patient, visits, symptoms, medications, param_labels, retrieved_chunks
+        patient, visits, symptoms, medications, param_labels, normal_ranges, retrieved_chunks
     )
 
     # Everything needed is now plain text. Give the connection back to the pool while waiting for
@@ -231,8 +232,9 @@ def generate_patient_explanation(
 
     visits = _load_visits(db, patient_id)
 
+    # The patient reads the answer in Macedonian, so the parameters get their Macedonian names.
     lab_parameters = db.scalars(select(LabParameter)).all()
-    param_labels = {row.key: (row.label_en, row.unit) for row in lab_parameters}
+    param_labels, normal_ranges = parameter_labels_and_ranges(lab_parameters, language="mk")
 
     doctor_analysis = None
 
@@ -240,12 +242,15 @@ def generate_patient_explanation(
     medications = _load_active_medications(db, patient_id)
 
     system_prompt, user_prompt = build_patient_explanation_prompt(
-        patient, visits, symptoms, medications, param_labels, doctor_analysis
+        patient, visits, symptoms, medications, param_labels, normal_ranges, doctor_analysis
     )
 
-    # Everything needed is now plain text. Give the connection back to the pool while waiting for
-    # Claude; saving the answer below opens a new one.
     db.close()
 
-    text = _ask_claude(system_prompt, user_prompt, max_tokens=PATIENT_EXPLANATION_MAX_TOKENS)
+    text = _ask_claude(
+        system_prompt,
+        user_prompt,
+        max_tokens=PATIENT_EXPLANATION_MAX_TOKENS,
+        thinking_enabled=False,
+    )
     return _save_analysis(db, patient_id, current_patient, AIAnalysisKind.PATIENT, text)

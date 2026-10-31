@@ -6,6 +6,7 @@ from openai import OpenAI
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
+from app.ai.build_context import parameter_labels_and_ranges
 from app.ai.build_prompt import build_chat_system_prompt
 from app.api.deps import get_own_patient_profile, require_patient
 from app.core.config import settings
@@ -144,10 +145,13 @@ def chat_with_assistant(
     symptoms = _load_recent_symptoms(db, patient_id)
     medications = _load_active_medications(db, patient_id)
 
+    # The patient chats in Macedonian, so the parameters get their Macedonian names.
     lab_parameters = db.scalars(select(LabParameter)).all()
-    param_labels = {row.key: (row.label_en, row.unit) for row in lab_parameters}
+    param_labels, normal_ranges = parameter_labels_and_ranges(lab_parameters, language="mk")
 
-    system_prompt = build_chat_system_prompt(patient, visits, symptoms, medications, param_labels)
+    system_prompt = build_chat_system_prompt(
+        patient, visits, symptoms, medications, param_labels, normal_ranges
+    )
     reply = _ask_openai(system_prompt, payload)
 
     last_question = payload.messages[-1].content.lower()
