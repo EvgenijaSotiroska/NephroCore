@@ -10,11 +10,10 @@ import {
     STAGE_EGFR_RANGE_LABEL,
     STAGE_DESCRIPTION,
 } from "../../../constants";
-import {formatLongDate} from "../../../utils/date";
+import {daysUntil, formatLongDate, formatTime} from "../../../utils/date";
 import {calculateAge, stageTone} from "../../../utils/patient";
 import ProfileCard from "../../../components/patient/ProfileCard/ProfileCard";
 import MedicationsCard from "../../../components/patient/MedicationsCard/MedicationsCard";
-import NextVisitCard from "../../../components/patient/NextVisitCard/NextVisitCard";
 import SymptomsCard from "../../../components/patient/SymptomsCard/SymptomsCard";
 import "./PatientHomePage.css";
 import AiAnalysisModal from "../../../components/ai/AiAnalysisModal/AiAnalysisModal";
@@ -95,6 +94,10 @@ export default function PatientHomePage() {
     );
     const latestVisit = sortedVisits[0] ?? null;
 
+    const nextDays = nextAppointment ? daysUntil(nextAppointment.scheduled_at) : null;
+    const nextCountdown =
+        nextDays === null ? null : nextDays <= 0 ? "Денес" : nextDays === 1 ? "Утре" : `За ${nextDays} дена`;
+
     const eyebrow = [age !== null ? `${age} год.` : null, profile.ckd_etiology ? ETIOLOGY_LABELS[profile.ckd_etiology] : null]
         .filter(Boolean)
         .join(" · ");
@@ -119,6 +122,7 @@ export default function PatientHomePage() {
 
                     {stage && (
                         <div className={`ph-stage-block ph-stage-${stageTone(stage)}`}>
+                            <span className="ph-stage-block-label">Фаза на ХБИ</span>
                             <span className="ph-stage-block-code">{stage}</span>
                             <span className="ph-stage-block-range">eGFR {STAGE_EGFR_RANGE_LABEL[stage] ?? ""}</span>
                             <span className="ph-stage-block-desc">{STAGE_DESCRIPTION[stage]}</span>
@@ -127,14 +131,17 @@ export default function PatientHomePage() {
                 </div>
             </header>
 
-            <div className="ph-container">
-                {/* ============ Stat row ============ */}
-                <div className="ph-stats">
+            {/* ============ Key figures: square cells right under the image ============ */}
+            <div className="ph-stats">
+                <div className="ph-stats-inner">
                     <StatCard
-                        label="Фаза на ХБИ"
-                        value={stage ?? "—"}
-                        hint={stage ? `eGFR ${STAGE_EGFR_RANGE_LABEL[stage] ?? ""}` : undefined}
-                        tone={stage ? stageTone(stage) : undefined}
+                        label="Следен преглед"
+                        value={nextAppointment ? formatLongDate(nextAppointment.scheduled_at) : "Нема закажан"}
+                        hint={
+                            nextAppointment
+                                ? `${nextCountdown}, ${formatTime(nextAppointment.scheduled_at)}`
+                                : "лекарот ќе закаже термин"
+                        }
                     />
                     <StatCard
                         label="Последен преглед"
@@ -151,7 +158,9 @@ export default function PatientHomePage() {
                         hint="вкупно термини"
                     />
                 </div>
+            </div>
 
+            <div className="ph-container">
                 <div className="ph-dashboard">
                     {/* ============ Left: profile + medications ============ */}
                     <aside className="ph-col-profile">
@@ -217,9 +226,8 @@ export default function PatientHomePage() {
                         )}
                     </div>
 
-                    {/* ============ Right: next visit + symptoms ============ */}
+                    {/* ============ Right: symptoms and blood pressure ============ */}
                     <aside className="ph-side ph-col-side">
-                        <NextVisitCard appointment={nextAppointment}/>
                         <SymptomsCard/>
                     </aside>
                 </div>

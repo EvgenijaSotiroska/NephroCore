@@ -129,12 +129,6 @@ export default function DayAppointments({
                                 {appointment.duration_minutes}{" "}
                                 мин.
                               </span>
-
-                              {appointment.notes && (
-                                <span>
-                                  Има забелешка
-                                </span>
-                              )}
                             </div>
 
                             <button

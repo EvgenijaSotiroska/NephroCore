@@ -2,11 +2,13 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 18px 20px;
+  padding: 20px 28px;
   background: #ffffff;
-  border: 1px solid #e5ebf2;
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(15, 40, 70, 0.08);
+  border-left: 1px solid #e1e8f0;
+}
+
+.ph-stat:last-child {
+  border-right: 1px solid #e1e8f0;
 }
 
 .ph-stat-label {
@@ -14,7 +16,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #71819a;
+  color: #0b7bb8;
 }
 
 .ph-stat-value {
@@ -30,4 +32,26 @@
 .ph-stat-hint {
   font-size: 12px;
   color: #8a9ab0;
+}
+
+/* two columns on medium screens, one on small: keep a thin rule between the rows */
+@media (max-width: 1280px) {
+  .ph-stat:nth-child(n + 3) {
+    border-top: 1px solid #e1e8f0;
+  }
+
+  .ph-stat:nth-child(2n) {
+    border-right: 1px solid #e1e8f0;
+  }
+}
+
+@media (max-width: 640px) {
+  .ph-stat:nth-child(n + 2) {
+    border-top: 1px solid #e1e8f0;
+  }
+
+  .ph-stat {
+    border-right: 1px solid #e1e8f0;
+    padding: 16px 20px;
+  }
 }

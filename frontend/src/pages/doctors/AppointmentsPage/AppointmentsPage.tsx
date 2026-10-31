@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useAppointments } from "../../../hooks/useAppointments";
 import { usePatients } from "../../../hooks/usePatients";
 import type { AppointmentResponse } from "../../../api/types/appointment";
@@ -92,15 +93,17 @@ export default function AppointmentsPage() {
         ========================= */}
 
         <header className="doctor-home__header">
-          <div>
-            <h1>
-              Добредојдовте
-            </h1>
+          <div className="doctor-home__heading">
+            <span className="doctor-home__icon" aria-hidden="true">
+              <CalendarMonthIcon />
+            </span>
 
-            <p className="doctor-home__subtitle">
-              Прегледајте ги и управувајте со вашите
-              закажани термини.
-            </p>
+            <div>
+              <h1 className="doctor-home__title">Календар на термини</h1>
+              <p className="doctor-home__subtitle">
+                Закажани прегледи на вашите пациенти
+              </p>
+            </div>
           </div>
 
           <button
@@ -166,6 +169,7 @@ export default function AppointmentsPage() {
           }
           patients={patients}
           appointment={editingAppointment}
+          defaultDate={selectedDate}
           creating={creating}
           updating={updating}
           deleting={deleting}

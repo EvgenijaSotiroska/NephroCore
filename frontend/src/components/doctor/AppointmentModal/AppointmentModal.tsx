@@ -17,6 +17,9 @@ interface AppointmentModalProps {
   patients: PatientProfile[];
   appointment?: AppointmentResponse | null;
 
+  // The date a new appointment starts with (the day picked in the calendar). Today when not given.
+  defaultDate?: string;
+
   creating?: boolean;
   updating?: boolean;
   deleting?: boolean;
@@ -68,6 +71,7 @@ export default function AppointmentModal({
   mode,
   patients,
   appointment,
+  defaultDate,
   creating = false,
   updating = false,
   deleting = false,
@@ -84,7 +88,6 @@ export default function AppointmentModal({
     useState("Контрола");
   const [status, setStatus] =
     useState<AppointmentStatus>("scheduled");
-  const [notes, setNotes] = useState("");
 
   const isEdit = mode === "edit";
 
@@ -110,19 +113,17 @@ export default function AppointmentModal({
         appointment.appointment_type || "Контрола"
       );
       setStatus(appointment.status);
-      setNotes(appointment.notes || "");
 
       return;
     }
 
     setPatientId("");
-    setDate(todayIso());
+    setDate(defaultDate ?? todayIso());
     setTime("09:00");
     setDuration(30);
     setAppointmentType("Контрола");
     setStatus("scheduled");
-    setNotes("");
-  }, [isOpen, mode, appointment]);
+  }, [isOpen, mode, appointment, defaultDate]);
 
   if (!isOpen) {
     return null;
@@ -145,7 +146,6 @@ export default function AppointmentModal({
         duration_minutes: duration,
         appointment_type: appointmentType || null,
         status,
-        notes: notes.trim() || null,
       };
 
       const result = await onUpdate(
@@ -165,7 +165,6 @@ export default function AppointmentModal({
       scheduled_at: scheduledAt,
       duration_minutes: duration,
       appointment_type: appointmentType || null,
-      notes: notes.trim() || null,
     };
 
     const result = await onCreate(payload);
@@ -400,22 +399,6 @@ export default function AppointmentModal({
               </select>
             </div>
           )}
-
-          <div className="appointment-form__group">
-            <label htmlFor="appointment-notes">
-              Забелешки
-            </label>
-
-            <textarea
-              id="appointment-notes"
-              value={notes}
-              onChange={(event) =>
-                setNotes(event.target.value)
-              }
-              placeholder="Дополнителни забелешки..."
-              disabled={isSaving || deleting}
-            />
-          </div>
 
           <div className="appointment-form__footer">
             {isEdit ? (

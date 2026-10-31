@@ -53,8 +53,10 @@
 .dh-table {
   display: flex;
   flex-direction: column;
-  /* header + 3 patient rows are visible, the rest scrolls */
-  max-height: 222px;
+  flex: 1;
+  /* the table fills the card; a long list scrolls inside it */
+  min-height: 420px;
+  max-height: 75vh;
   overflow-y: auto;
 }
 
@@ -154,7 +156,8 @@
 
 @media (max-width: 760px) {
   .dh-table {
-    max-height: 366px;
+    min-height: 0;
+    max-height: 70vh;
   }
 
   .dh-table-head {
@@ -178,4 +181,43 @@
     align-items: flex-end;
     gap: 8px;
   }
+}
+
+/* ---------- the register is the main part of the page: bigger and fills the left side ---------- */
+
+.dh-register {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dh-register .dh-search,
+.dh-register .dh-select {
+  padding: 13px 16px;
+  font-size: 15px;
+}
+
+.dh-register .dh-table-row {
+  padding: 16px 12px;
+  font-size: 15px;
+}
+
+.dh-register .dh-table-head {
+  padding-top: 6px;
+  padding-bottom: 12px;
+  font-size: 12px;
+}
+
+.dh-register .dh-avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 13px;
+}
+
+.dh-register .dh-patient-name {
+  font-size: 15px;
+}
+
+.dh-register .dh-patient-sub {
+  font-size: 13px;
 }

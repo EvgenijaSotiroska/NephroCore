@@ -55,14 +55,13 @@
 .ph-hero {
   position: relative;
   width: 100%;
-  min-height: 300px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   overflow: hidden;
   background-image: url("../../../assets/images/hero-background.jpg");
   background-size: cover;
   background-position: center;
-  padding-bottom: 56px; /* room for the stat row overlapping the hero */
   box-sizing: border-box;
 }
 
@@ -83,113 +82,101 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 52px 32px;
   box-sizing: border-box;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 24px;
+  gap: 40px;
   color: #ffffff;
 }
 
 .ph-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 18px;
-  padding: 7px 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.ph-hero-badge::before {
-  content: "";
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #0ea5e9;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .ph-hero-title {
-  margin: 0 0 10px;
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  margin: 0 0 8px;
+  font-size: 2.6rem;
   font-weight: 600;
-  font-size: 3.2rem;
   line-height: 1.15;
 }
 
 .ph-hero-name {
-  background: linear-gradient(90deg, #5eead4, #38bdf8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #7fe0d9;
 }
 
 .ph-hero-subtitle {
   margin: 0;
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.82);
 }
 
+/* the current stage: plain text on the image with a vertical line, not a box */
 .ph-stage-block {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  max-width: 190px;
-  padding: 12px 20px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  gap: 3px;
+  max-width: 300px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.ph-stage-block-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .ph-stage-block-code {
-  font-size: 20px;
+  font-size: 2.2rem;
   font-weight: 700;
+  line-height: 1.1;
 }
 
 .ph-stage-block-range {
-  font-size: 12px;
-  opacity: 0.85;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .ph-stage-block-desc {
   margin-top: 6px;
-  font-size: 11px;
-  line-height: 1.35;
-  opacity: 0.9;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.86);
 }
 
-/* stage colours (used by the hero block and the small pill on each visit) */
-.ph-stage-good {
-  background: #d9f7f6;
-  color: #087f7b;
+/* the stage code takes the colour of its severity */
+.ph-stage-good .ph-stage-block-code {
+  color: #7fe9dc;
 }
 
-.ph-stage-warn {
-  background: #ffe8d1;
-  color: #c9701c;
+.ph-stage-warn .ph-stage-block-code {
+  color: #fcd34d;
 }
 
-.ph-stage-alert {
-  background: #f8d4d4;
-  color: #b3453f;
+.ph-stage-alert .ph-stage-block-code {
+  color: #fca5a5;
 }
 
-/* ==================== STAT ROW ==================== */
+/* ==================== KEY FIGURES (square cells right under the image) ==================== */
 
 .ph-stats {
+  background: #ffffff;
+  border-bottom: 1px solid #dbe4ee;
+  margin-bottom: 28px;
+}
+
+.ph-stats-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: -40px; /* overlaps the hero */
-  margin-bottom: 28px;
-  position: relative;
-  z-index: 2;
 }
 
 /* ==================== DASHBOARD GRID ==================== */
@@ -350,7 +337,7 @@
       "side    main";
   }
 
-  .ph-stats {
+  .ph-stats-inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -370,7 +357,12 @@
   .ph-hero-inner {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0 20px;
+    padding: 36px 20px;
+  }
+
+  .ph-stats-inner {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
   }
 
   .ph-hero-title {

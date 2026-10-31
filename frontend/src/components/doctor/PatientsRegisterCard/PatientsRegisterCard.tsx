@@ -51,7 +51,7 @@ export default function PatientsRegisterCard({ patients, appointments }: Patient
   }, [patients, search, stage, status]);
 
   return (
-    <section className="dh-card">
+    <section className="dh-card dh-register">
            <div className="dh-card-head">
         <div>
           <span className="dh-eyebrow">Регистар</span>

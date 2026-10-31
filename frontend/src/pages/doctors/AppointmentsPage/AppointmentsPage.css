@@ -31,21 +31,44 @@
   text-transform: uppercase;
 }
 
-.doctor-home__header h1 {
+.doctor-home__heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.doctor-home__icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: linear-gradient(145deg, #14b8a6 0%, #0ea5e9 100%);
+  box-shadow: 0 8px 18px rgba(14, 165, 233, 0.28);
+}
+
+.doctor-home__icon svg {
+  font-size: 30px;
+}
+
+.doctor-home__title {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 36px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   color: #17243a;
 }
 
 .doctor-home__subtitle {
-  max-width: 620px;
-  margin: 10px 0 0;
+  margin: 4px 0 0;
   color: #718096;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.4;
 }
 
 .doctor-home__primary-button {
@@ -126,8 +149,17 @@
     flex-direction: column;
   }
 
-  .doctor-home__header h1 {
-    font-size: 30px;
+  .doctor-home__icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .doctor-home__title {
+    font-size: 22px;
+  }
+
+  .doctor-home__subtitle {
+    font-size: 14px;
   }
 
   .doctor-home__primary-button {

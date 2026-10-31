@@ -28,19 +28,18 @@
   color: #b3453f;
 }
 
-/* ---------- Hero (full width, same as the patient page) ---------- */
+/* ---------- Header (same as the patient page) ---------- */
 
 .dh-hero {
   position: relative;
   width: 100%;
-  min-height: 300px;
+  min-height: 280px;
   display: flex;
   align-items: center;
   overflow: hidden;
   background-image: url("../../../assets/images/hero-background.jpg");
   background-size: cover;
   background-position: center;
-  padding-bottom: 56px; /* room for the stat row overlapping the hero */
   box-sizing: border-box;
 }
 
@@ -61,76 +60,92 @@
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 52px 32px;
   box-sizing: border-box;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 24px;
+  gap: 40px;
   color: #ffffff;
 }
 
 .dh-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 18px;
-  padding: 7px 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.dh-hero-badge::before {
-  content: "";
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #0ea5e9;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .dh-hero-title {
-  margin: 0 0 10px;
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  margin: 0 0 8px;
+  font-size: 2.6rem;
   font-weight: 600;
-  font-size: 3.2rem;
   line-height: 1.15;
 }
 
 .dh-hero-name {
-  background: linear-gradient(90deg, #5eead4, #38bdf8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #7fe0d9;
 }
 
 .dh-hero-subtitle {
   margin: 0;
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.82);
 }
 
-/* ---------- Stat row ---------- */
+/* today's date: plain big text on the image with a vertical line, like the stage on the patient page */
+.dh-date-block {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 28px;
+  border-left: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.dh-date-block-label {
+  font-size: 15px;
+  text-transform: capitalize;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.dh-date-block-day {
+  font-size: 3.2rem;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #ffffff;
+}
+
+.dh-date-block-year {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.78);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Key figures (square cells right under the image) ---------- */
 
 .dh-stats {
+  background: #ffffff;
+  border-bottom: 1px solid #dbe4ee;
+}
+
+.dh-stats-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: -40px;
-  position: relative;
-  z-index: 2;
 }
 
 /* ---------- Layout ---------- */
 
 .dh-grid {
+  margin-top: 28px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 400px;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .dh-col {
@@ -200,7 +215,7 @@
     grid-template-columns: 1fr;
   }
 
-  .dh-stats {
+  .dh-stats-inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -213,14 +228,19 @@
   .dh-hero-inner {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0 20px;
+    padding: 36px 20px;
   }
 
   .dh-hero-title {
     font-size: 2.3rem;
   }
 
-  .dh-stats {
+  .dh-date-block-day {
+    font-size: 2.4rem;
+  }
+
+  .dh-stats-inner {
     grid-template-columns: 1fr;
+    padding: 0 16px;
   }
 }

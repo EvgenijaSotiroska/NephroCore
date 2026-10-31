@@ -3,6 +3,7 @@ import {
   AppBar,
   Box,
   Button,
+  Divider,
   Drawer,
   IconButton,
   List,
@@ -14,7 +15,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useState } from "react";
 
 import AuthToggle from "../../auth/AuthToggle/AuthToggle";
@@ -30,8 +31,9 @@ interface HeaderProps {
 export default function Header({ onLogin, onRegister }: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { user, isLoggedIn } = useAuth();
+  const { user, isLoggedIn, logout } = useAuth();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const isDoctor = isLoggedIn && user?.role === "doctor";
 
@@ -55,6 +57,12 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
   const isActive = (path: string) =>
     pathname === path || pathname.startsWith(path + "/");
 
+  const handleLogout = () => {
+    setDrawerOpen(false);
+    logout();
+    navigate("/", { replace: true });
+  };
+
   return (
     <Box>
       {/* ================= HEADER ================= */}
@@ -64,8 +72,8 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
         className="header-appbar"
       >
         <Toolbar sx={{ display: "flex", py: 1 }}>
-          {/* Mobile menu - doctors only */}
-          {isDoctor && (
+          {/* Mobile menu - everyone who is logged in (it holds the logout) */}
+          {isLoggedIn && (
             <IconButton
               size="large"
               edge="start"
@@ -185,7 +193,7 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
       </AppBar>
 
       {/* ================= MOBILE DRAWER ================= */}
-      {isDoctor && (
+      {isLoggedIn && (
         <Drawer
           anchor="left"
           open={drawerOpen}
@@ -218,6 +226,16 @@ export default function Header({ onLogin, onRegister }: HeaderProps) {
                   </ListItem>
                 );
               })}
+            </List>
+
+            {pages.length > 0 && <Divider />}
+
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemText primary="Одјава" />
+                </ListItemButton>
+              </ListItem>
             </List>
           </Box>
         </Drawer>
