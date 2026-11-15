@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { usePatientProfile } from "../../../hooks/usePatientProfile.ts";
-import CreatePatient from "../CreatePatientPage/CreatePatient.tsx";
+import CreatePatientPage from "../CreatePatientPage/CreatePatientPage.tsx";
 
 // The "edit profile" page: the same form as "create patient", filled with the saved values.
 export default function EditPatientPage() {
@@ -24,5 +24,5 @@ export default function EditPatientPage() {
   }
 
   // key: a different patient always starts with a fresh form
-  return <CreatePatient key={profile.id} existing={profile} />;
+  return <CreatePatientPage key={profile.id} existing={profile} />;
 }

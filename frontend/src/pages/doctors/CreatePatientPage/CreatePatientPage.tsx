@@ -13,7 +13,7 @@ import CkdSection from "../../../components/doctor/PatientForm/CkdSection.tsx";
 import DialysisSection from "../../../components/doctor/PatientForm/DialysisSection.tsx";
 import InviteCodeCard from "../../../components/doctor/InviteCodeCard/InviteCodeCard.tsx";
 import { emptyLists, listsFromProfile, type ClinicalLists } from "../../../components/doctor/PatientForm/patientForm.ts";
-import "./CreatePatient.css";
+import "./CreatePatientPage.css";
 
 const initialForm: CreatePatientRequest = {
   full_name: "",
@@ -58,7 +58,7 @@ interface CreatePatientProps {
   existing?: PatientProfile;
 }
 
-export default function CreatePatient({ existing }: CreatePatientProps) {
+export default function CreatePatientPage({ existing }: CreatePatientProps) {
   const [form, setForm] =
     useState<CreatePatientRequest>(existing ? formFromProfile(existing) : initialForm);
 

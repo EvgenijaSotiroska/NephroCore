@@ -5,7 +5,7 @@ import {ProtectedRoute} from "./components/protectedRoute/ProtectedRoute";
 import SessionExpiryBanner from "./components/SessionExpiryBanner";
 import Layout from "./components/layout/Layout/Layout";
 import HomePage from "./pages/home/HomePage";
-import CreatePatient from "./pages/doctors/CreatePatientPage/CreatePatient";
+import CreatePatientPage from "./pages/doctors/CreatePatientPage/CreatePatientPage.tsx";
 import EditPatientPage from "./pages/doctors/EditPatientPage/EditPatientPage";
 import EnterResultsPage from "./pages/doctors/EnterResultsPage/EnterResultsPage.tsx";
 import PatientProfilePage from "./pages/doctors/PatientDashboardPage/PatientDashboardPage.tsx";
@@ -27,7 +27,7 @@ function AppRoutes() {
                     path="/createPatientProfile"
                     element={
                         <ProtectedRoute allowedRoles={["doctor"]}>
-                            <CreatePatient/>
+                            <CreatePatientPage/>
                         </ProtectedRoute>
                     }
                 />

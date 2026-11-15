@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import (
     get_current_user,
+    get_doctor_profile,
     get_own_patient_profile,
     get_owned_patient,
     patient_ids_of,
@@ -51,9 +52,10 @@ def create_medication(
     current_doctor: User = Depends(require_doctor),
 ):
     patient = get_owned_patient(db, data.patient_id, current_doctor, active_only=True)
+    doctor_profile = get_doctor_profile(db, current_doctor)
 
     medication = Medication(
-        doctor_id=current_doctor.id,
+        doctor_id=doctor_profile.id,
         patient_id=patient.id,
         name=data.name,
         description=data.description,

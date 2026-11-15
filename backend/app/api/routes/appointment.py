@@ -16,6 +16,7 @@ from app.schemas.appointment import (
 )
 from app.api.deps import (
     get_current_user,
+    get_doctor_profile,
     get_own_patient_profile,
     get_owned_appointment,
     get_owned_patient,
@@ -43,9 +44,10 @@ def create_appointment(
     patient = get_owned_patient(
         db, appointment_data.patient_id, current_doctor, active_only=True
     )
+    doctor_profile = get_doctor_profile(db, current_doctor)
 
     appointment = Appointment(
-        doctor_id=current_doctor.id,
+        doctor_id=doctor_profile.id,
         patient_id=patient.id,
         scheduled_at=appointment_data.scheduled_at,
         duration_minutes=appointment_data.duration_minutes,

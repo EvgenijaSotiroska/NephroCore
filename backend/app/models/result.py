@@ -34,7 +34,7 @@ class Visit(Base):
         index=True,
     )
 
-    doctor_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctor_profiles.id"), nullable=False)
 
     visit_date = Column(Date, nullable=False)
     ckd_stage = Column(Enum(CKDStage, name="ckd_stage_enum"), nullable=False)
@@ -51,7 +51,7 @@ class Visit(Base):
     )
 
     patient = relationship("PatientProfile", back_populates="visits")
-    doctor = relationship("User", foreign_keys=[doctor_id])
+    doctor = relationship("DoctorProfile", foreign_keys=[doctor_id])
 
 
 class LabResult(Base):

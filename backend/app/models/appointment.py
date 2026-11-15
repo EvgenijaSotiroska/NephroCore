@@ -23,7 +23,7 @@ class Appointment(Base):
 
     doctor_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("doctor_profiles.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -80,7 +80,7 @@ class Appointment(Base):
     )
 
     doctor = relationship(
-        "User",
+        "DoctorProfile",
         foreign_keys=[doctor_id],
     )
 

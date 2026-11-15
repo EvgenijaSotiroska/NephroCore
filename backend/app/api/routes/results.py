@@ -21,6 +21,7 @@ from app.schemas.result import (
 
 from app.api.deps import (
     get_current_user,
+    get_doctor_profile,
     get_owned_patient,
     get_owned_visit,
     get_viewable_patient,
@@ -61,10 +62,11 @@ def create_visit(
     current_doctor: User = Depends(require_doctor),
 ):
     patient = get_owned_patient(db, payload.patient_id, current_doctor, active_only=True)
+    doctor_profile = get_doctor_profile(db, current_doctor)
 
     visit = Visit(
         patient_id=patient.id,
-        doctor_id=current_doctor.id,
+        doctor_id=doctor_profile.id,
         visit_date=payload.visit_date,
         ckd_stage=payload.ckd_stage,
         notes=payload.notes,

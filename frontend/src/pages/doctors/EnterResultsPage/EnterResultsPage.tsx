@@ -13,6 +13,11 @@ import {todayIso} from "../../../utils/date.ts";
 // Fewest lab values that must be filled in for a result to be saved (prevents empty results).
 const MIN_RESULT_VALUES = 3;
 
+// The reference shown under a field comes from the server. These replace it where the saved text is not what we want to show.
+const REFERENCE_OVERRIDES: Record<string, string> = {
+  egfr: "≥ 90",
+};
+
 export default function EnterResults() {
   const { patients, loading: patientsLoading } = usePatients();
   const {
@@ -230,7 +235,7 @@ export default function EnterResults() {
                       }
                     />
                     <span className="field-hint">
-                      {param.unit} · Референца: {param.reference_mk}
+                      {param.unit} · Референца: {REFERENCE_OVERRIDES[param.key] ?? param.reference_mk}
                     </span>
                     {extraKeys.includes(param.key) && (
                       <button

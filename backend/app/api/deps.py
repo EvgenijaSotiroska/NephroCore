@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.security import decode_token
 from app.db.session import get_db
 from app.models.appointment import Appointment
+from app.models.doctor_profile import DoctorProfile
 from app.models.patient_profile import PatientProfile
 from app.models.result import Visit
 from app.models.user import User, UserRole
@@ -69,6 +70,15 @@ def patient_ids_of(doctor: User):
 def get_own_patient_profile(db: Session, user: User) -> PatientProfile:
     """The logged-in patient's own profile."""
     profile = db.scalar(select(PatientProfile).where(PatientProfile.user_id == user.id))
+    if profile is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found.")
+    return profile
+
+
+def get_doctor_profile(db: Session, doctor: User) -> DoctorProfile:
+    """The logged-in doctor's own profile. Visits/appointments/medications record this
+    profile's id (not the user id) as their doctor_id."""
+    profile = db.scalar(select(DoctorProfile).where(DoctorProfile.user_id == doctor.id))
     if profile is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found.")
     return profile
