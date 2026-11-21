@@ -13,6 +13,19 @@
   margin: 0 auto 28px;
 }
 
+.results-back-link {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #71819a;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.results-back-link:hover {
+  color: #17243a;
+  text-decoration: underline;
+}
+
 .results-header h2 {
   margin: 0 0 6px;
   font-family: Georgia, "Times New Roman", serif;

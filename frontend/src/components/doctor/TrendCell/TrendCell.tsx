@@ -22,13 +22,21 @@ function pickAxisTicks(times: number[]): number[] {
 
 const dateKeyOf = (time: number) => toDateKey(new Date(time));
 
+// Line color reflects how the patient is doing: green when improving, red when
+// worsening, yellow when unchanged since the previous result.
+const TONE_COLORS: Record<"good" | "warn" | "bad" | "flat", string> = {
+  good: "#16a34a",
+  warn: "#dc2626",
+  bad: "#dc2626",
+  flat: "#d97706",
+};
+
 interface TrendCellProps {
   param: ParameterTrend;
-  color: string;
   onRemove?: () => void; // only charts added from the dropdown can be removed
 }
 
-export default function TrendCell({ param, color, onRemove }: TrendCellProps) {
+export default function TrendCell({ param, onRemove }: TrendCellProps) {
   const points = param.points;
 
   // The horizontal axis is real time: the chart starts at the first result date and ends at
@@ -56,6 +64,7 @@ export default function TrendCell({ param, color, onRemove }: TrendCellProps) {
     tone = improving ? "good" : param.is_out_of_range ? "bad" : "warn";
   }
 
+  const color = TONE_COLORS[tone];
   const gradientId = `grad-${param.key}`;
 
   return (

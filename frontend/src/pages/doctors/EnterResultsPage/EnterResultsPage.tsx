@@ -1,6 +1,6 @@
 import "./EnterResultsPage.css";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { useResultParameters } from "../../../hooks/useResultParameters.ts";
 import { usePatients } from "../../../hooks/usePatients.ts";
@@ -108,6 +108,12 @@ export default function EnterResults() {
   return (
     <div className="results-page">
       <div className="results-header">
+        <Link
+          to={patientId ? `/patients/${patientId}/trends` : "/doctor"}
+          className="results-back-link"
+        >
+          ← Врати се на пациент
+        </Link>
         <h2>Внеси резултати</h2>
         <p>Изберете пациент и стадиум — параметрите се прилагодуваат автоматски.</p>
       </div>

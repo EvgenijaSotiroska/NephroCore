@@ -14,16 +14,6 @@ import "./PatientDashboardPage.css";
 
 // ==================== Helpers ====================
 
-const CHART_COLORS: Record<string, string> = {
-  egfr: "#08aaa5",
-  creatinine: "#f97316",
-  potassium: "#8b5cf6",
-  phosphate: "#0ea5e9",
-  hemoglobin: "#f4607a",
-  bp_systolic: "#64748b",
-};
-const FALLBACK_COLORS = ["#08aaa5", "#f97316", "#8b5cf6", "#0ea5e9", "#f4607a", "#64748b"];
-
 // ==================== Main page ====================
 
 export default function PatientDashboardPage() {
@@ -246,11 +236,10 @@ export default function PatientDashboardPage() {
                 </div>
               ) : (
                 <div className="trend-grid">
-                  {visibleParams.map((param, index) => (
+                  {visibleParams.map((param) => (
                     <TrendCell
                       key={param.key}
                       param={param}
-                      color={CHART_COLORS[param.key] ?? FALLBACK_COLORS[index % FALLBACK_COLORS.length]}
                       onRemove={
                         param.is_default
                           ? undefined
