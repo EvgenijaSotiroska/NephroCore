@@ -40,6 +40,8 @@ The interface is in Macedonian. The code, comments and API messages are in Engli
   saved, and earlier ones can be opened again in a modal window.
 - **Appointments, medications and symptoms.** A calendar for appointments, a medication list for each patient, and the
   symptoms the patient reports between visits.
+- **Home blood pressure overview.** The patient's own home blood pressure readings since their last visit, with the average
+  and how many were above target.
 
 ### For patients
 - **Home page.** Current stage, latest results as a timeline, medications, symptoms, next appointment.
@@ -47,7 +49,8 @@ The interface is in Macedonian. The code, comments and API messages are in Engli
   in daily life and which warning signs to watch for. Saved, with history.
 - **Chat assistant.** A small chat window for questions about the patient's own results and medicines. The conversation is
   **not stored**: it exists only in the browser and disappears on refresh or logout.
-- **Symptom diary and medication reminders.**
+- **Symptom diary and home blood pressure diary.** The patient logs symptoms and home blood pressure readings between visits;
+  both are visible to their doctor.
 
 ---
 
@@ -74,7 +77,7 @@ NephroCore/
 │   │   ├── api/
 │   │   │   ├── deps.py          login check, role checks (doctor/patient), ownership checks
 │   │   │   └── routes/          auth, patients, results, trends, appointment, symptoms,
-│   │   │                        medications, doctors, ai, chat
+│   │   │                        medications, doctors, ai, chat, blood_pressure
 │   │   ├── core/                settings, security (JWT, passwords), rate limiter, lab parameters
 │   │   ├── db/                  database session and base class
 │   │   ├── models/              SQLAlchemy tables
@@ -110,11 +113,18 @@ NephroCore/
 ### Doctor analysis (with guideline sources)
 
 1. The doctor presses the button on a patient page.
-2. The backend loads **all visits** with their lab values, the symptoms reported since the last visit, and the active
-   medications. The patient's name and other identifying details are never sent to the AI.
-3. A short search sentence is built from the latest visit (stage, etiology, out-of-range values, comorbidities). It is turned
-   into an embedding with OpenAI, and the 5 closest guideline chunks are taken from the `document_chunks` table
-   (cosine distance, pgvector).
+2. The backend loads the patient's visits with their lab values, the symptoms reported since the last visit, the home blood
+   pressure diary since the last visit, and the active medications. To keep the prompt a reasonable size, only the first
+   visit ever (the baseline) plus the latest 3 visits are sent to the AI — a note in the prompt tells it exactly which visits
+   it got, so it does not treat the gap as one check-up interval. The patient's name and other identifying details are never
+   sent to the AI.
+3. Several short guideline-search sentences are built from the latest visits, not just one: one for the patient's stage and
+   cause, one for each clinical topic that has an out-of-range value (for example high potassium, low hemoglobin, raised
+   phosphate), one for diabetes therapy if the patient has diabetes, one for general lifestyle advice, and one for kidney
+   replacement planning once the patient reaches stage G4 or G5. Each sentence is turned into an embedding with OpenAI, the
+   closest chunks for each are taken from the `document_chunks` table (cosine distance, pgvector), and the results are
+   combined — up to 12 excerpts in total, so a patient with several issues gets excerpts on each of them rather than all 12
+   on a single topic.
 4. The prompt contains the patient data and the chunks as numbered excerpts: `[Извор 1] <document title>, PDF page N` followed by the text.
 5. Claude writes the analysis in Macedonian and cites only the number, for example `[Извор 3]`.
 6. The backend reads the cited numbers and adds an `ИЗВОРИ` list at the bottom, taking the document title and page from the
@@ -123,8 +133,9 @@ NephroCore/
 
 ### Patient explanation
 
-Same data, but no guideline search and a different prompt: plain language, no greeting, what the patient can do, and which
-warning signs to watch for. It is saved too.
+Similar patient data (the baseline visit plus the latest 2), but no guideline search and no home blood pressure diary, and a
+different prompt: plain language, no greeting, what the patient can do, and which warning signs to watch for. It is saved
+too.
 
 ### Patient chat
 
@@ -284,7 +295,8 @@ The full, interactive list is at `/docs` when the server runs. The main groups:
 | `/patients` | create, read, update, activate or deactivate patients | doctor (patients read their own profile at `/patients/me`) |
 | `/results` | visits and lab results, parameter definitions | doctor (patient reads their own) |
 | `/patients/{id}/trends` | chart data per parameter, with an `is_default` flag for the current stage | doctor, patient |
-| `/appointments`, `/medications`, `/symptoms` | the three lists | doctor and patient, each for their own data |
+| `/appointments`, `/medications`, `/symptoms`, `/blood-pressure` | the four lists | doctor and patient, each for their own data |
+| `/doctors/me` | the logged-in doctor's own profile | doctor |
 | `/patients/{id}/ai-analysis` | create (POST) and list (GET) clinical analyses | doctor |
 | `/patients/{id}/explain-results` | create (POST) and list (GET) patient explanations | patient |
 | `/patients/{id}/chat` | one chat message (POST), nothing stored | patient |
@@ -314,8 +326,11 @@ The full, interactive list is at `/docs` when the server runs. The main groups:
 - Doctor registration is open to anyone. A real deployment would need an approval or invitation step.
 - The AI analysis is a draft for a doctor. Whether a cited excerpt really supports a claim is not checked by the code, so the
   doctor must open the cited page and verify.
-- The guideline search uses one query built from the latest visit and returns 5 chunks for all topics, so some topics (for
-  example anemia or bone-mineral disorders) may not be covered by the retrieved excerpts.
+- The guideline search only looks for the clinical topics it already knows about (see `TOPIC_OF_PARAMETER` in
+  `build_context.py`); an out-of-range value outside that mapping gets no dedicated search, and only the latest 3 visits are
+  checked for out-of-range values in the first place.
+- Only the baseline visit plus the latest few are sent to the AI (3 for the doctor analysis, 2 for the patient explanation, 1
+  for the chat), to keep the prompt a reasonable size. The visits in between are not seen by the AI at all.
 - Patient explanations are shown to the patient without the doctor approving them first.
 - Dialysis and transplant patients use the same default parameters as other patients; separate profiles are not built yet.
 - Source lists show the document and page, but the PDF cannot be opened from the app yet.
