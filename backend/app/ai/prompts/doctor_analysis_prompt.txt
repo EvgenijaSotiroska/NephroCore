@@ -23,7 +23,7 @@ most right now, and how urgent the situation is (today / this visit / routine). 
 
 ШТО ДА СЕ НАПРАВИ
 This is the single action plan: tests to order or repeat, treatments to start or change, checks, and monitoring. At most 8
-items, most urgent first, grouped under ДЕНЕС, ОВАА ПОСЕТА, ВО СЛЕДНИТЕ 1-3 МЕСЕЦИ (skip a heading with no items). Each item
+items, most urgent first, grouped under ДЕНЕС, ВО СЛЕДНИТЕ 1-3 МЕСЕЦИ (skip a heading with no items). Each item
 is ONE line with three parts: the action, the reason in a short clause that uses this patient's value, and the result or
 threshold that would change the plan. If data that limits the analysis is missing (a test never done, a missing dose), add
 it here as an action; do not make a separate list. New medicines are named only here, never in the next section.

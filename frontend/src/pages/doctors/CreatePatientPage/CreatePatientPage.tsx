@@ -6,7 +6,8 @@ import type {
   CreatePatientResponse,
   PatientProfile,
 } from "../../../api/types/patient.ts";
-import { joinCodedList } from "../../../utils/patient.ts";
+import { DIALYSIS_STATUS_LABELS, STAGE_SHORT_LABELS } from "../../../constants";
+import { calculateAge, getInitials, joinCodedList, stageFromEgfr } from "../../../utils/patient.ts";
 import BasicInfoSection from "../../../components/doctor/PatientForm/BasicInfoSection.tsx";
 import ClinicalHistorySection from "../../../components/doctor/PatientForm/ClinicalHistorySection.tsx";
 import CkdSection from "../../../components/doctor/PatientForm/CkdSection.tsx";
@@ -169,68 +170,121 @@ export default function CreatePatientPage({ existing }: CreatePatientProps) {
     }
   }
 
+  const age = calculateAge(form.date_of_birth || null);
+  const stage = stageFromEgfr(form.baseline_egfr);
+  const backHref = existing ? `/patients/${existing.id}/trends` : "/doctor";
+  const saving = creating || updating;
+
   return (
     <div className="create-patient-page">
 
-      {/* ==================== PAGE HEADER ==================== */}
+      {/* ==================== HERO ==================== */}
 
-      <div className="create-patient-header">
-        <h2>{existing ? "Измени профил на пациент" : "Креирај нов пациент"}</h2>
-
-        <p>
-          Пополнете ги информациите. Полињата со * се задолжителни.
-        </p>
+      <div className="cp-hero">
+        <div className="cp-hero-inner">
+          <Link to={backHref} className="cp-back-link">
+            ← {existing ? "Врати се на пациент" : "Врати се на преглед"}
+          </Link>
+          <h1 className="cp-hero-title">
+            {existing ? "Измени профил на пациент" : "Креирај нов пациент"}
+          </h1>
+          <p className="cp-hero-sub">
+            {existing
+              ? `Ги уредувате податоците на ${existing.full_name}`
+              : "Пополнете ги информациите. Полињата со * се задолжителни."}
+          </p>
+        </div>
       </div>
 
-      <form
-        className="create-patient-form"
-        onSubmit={handleSubmit}
-      >
+      {/* ==================== LAYOUT ==================== */}
 
-        {/* ==================== BASIC INFORMATION ==================== */}
+      <form className="cp-layout" onSubmit={handleSubmit}>
 
-        <BasicInfoSection form={form} update={update} />
+        <div className="cp-main">
+          <BasicInfoSection form={form} update={update} />
+          <ClinicalHistorySection
+            form={form}
+            update={update}
+            lists={lists}
+            onListChange={setList}
+          />
+          <CkdSection form={form} update={update} />
+          <DialysisSection form={form} update={update} />
+        </div>
 
-        {/* ==================== CLINICAL HISTORY ==================== */}
+        {/* ==================== SUMMARY SIDEBAR ==================== */}
 
-        <ClinicalHistorySection
-          form={form}
-          update={update}
-          lists={lists}
-          onListChange={setList}
-        />
+        <aside className="cp-sidebar">
+          <div className="cp-summary-card">
 
-        {/* ==================== CKD ==================== */}
+            <div className="summary-patient">
+              <div className="summary-avatar">
+                {form.full_name.trim() ? getInitials(form.full_name) : "?"}
+              </div>
+              <div>
+                <div className="summary-patient-name">
+                  {form.full_name.trim() || "Нов пациент"}
+                </div>
+                <div className="summary-patient-sub">
+                  {[
+                    age !== null ? `${age} год.` : null,
+                    form.sex === "male" ? "Машки" : "Женски",
+                  ].filter(Boolean).join(" · ")}
+                </div>
+              </div>
+            </div>
 
-        <CkdSection form={form} update={update} />
+            <div className="summary-divider" />
 
-        {/* ==================== DIALYSIS ==================== */}
+            <div className="summary-row">
+              <span className="summary-label">Проценет стадиум</span>
+              <span className="summary-stage-badge">
+                {stage ?? "—"}
+              </span>
+            </div>
 
-        <DialysisSection form={form} update={update} />
+            <div className="summary-row">
+              <span className="summary-label">Статус на дијализа</span>
+              <span className="summary-value">
+                {DIALYSIS_STATUS_LABELS[form.dialysis_status]}
+              </span>
+            </div>
 
-        {/* ==================== SUBMIT ==================== */}
+            {stage && (
+              <p className="summary-stage-note">
+                {STAGE_SHORT_LABELS[stage]}, според внесениот почетен eGFR.
+              </p>
+            )}
 
-        <button
-          type="submit"
-          className="create-patient-button"
-          disabled={creating || updating}
-        >
-          {existing
-            ? (updating ? "Зачувување..." : "Зачувај промени")
-            : (creating ? "Креирање..." : "Креирај пациент и генерирај код за покана")}
-        </button>
+            <div className="summary-divider" />
 
-        {existing && (
-          <Link to={`/patients/${existing.id}/trends`} className="create-patient-cancel">
-            Откажи
-          </Link>
-        )}
+            <button
+              type="submit"
+              className="cp-submit"
+              disabled={saving}
+            >
+              {existing
+                ? (updating ? "Зачувување..." : "Зачувај промени")
+                : (creating ? "Креирање..." : "Креирај пациент")}
+            </button>
+
+            {existing && (
+              <Link to={`/patients/${existing.id}/trends`} className="cp-cancel">
+                Откажи
+              </Link>
+            )}
+          </div>
+        </aside>
 
       </form>
 
       {/* ==================== SUCCESS ==================== */}
 
-      {result && <InviteCodeCard result={result} />}
+      {result && (
+        <div className="cp-success-wrap">
+          <InviteCodeCard result={result} />
+        </div>
+      )}
 
     </div>
   );

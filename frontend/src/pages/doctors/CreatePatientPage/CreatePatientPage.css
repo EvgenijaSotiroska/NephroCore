@@ -1,71 +1,195 @@
 .create-patient-page {
+  --cp-gutter: clamp(24px, 6vw, 110px);
+
   min-height: 100vh;
   background: #f7f9fc;
-  padding: 28px 40px 60px;
   box-sizing: border-box;
 }
 
 
-/* ==================== HEADER ==================== */
+/* ==================== HERO ==================== */
 
-.create-patient-header {
-  max-width: 1200px;
-  margin: 0 auto 28px;
+.cp-hero {
+  background: linear-gradient(90deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #ffffff;
+  padding: 26px var(--cp-gutter) 34px;
 }
 
-.create-patient-header h2 {
+.cp-hero-inner {
+  max-width: 1400px;
+}
+
+.cp-back-link {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.cp-back-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.cp-hero-title {
   margin: 0 0 6px;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 400;
-  color: #17243a;
+  color: #ffffff;
 }
 
-.create-patient-header p {
+.cp-hero-sub {
   margin: 0;
-  color: #71819a;
-  font-size: 16px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
 }
 
 
-/* ==================== FORM ==================== */
+/* ==================== LAYOUT ==================== */
 
-.create-patient-form {
-  max-width: 1200px;
+.cp-layout {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 8px 44px 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  align-items: start;
+  gap: 0 32px;
+  padding: 32px var(--cp-gutter) 60px;
+}
+
+.cp-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ==================== SUMMARY SIDEBAR ==================== */
+
+.cp-sidebar {
+  position: sticky;
+  top: 24px;
+}
+
+.cp-summary-card {
   background: #ffffff;
   border: 1px solid #e5ebf2;
-  border-radius: 28px;
+  border-radius: 24px;
+  padding: 28px;
   box-shadow: 0 2px 8px rgba(31, 51, 73, 0.08);
+}
+
+.summary-patient {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.summary-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #d9f7f6;
+  color: #087f7b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.summary-patient-name {
+  color: #17243a;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.summary-patient-sub {
+  color: #8a9ab0;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #edf1f5;
+  margin: 20px 0;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.summary-row:last-of-type {
+  margin-bottom: 0;
+}
+
+.summary-label {
+  color: #71819a;
+  font-size: 14px;
+}
+
+.summary-value {
+  color: #17243a;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.summary-stage-badge {
+  background: #effaf8;
+  color: #087f7b;
+  border: 1px solid #c8eeea;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 999px;
+}
+
+.summary-stage-note {
+  margin: 12px 0 0;
+  color: #8a9ab0;
+  font-size: 13px;
 }
 
 
 /* ==================== SUBMIT ==================== */
 
-.create-patient-button {
+.cp-submit {
   width: 100%;
-  height: 56px;
-
+  height: 52px;
   border: none;
-  border-radius: 15px;
-
+  border-radius: 14px;
   background: #08aaa5;
   color: white;
-
   font-size: 16px;
   font-weight: 600;
-
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.1s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
-.create-patient-cancel {
+.cp-submit:hover {
+  background: #079792;
+}
+
+.cp-submit:active {
+  transform: translateY(1px);
+}
+
+.cp-submit:disabled {
+  background: #a9d8d6;
+  cursor: not-allowed;
+}
+
+.cp-cancel {
   display: block;
-  margin-top: 14px;
+  margin-top: 12px;
   text-align: center;
   color: #71819a;
   font-size: 14px;
@@ -73,55 +197,43 @@
   text-decoration: none;
 }
 
-.create-patient-cancel:hover {
+.cp-cancel:hover {
   color: #17243a;
 }
 
-.create-patient-button:hover {
-  background: #079792;
-}
 
-.create-patient-button:active {
-  transform: translateY(1px);
-}
+/* ==================== SUCCESS ==================== */
 
-.create-patient-button:disabled {
-  background: #a9d8d6;
-  cursor: not-allowed;
+.cp-success-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--cp-gutter) 48px;
 }
 
 
 /* ==================== RESPONSIVE ==================== */
 
-@media (max-width: 768px) {
-
-  .create-patient-page {
-    padding: 20px 16px 40px;
+@media (max-width: 1100px) {
+  .cp-layout {
+    grid-template-columns: 1fr;
   }
 
-  .create-patient-header h2 {
-    font-size: 30px;
+  .cp-sidebar {
+    position: static;
+    order: -1;
   }
-
-  .create-patient-form {
-    padding: 4px 22px 28px;
-    border-radius: 22px;
-  }
-
 }
 
-
-@media (max-width: 480px) {
-
-  .create-patient-page {
-    padding: 16px 12px 32px;
+@media (max-width: 768px) {
+  .cp-hero {
+    padding: 20px 16px 28px;
   }
 
-  .create-patient-header h2 {
+  .cp-layout {
+    padding: 24px 16px 40px;
+  }
+
+  .cp-hero-title {
     font-size: 27px;
-  }
-
-  .create-patient-form {
-    padding: 2px 16px 24px;
   }
 }

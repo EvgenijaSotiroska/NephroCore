@@ -11,8 +11,8 @@ interface Stat {
 
 const STATS: Stat[] = [
   { value: 23, label: "Лабораториски параметри" },
-  { value: 6, label: "Стадиуми на ХБИ (KDIGO)" },
-  { value: 4, label: "KDIGO упатства во базата на знаење" },
+  { value: 6, label: "Стадиуми на ХБИ" },
+  { value: 4, label: "KDIGO упатства за анализа" },
   { value: 24, suffix: "/7", label: "Достапност за пациентот" },
 ];
 
